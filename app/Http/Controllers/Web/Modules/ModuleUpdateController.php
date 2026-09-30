@@ -17,7 +17,7 @@ class ModuleUpdateController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Module {$module->name} updated successfully.",
+            'message' => __('messages.module_updated', ['name' => $module->name]),
         ]);
 
         return back();

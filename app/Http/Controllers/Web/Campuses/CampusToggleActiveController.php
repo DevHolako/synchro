@@ -18,11 +18,11 @@ class CampusToggleActiveController extends Controller
 
         $action->execute($campus);
 
-        $status = $campus->is_active ? 'activated' : 'deactivated';
+        $status = $campus->is_active ? __('messages.activated') : __('messages.deactivated');
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Campus {$campus->name} {$status} successfully.",
+            'message' => __('messages.campus_status_updated', ['name' => $campus->name, 'status' => $status]),
         ]);
 
         return back();

@@ -17,7 +17,7 @@ class BuildingUpdateController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Building {$building->name} updated successfully.",
+            'message' => __('messages.building_updated', ['name' => $building->name]),
         ]);
 
         return back();

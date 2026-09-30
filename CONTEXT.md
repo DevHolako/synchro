@@ -109,3 +109,10 @@ _Avoid_: Error, blocking issue
 **Soft Conflict**:
 A policy violation (such as room capacity overage or teacher-declared unavailability) that allows an administrator override recorded with an audit trail.
 _Avoid_: Warning, soft error
+
+### Localization & Multi-Language Standards
+
+**Full-Stack Localization (EN Base, FR Default Display)**:
+The application codebase and schemas are structured with English (`en`) as the base, while the user interface MUST display French (`fr`) by default. 100% full translation coverage is mandated across both frontend and backend. Zero user-facing strings (labels, descriptions, placeholders, table headers, buttons, badges, toasts, modal titles) may be hardcoded in JSX or PHP.
+_Avoid_: Hardcoded French strings, untranslated English strings, partial localization
+

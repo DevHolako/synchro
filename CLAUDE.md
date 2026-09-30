@@ -56,16 +56,27 @@ Synchro is the timetable scheduling and examination logistics platform for ISGA,
 
 ---
 
-## 🧪 5. Testing & Verification Workflow
+## 🌐 5. Full-Stack Localization (EN Base, FR Default Display, Zero Hardcoded Strings)
+
+- **Default Presentation is French (`fr`)**: The application user interface MUST display French (`fr`) by default.
+- **English (`en`) Base Parity**: All translation dictionaries (`fr.ts` and `en.ts`) must maintain 100% complete key parity.
+- **Zero Hardcoded Strings**: NEVER hardcode raw strings in React components, modals, tables, buttons, badges, tooltips, or toast notifications. All user-facing strings must use `const { t } = useTranslation()`.
+- **Backend Messages**: All controller flash messages, redirects, and validation feedback must use `__('messages.xxx', [...])` via `lang/fr/messages.php` and `lang/en/messages.php`.
+- **Tri-File Parity**: Every key must exist in `types.ts`, `fr.ts`, and `en.ts`.
+
+---
+
+## 🧪 6. Testing & Verification Workflow
 
 - **Pest Tests**: Run targeted tests with `php artisan test --compact --filter=TestName`.
 - **PHP Code Formatter**: Run `vendor/bin/pint --dirty --format agent` before finalizing changes.
 - **Frontend Typecheck**: Run `npm run types:check`.
+- **Frontend Linter**: Run `npx vp check resources/js`.
 - **Frontend Build**: Run `npm run build`.
 
 ---
 
-## 📦 6. Git Commit Standards
+## 📦 7. Git Commit Standards
 
 - Follow Conventional Commits: `<type>(<scope>): <subject>` (`feat`, `fix`, `test`, `docs`, `refactor`, `chore`).
 - Do not use `Co-Authored-By:` tags.

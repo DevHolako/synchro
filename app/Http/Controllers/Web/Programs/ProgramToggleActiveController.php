@@ -19,9 +19,11 @@ class ProgramToggleActiveController extends Controller
 
         $program = $action->execute($program);
 
+        $status = $program->is_active ? __('messages.activated') : __('messages.deactivated');
+
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Program {$program->name} ".($program->is_active ? 'activated' : 'deactivated').' successfully.',
+            'message' => __('messages.program_status_updated', ['name' => $program->name, 'status' => $status]),
         ]);
 
         return back();

@@ -2,6 +2,7 @@ import { Clock, Edit2, MapPin, Power, Sun, Users } from 'lucide-react';
 import React, { memo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { StudentGroup } from './types';
 
 interface StudentGroupsTableProps {
@@ -20,6 +21,7 @@ const StudentGroupRow = memo(function StudentGroupRow({
     onEdit: (group: StudentGroup) => void;
     onToggleActive: (group: StudentGroup) => void;
 }) {
+    const { t } = useTranslation();
     const modality = group.program?.program_modality;
     const isExecutive = modality === 'temps_amenage';
 
@@ -58,7 +60,7 @@ const StudentGroupRow = memo(function StudentGroupRow({
                         className="flex w-fit items-center gap-1 border-amber-500/40 bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400"
                     >
                         <Clock className="size-3" />
-                        Temps Aménagé
+                        {t('academic.modality_amenage')}
                     </Badge>
                 ) : (
                     <Badge
@@ -66,7 +68,7 @@ const StudentGroupRow = memo(function StudentGroupRow({
                         className="flex w-fit items-center gap-1 border-blue-500/40 bg-blue-50 text-blue-800 dark:bg-blue-950/20 dark:text-blue-400"
                     >
                         <Sun className="size-3" />
-                        Formation Initiale
+                        {t('academic.modality_initiale')}
                     </Badge>
                 )}
             </td>
@@ -79,7 +81,7 @@ const StudentGroupRow = memo(function StudentGroupRow({
                     </span>
                 ) : (
                     <span className="text-xs text-neutral-400 italic">
-                        All Campuses
+                        {t('rooms.all_campuses')}
                     </span>
                 )}
             </td>
@@ -93,7 +95,7 @@ const StudentGroupRow = memo(function StudentGroupRow({
                     <Users className="size-4 text-indigo-500" />
                     <span>{group.expected_headcount}</span>
                     <span className="text-xs font-normal text-neutral-400">
-                        students
+                        {t('academic.students_suffix')}
                     </span>
                 </div>
             </td>
@@ -104,14 +106,14 @@ const StudentGroupRow = memo(function StudentGroupRow({
                         variant="outline"
                         className="border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
                     >
-                        Active
+                        {t('common.active')}
                     </Badge>
                 ) : (
                     <Badge
                         variant="outline"
                         className="border-neutral-300 text-neutral-500"
                     >
-                        Inactive
+                        {t('common.inactive')}
                     </Badge>
                 )}
             </td>
@@ -122,7 +124,7 @@ const StudentGroupRow = memo(function StudentGroupRow({
                         variant="ghost"
                         size="icon"
                         onClick={() => onEdit(group)}
-                        title="Edit student group"
+                        title={t('common.edit')}
                     >
                         <Edit2 className="size-4" />
                     </Button>
@@ -131,7 +133,11 @@ const StudentGroupRow = memo(function StudentGroupRow({
                         variant="ghost"
                         size="icon"
                         onClick={() => onToggleActive(group)}
-                        title={group.is_active ? 'Deactivate' : 'Activate'}
+                        title={
+                            group.is_active
+                                ? t('common.deactivate')
+                                : t('common.activate')
+                        }
                         className={
                             group.is_active
                                 ? 'text-neutral-500 hover:text-red-600'
@@ -152,15 +158,17 @@ export function StudentGroupsTable({
     onToggleActive,
     onResetFilters,
 }: StudentGroupsTableProps) {
+    const { t } = useTranslation();
+
     if (studentGroups.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-300 p-12 text-center dark:border-neutral-700">
                 <Users className="size-12 text-neutral-400" />
                 <h3 className="mt-4 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                    No student groups found
+                    {t('academic.no_group_found')}
                 </h3>
                 <p className="mt-1 text-sm text-neutral-500">
-                    No student groups match the selected filters.
+                    {t('rooms.no_rooms_desc')}
                 </p>
                 <Button
                     variant="outline"
@@ -168,7 +176,7 @@ export function StudentGroupsTable({
                     className="mt-4"
                     onClick={onResetFilters}
                 >
-                    Clear filters
+                    {t('common.reset_filters')}
                 </Button>
             </div>
         );
@@ -179,14 +187,28 @@ export function StudentGroupsTable({
             <table className="w-full text-left text-sm">
                 <thead className="border-b border-neutral-200 bg-neutral-50/50 text-xs font-medium text-neutral-500 dark:border-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-400">
                     <tr>
-                        <th className="px-6 py-3">Group Name</th>
-                        <th className="px-6 py-3">Program & Department</th>
-                        <th className="px-6 py-3">Modality</th>
-                        <th className="px-6 py-3">Campus</th>
-                        <th className="px-6 py-3">Academic Year</th>
-                        <th className="px-6 py-3">Headcount</th>
-                        <th className="px-6 py-3">Status</th>
-                        <th className="px-6 py-3 text-right">Actions</th>
+                        <th className="px-6 py-3">
+                            {t('academic.col_group_name')}
+                        </th>
+                        <th className="px-6 py-3">
+                            {t('academic.col_program_dept')}
+                        </th>
+                        <th className="px-6 py-3">
+                            {t('academic.col_modality')}
+                        </th>
+                        <th className="px-6 py-3">
+                            {t('academic.col_campus')}
+                        </th>
+                        <th className="px-6 py-3">
+                            {t('academic.col_academic_year')}
+                        </th>
+                        <th className="px-6 py-3">
+                            {t('academic.col_headcount')}
+                        </th>
+                        <th className="px-6 py-3">{t('common.status')}</th>
+                        <th className="px-6 py-3 text-right">
+                            {t('common.actions')}
+                        </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">

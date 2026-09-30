@@ -12,6 +12,7 @@ import {
 import React, { memo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Room } from './types';
 
 interface RoomsTableProps {
@@ -30,6 +31,8 @@ const RoomRow = memo(function RoomRow({
     onEdit: (room: Room) => void;
     onToggleActive: (room: Room) => void;
 }) {
+    const { t } = useTranslation();
+
     const ratio =
         room.course_capacity > 0
             ? Math.round((room.exam_capacity / room.course_capacity) * 100)
@@ -52,14 +55,14 @@ const RoomRow = memo(function RoomRow({
                 )}
                 {room.floor !== null && (
                     <div className="text-xs text-neutral-400">
-                        Floor {room.floor}
+                        {t('common.floor')} {room.floor}
                     </div>
                 )}
             </td>
 
             <td className="px-6 py-4">
                 <div className="font-medium text-neutral-800 dark:text-neutral-200">
-                    {room.building?.name || 'Unknown Building'}
+                    {room.building?.name || t('common.unknown')}
                 </div>
                 <div className="text-xs text-neutral-500">
                     {room.building?.campus?.name} ({room.building?.campus?.code}
@@ -73,7 +76,7 @@ const RoomRow = memo(function RoomRow({
                     className="px-2.5 py-1 text-sm font-semibold"
                 >
                     <Users className="mr-1 size-3.5 text-blue-500" />
-                    {room.course_capacity} seats
+                    {room.course_capacity} {t('common.seats')}
                 </Badge>
             </td>
 
@@ -84,10 +87,10 @@ const RoomRow = memo(function RoomRow({
                         className="border-emerald-500/30 bg-emerald-50/50 px-2.5 py-1 text-sm font-semibold text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
                     >
                         <CheckCircle2 className="mr-1 size-3.5 text-emerald-500" />
-                        {room.exam_capacity} seats
+                        {room.exam_capacity} {t('common.seats')}
                     </Badge>
                     <span className="mt-0.5 text-[10px] text-neutral-400">
-                        {ratio}% density
+                        {ratio}% {t('common.density')}
                     </span>
                 </div>
             </td>
@@ -100,7 +103,7 @@ const RoomRow = memo(function RoomRow({
                             className="gap-1 bg-neutral-50 text-[11px] dark:bg-neutral-800"
                         >
                             <MonitorPlay className="size-3 text-indigo-500" />
-                            Projector
+                            {t('rooms.projector')}
                         </Badge>
                     )}
                     {room.is_lab && (
@@ -109,7 +112,7 @@ const RoomRow = memo(function RoomRow({
                             className="gap-1 bg-neutral-50 text-[11px] dark:bg-neutral-800"
                         >
                             <SlidersHorizontal className="size-3 text-purple-500" />
-                            Lab
+                            {t('rooms.lab')}
                         </Badge>
                     )}
                     {room.has_computers && (
@@ -118,7 +121,7 @@ const RoomRow = memo(function RoomRow({
                             className="gap-1 bg-neutral-50 text-[11px] dark:bg-neutral-800"
                         >
                             <Computer className="size-3 text-cyan-500" />
-                            PCs
+                            {t('rooms.computers')}
                         </Badge>
                     )}
                     {room.has_sound_system && (
@@ -127,7 +130,7 @@ const RoomRow = memo(function RoomRow({
                             className="gap-1 bg-neutral-50 text-[11px] dark:bg-neutral-800"
                         >
                             <Volume2 className="size-3 text-amber-500" />
-                            Audio
+                            {t('rooms.sound')}
                         </Badge>
                     )}
                     {!room.has_projector &&
@@ -142,11 +145,11 @@ const RoomRow = memo(function RoomRow({
             <td className="px-6 py-4">
                 {room.is_active ? (
                     <Badge className="border-transparent bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-                        Active
+                        {t('common.active')}
                     </Badge>
                 ) : (
                     <Badge variant="secondary" className="text-neutral-500">
-                        Inactive
+                        {t('common.inactive')}
                     </Badge>
                 )}
             </td>
@@ -158,7 +161,7 @@ const RoomRow = memo(function RoomRow({
                         size="icon"
                         className="size-8"
                         onClick={() => onEdit(room)}
-                        title="Edit Room"
+                        title={t('common.edit')}
                     >
                         <Edit2 className="size-3.5" />
                     </Button>
@@ -172,7 +175,11 @@ const RoomRow = memo(function RoomRow({
                                 : 'text-emerald-600 hover:text-emerald-700'
                         }`}
                         onClick={() => onToggleActive(room)}
-                        title={room.is_active ? 'Deactivate' : 'Activate'}
+                        title={
+                            room.is_active
+                                ? t('common.deactivate')
+                                : t('common.activate')
+                        }
                     >
                         <Power className="size-3.5" />
                     </Button>
@@ -188,15 +195,17 @@ export function RoomsTable({
     onToggleActive,
     onResetFilters,
 }: RoomsTableProps) {
+    const { t } = useTranslation();
+
     return (
         <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xs dark:border-neutral-800 dark:bg-neutral-900">
             <div className="border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
                 <div className="flex items-center justify-between">
                     <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                        Registered Rooms ({rooms.length})
+                        {t('rooms.table_title', { count: rooms.length })}
                     </h2>
                     <span className="text-xs text-neutral-500">
-                        Showing all spaces matching active filters
+                        {t('rooms.table_subtitle')}
                     </span>
                 </div>
             </div>
@@ -205,11 +214,10 @@ export function RoomsTable({
                 <div className="flex flex-col items-center justify-center p-12 text-center">
                     <DoorClosed className="size-12 text-neutral-300 dark:text-neutral-700" />
                     <h3 className="mt-4 text-base font-medium text-neutral-900 dark:text-neutral-100">
-                        No rooms match your filters
+                        {t('rooms.no_rooms_found')}
                     </h3>
                     <p className="mt-1 text-sm text-neutral-500">
-                        Try adjusting your search query or clear the active
-                        filters.
+                        {t('rooms.no_rooms_desc')}
                     </p>
                     <Button
                         variant="outline"
@@ -217,7 +225,7 @@ export function RoomsTable({
                         onClick={onResetFilters}
                         className="mt-4"
                     >
-                        Reset Filters
+                        {t('common.reset_filters')}
                     </Button>
                 </div>
             ) : (
@@ -225,18 +233,26 @@ export function RoomsTable({
                     <table className="w-full text-left text-sm">
                         <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-600 uppercase dark:border-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-400">
                             <tr>
-                                <th className="px-6 py-3.5">Room & Code</th>
-                                <th className="px-6 py-3.5">Location</th>
-                                <th className="px-6 py-3.5 text-center">
-                                    Course Capacity
+                                <th className="px-6 py-3.5">
+                                    {t('rooms.col_room_code')}
+                                </th>
+                                <th className="px-6 py-3.5">
+                                    {t('rooms.col_location')}
                                 </th>
                                 <th className="px-6 py-3.5 text-center">
-                                    Exam Capacity
+                                    {t('rooms.col_course_cap')}
                                 </th>
-                                <th className="px-6 py-3.5">Equipment</th>
-                                <th className="px-6 py-3.5">Status</th>
+                                <th className="px-6 py-3.5 text-center">
+                                    {t('rooms.col_exam_cap')}
+                                </th>
+                                <th className="px-6 py-3.5">
+                                    {t('rooms.col_equipment')}
+                                </th>
+                                <th className="px-6 py-3.5">
+                                    {t('common.status')}
+                                </th>
                                 <th className="px-6 py-3.5 text-right">
-                                    Actions
+                                    {t('common.actions')}
                                 </th>
                             </tr>
                         </thead>

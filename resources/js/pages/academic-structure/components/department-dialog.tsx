@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Department } from './types';
 
 interface DepartmentDialogProps {
@@ -26,6 +27,7 @@ export function DepartmentDialog({
     onOpenChange,
     departmentToEdit,
 }: DepartmentDialogProps) {
+    const { t } = useTranslation();
     const isEditing = Boolean(departmentToEdit);
 
     const form = useForm({
@@ -60,18 +62,14 @@ export function DepartmentDialog({
         if (isEditing && departmentToEdit) {
             form.put(`/departments/${departmentToEdit.id}`, {
                 onSuccess: () => {
-                    toast.success(
-                        `Department ${form.data.name} updated successfully.`,
-                    );
+                    toast.success(t('toasts.department_updated'));
                     onOpenChange(false);
                 },
             });
         } else {
             form.post('/departments', {
                 onSuccess: () => {
-                    toast.success(
-                        `Department ${form.data.name} created successfully.`,
-                    );
+                    toast.success(t('toasts.department_created'));
                     onOpenChange(false);
                 },
             });
@@ -85,25 +83,30 @@ export function DepartmentDialog({
                     <DialogHeader>
                         <DialogTitle>
                             {isEditing
-                                ? 'Edit Academic Department'
-                                : 'Create Academic Department'}
+                                ? t('academic.dept_dialog_edit_title', {
+                                      name: departmentToEdit?.name ?? '',
+                                  })
+                                : t('academic.dept_dialog_create_title')}
                         </DialogTitle>
                         <DialogDescription>
-                            Organize faculties, programs, and student cohorts
-                            within a central department.
+                            {t('academic.dept_dialog_desc')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="dept_name">Department Name *</Label>
+                            <Label htmlFor="dept_name">
+                                {t('academic.dept_name')}
+                            </Label>
                             <Input
                                 id="dept_name"
                                 value={form.data.name}
                                 onChange={(e) =>
                                     form.setData('name', e.target.value)
                                 }
-                                placeholder="e.g. Informatique & Systèmes d'Information"
+                                placeholder={t(
+                                    'academic.dept_name_placeholder',
+                                )}
                                 required
                             />
                             {form.errors.name && (
@@ -114,7 +117,9 @@ export function DepartmentDialog({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="dept_code">Department Code *</Label>
+                            <Label htmlFor="dept_code">
+                                {t('academic.dept_code')}
+                            </Label>
                             <Input
                                 id="dept_code"
                                 value={form.data.code}
@@ -124,7 +129,9 @@ export function DepartmentDialog({
                                         e.target.value.toUpperCase(),
                                     )
                                 }
-                                placeholder="e.g. ISI, MGT"
+                                placeholder={t(
+                                    'academic.dept_code_placeholder',
+                                )}
                                 required
                             />
                             {form.errors.code && (
@@ -135,14 +142,18 @@ export function DepartmentDialog({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="dept_desc">Description</Label>
+                            <Label htmlFor="dept_desc">
+                                {t('common.description')}
+                            </Label>
                             <Input
                                 id="dept_desc"
                                 value={form.data.description}
                                 onChange={(e) =>
                                     form.setData('description', e.target.value)
                                 }
-                                placeholder="Brief overview of department scope"
+                                placeholder={t(
+                                    'common.description_placeholder',
+                                )}
                             />
                             {form.errors.description && (
                                 <p className="text-xs text-red-500">
@@ -163,8 +174,7 @@ export function DepartmentDialog({
                                 htmlFor="dept_active"
                                 className="cursor-pointer text-sm font-normal"
                             >
-                                Active department (visible in timetable
-                                planning)
+                                {t('academic.dept_active_label')}
                             </Label>
                         </div>
                     </div>
@@ -176,14 +186,14 @@ export function DepartmentDialog({
                             onClick={() => onOpenChange(false)}
                             disabled={form.processing}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={form.processing}>
                             {form.processing
-                                ? 'Saving...'
+                                ? t('common.saving')
                                 : isEditing
-                                  ? 'Update Department'
-                                  : 'Create Department'}
+                                  ? t('common.edit')
+                                  : t('common.create')}
                         </Button>
                     </DialogFooter>
                 </form>

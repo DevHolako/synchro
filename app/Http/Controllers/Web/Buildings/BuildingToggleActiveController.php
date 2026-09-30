@@ -18,11 +18,11 @@ class BuildingToggleActiveController extends Controller
 
         $action->execute($building);
 
-        $status = $building->is_active ? 'activated' : 'deactivated';
+        $status = $building->is_active ? __('messages.activated') : __('messages.deactivated');
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Building {$building->name} {$status} successfully.",
+            'message' => __('messages.building_status_updated', ['name' => $building->name, 'status' => $status]),
         ]);
 
         return back();

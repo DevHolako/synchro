@@ -17,7 +17,7 @@ class RoomUpdateController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Room {$room->name} updated successfully.",
+            'message' => __('messages.room_updated', ['name' => $room->name]),
         ]);
 
         return back();

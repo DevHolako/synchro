@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
+import { useTranslation } from '@/i18n/LanguageContext';
 import { AcademicFilterBar } from './components/academic-filter-bar';
 import { AcademicStatsCards } from './components/academic-stats';
 import { AcademicTab, AcademicTabs } from './components/academic-tabs';
@@ -37,6 +38,7 @@ export default function AcademicStructureIndex({
     filters,
     stats,
 }: AcademicIndexProps) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<AcademicTab>('programs');
 
     // Filter states
@@ -91,7 +93,11 @@ export default function AcademicStructureIndex({
             {
                 preserveScroll: true,
                 onSuccess: () =>
-                    toast.success(`Department ${dept.name} status updated.`),
+                    toast.success(
+                        t('academic.toast_dept_status_updated', {
+                            name: dept.name,
+                        }),
+                    ),
             },
         );
     };
@@ -103,7 +109,11 @@ export default function AcademicStructureIndex({
             {
                 preserveScroll: true,
                 onSuccess: () =>
-                    toast.success(`Program ${prog.name} status updated.`),
+                    toast.success(
+                        t('academic.toast_prog_status_updated', {
+                            name: prog.name,
+                        }),
+                    ),
             },
         );
     };
@@ -116,7 +126,9 @@ export default function AcademicStructureIndex({
                 preserveScroll: true,
                 onSuccess: () =>
                     toast.success(
-                        `Student group ${group.name} status updated.`,
+                        t('academic.toast_group_status_updated', {
+                            name: group.name,
+                        }),
                     ),
             },
         );
@@ -124,17 +136,15 @@ export default function AcademicStructureIndex({
 
     return (
         <>
-            <Head title="Academic Structure & Programs" />
+            <Head title={t('academic.title')} />
 
             <div className="flex flex-col gap-6 p-6">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-                        Academic Structure & Programs
+                        {t('academic.title')}
                     </h1>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                        Manage departments, programs with dual modality
-                        (Formation Initiale vs Temps Aménagé), and student
-                        cohorts.
+                        {t('academic.description')}
                     </p>
                 </div>
 

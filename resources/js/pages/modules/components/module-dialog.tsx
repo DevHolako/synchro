@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Module, Program, Teacher } from './types';
 
 const COLOR_PRESETS = [
@@ -44,6 +45,7 @@ export function ModuleDialog({
     teachers,
     moduleToEdit,
 }: ModuleDialogProps) {
+    const { t } = useTranslation();
     const isEditing = Boolean(moduleToEdit);
 
     const form = useForm({
@@ -102,32 +104,26 @@ export function ModuleDialog({
         e.preventDefault();
 
         if (totalHours <= 0) {
-            toast.error('Total hours must be greater than 0.');
+            toast.error(t('toasts.error_total_hours_positive'));
             return;
         }
 
         if (isHoursExceeded) {
-            toast.error(
-                'The sum of lecture and practical (TP) hours exceeds total syllabus hours.',
-            );
+            toast.error(t('toasts.error_hours_exceed_total'));
             return;
         }
 
         if (isEditing && moduleToEdit) {
             form.put(`/modules/${moduleToEdit.id}`, {
                 onSuccess: () => {
-                    toast.success(
-                        `Module ${form.data.name} updated successfully.`,
-                    );
+                    toast.success(t('toasts.module_updated'));
                     onOpenChange(false);
                 },
             });
         } else {
             form.post('/modules', {
                 onSuccess: () => {
-                    toast.success(
-                        `Module ${form.data.name} created successfully.`,
-                    );
+                    toast.success(t('toasts.module_created'));
                     onOpenChange(false);
                 },
             });
@@ -141,12 +137,13 @@ export function ModuleDialog({
                     <DialogHeader>
                         <DialogTitle>
                             {isEditing
-                                ? 'Edit Course Module'
-                                : 'Create Course Module'}
+                                ? t('modules.dialog_edit_title', {
+                                      name: moduleToEdit?.name ?? '',
+                                  })
+                                : t('modules.dialog_create_title')}
                         </DialogTitle>
                         <DialogDescription>
-                            Define syllabus hours, assign teaching faculty, and
-                            choose calendar badge color.
+                            {t('modules.dialog_desc')}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -154,7 +151,7 @@ export function ModuleDialog({
                         <div className="grid grid-cols-2 gap-3">
                             <div className="grid gap-2">
                                 <Label htmlFor="mod_prog">
-                                    Academic Program *
+                                    {t('modules.dialog_program')}
                                 </Label>
                                 <select
                                     id="mod_prog"
@@ -169,7 +166,7 @@ export function ModuleDialog({
                                     required
                                 >
                                     <option value="" disabled>
-                                        Select program
+                                        {t('modules.dialog_program_select')}
                                     </option>
                                     {programs.map((p) => (
                                         <option key={p.id} value={p.id}>
@@ -186,7 +183,7 @@ export function ModuleDialog({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="mod_teacher">
-                                    Assigned Teacher
+                                    {t('modules.dialog_teacher')}
                                 </Label>
                                 <select
                                     id="mod_teacher"
@@ -199,7 +196,9 @@ export function ModuleDialog({
                                     }
                                     className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900"
                                 >
-                                    <option value="">Unassigned</option>
+                                    <option value="">
+                                        {t('modules.dialog_no_teacher')}
+                                    </option>
                                     {teachers.map((t) => (
                                         <option key={t.id} value={t.id}>
                                             {t.name}
@@ -216,14 +215,18 @@ export function ModuleDialog({
 
                         <div className="grid grid-cols-3 gap-3">
                             <div className="col-span-2 grid gap-2">
-                                <Label htmlFor="mod_name">Module Name *</Label>
+                                <Label htmlFor="mod_name">
+                                    {t('modules.dialog_name')}
+                                </Label>
                                 <Input
                                     id="mod_name"
                                     value={form.data.name}
                                     onChange={(e) =>
                                         form.setData('name', e.target.value)
                                     }
-                                    placeholder="e.g. Algorithmique & Données"
+                                    placeholder={t(
+                                        'modules.dialog_name_placeholder',
+                                    )}
                                     required
                                 />
                                 {form.errors.name && (
@@ -234,7 +237,9 @@ export function ModuleDialog({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="mod_code">Code *</Label>
+                                <Label htmlFor="mod_code">
+                                    {t('modules.dialog_code')}
+                                </Label>
                                 <Input
                                     id="mod_code"
                                     value={form.data.code}
@@ -244,7 +249,9 @@ export function ModuleDialog({
                                             e.target.value.toUpperCase(),
                                         )
                                     }
-                                    placeholder="e.g. ISI-101"
+                                    placeholder={t(
+                                        'modules.dialog_code_placeholder',
+                                    )}
                                     required
                                 />
                                 {form.errors.code && (
@@ -258,7 +265,7 @@ export function ModuleDialog({
                         {/* Syllabus Hours Section */}
                         <div className="rounded-lg border border-neutral-200 bg-neutral-50/50 p-3 dark:border-neutral-800 dark:bg-neutral-800/40">
                             <div className="mb-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                                Syllabus Hourly Volume
+                                {t('modules.dialog_syllabus_section')}
                             </div>
 
                             <div className="grid grid-cols-3 gap-3">
@@ -267,7 +274,7 @@ export function ModuleDialog({
                                         htmlFor="mod_tot"
                                         className="text-xs"
                                     >
-                                        Total Hours *
+                                        {t('modules.dialog_total_hours')}
                                     </Label>
                                     <Input
                                         id="mod_tot"
@@ -289,7 +296,7 @@ export function ModuleDialog({
                                         htmlFor="mod_lec"
                                         className="text-xs"
                                     >
-                                        Lecture (Cours) *
+                                        {t('modules.dialog_lecture_hours')}
                                     </Label>
                                     <Input
                                         id="mod_lec"
@@ -308,7 +315,7 @@ export function ModuleDialog({
 
                                 <div className="grid gap-1">
                                     <Label htmlFor="mod_tp" className="text-xs">
-                                        Practical (TP) *
+                                        {t('modules.dialog_tp_hours')}
                                     </Label>
                                     <Input
                                         id="mod_tp"
@@ -329,9 +336,12 @@ export function ModuleDialog({
                             {isHoursExceeded && (
                                 <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-600">
                                     <AlertCircle className="size-3.5" />
-                                    Lectures ({lectureHours}h) + TP ({tpHours}h)
-                                    = {sumHours}h, exceeding Total ({totalHours}
-                                    h)!
+                                    {t('modules.dialog_hours_warning', {
+                                        lecture: lectureHours,
+                                        tp: tpHours,
+                                        sum: sumHours,
+                                        total: totalHours,
+                                    })}
                                 </div>
                             )}
 
@@ -346,7 +356,7 @@ export function ModuleDialog({
                         <div className="grid gap-2">
                             <Label className="flex items-center gap-1.5">
                                 <Palette className="size-4 text-neutral-500" />
-                                Timetable Calendar Badge Color *
+                                {t('modules.dialog_color_section')}
                             </Label>
 
                             <div className="flex items-center gap-2">
@@ -394,6 +404,7 @@ export function ModuleDialog({
                                     style={{
                                         backgroundColor: form.data.color_code,
                                     }}
+                                    title={t('modules.dialog_preview_badge')}
                                 >
                                     {form.data.code || 'CODE'}
                                 </div>
@@ -407,7 +418,7 @@ export function ModuleDialog({
 
                         <div className="grid gap-2">
                             <Label htmlFor="mod_desc">
-                                Description / Syllabus Overview
+                                {t('common.description')}
                             </Label>
                             <Input
                                 id="mod_desc"
@@ -415,7 +426,9 @@ export function ModuleDialog({
                                 onChange={(e) =>
                                     form.setData('description', e.target.value)
                                 }
-                                placeholder="Summary of module objectives and learning outcomes"
+                                placeholder={t(
+                                    'common.description_placeholder',
+                                )}
                             />
                             {form.errors.description && (
                                 <p className="text-xs text-red-500">
@@ -436,8 +449,7 @@ export function ModuleDialog({
                                 htmlFor="mod_active"
                                 className="cursor-pointer text-sm font-normal"
                             >
-                                Active module (available for course scheduling
-                                and examination planning)
+                                {t('modules.dialog_active_label')}
                             </Label>
                         </div>
                     </div>
@@ -449,17 +461,17 @@ export function ModuleDialog({
                             onClick={() => onOpenChange(false)}
                             disabled={form.processing}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button
                             type="submit"
                             disabled={form.processing || isHoursExceeded}
                         >
                             {form.processing
-                                ? 'Saving...'
+                                ? t('common.saving')
                                 : isEditing
-                                  ? 'Update Module'
-                                  : 'Create Module'}
+                                  ? t('common.edit')
+                                  : t('common.create')}
                         </Button>
                     </DialogFooter>
                 </form>

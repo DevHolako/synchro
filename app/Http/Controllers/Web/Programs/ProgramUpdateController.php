@@ -17,7 +17,7 @@ class ProgramUpdateController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Program {$program->name} updated successfully.",
+            'message' => __('messages.program_updated', ['name' => $program->name]),
         ]);
 
         return back();

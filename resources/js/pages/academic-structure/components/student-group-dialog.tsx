@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Campus, Program, StudentGroup } from './types';
 
 interface StudentGroupDialogProps {
@@ -31,6 +32,7 @@ export function StudentGroupDialog({
     campuses,
     groupToEdit,
 }: StudentGroupDialogProps) {
+    const { t } = useTranslation();
     const isEditing = Boolean(groupToEdit);
 
     const form = useForm({
@@ -75,25 +77,21 @@ export function StudentGroupDialog({
 
         const count = parseInt(form.data.expected_headcount, 10);
         if (isNaN(count) || count <= 0) {
-            toast.error('Expected headcount must be greater than 0.');
+            toast.error(t('toasts.error_headcount_positive'));
             return;
         }
 
         if (isEditing && groupToEdit) {
             form.put(`/student-groups/${groupToEdit.id}`, {
                 onSuccess: () => {
-                    toast.success(
-                        `Student group ${form.data.name} updated successfully.`,
-                    );
+                    toast.success(t('toasts.student_group_updated'));
                     onOpenChange(false);
                 },
             });
         } else {
             form.post('/student-groups', {
                 onSuccess: () => {
-                    toast.success(
-                        `Student group ${form.data.name} created successfully.`,
-                    );
+                    toast.success(t('toasts.student_group_created'));
                     onOpenChange(false);
                 },
             });
@@ -107,18 +105,21 @@ export function StudentGroupDialog({
                     <DialogHeader>
                         <DialogTitle>
                             {isEditing
-                                ? 'Edit Student Group'
-                                : 'Create Student Group'}
+                                ? t('academic.group_dialog_edit_title', {
+                                      name: groupToEdit?.name ?? '',
+                                  })
+                                : t('academic.group_dialog_create_title')}
                         </DialogTitle>
                         <DialogDescription>
-                            Define a student cohort with designated enrollment
-                            headcount for room capacity checks.
+                            {t('academic.group_dialog_desc')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="grp_prog">Program *</Label>
+                            <Label htmlFor="grp_prog">
+                                {t('academic.group_program')}
+                            </Label>
                             <select
                                 id="grp_prog"
                                 value={form.data.program_id}
@@ -129,15 +130,15 @@ export function StudentGroupDialog({
                                 required
                             >
                                 <option value="" disabled>
-                                    Select parent program
+                                    {t('academic.group_program_select')}
                                 </option>
                                 {programs.map((prog) => (
                                     <option key={prog.id} value={prog.id}>
                                         {prog.code} - {prog.name} (
                                         {prog.program_modality ===
                                         'temps_amenage'
-                                            ? 'Temps Aménagé'
-                                            : 'Formation Initiale'}
+                                            ? t('academic.modality_amenage')
+                                            : t('academic.modality_initiale')}
                                         )
                                     </option>
                                 ))}
@@ -152,7 +153,7 @@ export function StudentGroupDialog({
                         <div className="grid grid-cols-2 gap-3">
                             <div className="grid gap-2">
                                 <Label htmlFor="grp_campus">
-                                    Campus (Optional)
+                                    {t('academic.group_campus')}
                                 </Label>
                                 <select
                                     id="grp_campus"
@@ -165,7 +166,9 @@ export function StudentGroupDialog({
                                     }
                                     className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900"
                                 >
-                                    <option value="">Institution-wide</option>
+                                    <option value="">
+                                        {t('academic.group_campus_all')}
+                                    </option>
                                     {campuses.map((campus) => (
                                         <option
                                             key={campus.id}
@@ -184,7 +187,7 @@ export function StudentGroupDialog({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="grp_year">
-                                    Academic Year *
+                                    {t('academic.group_year_label')}
                                 </Label>
                                 <Input
                                     id="grp_year"
@@ -208,14 +211,18 @@ export function StudentGroupDialog({
 
                         <div className="grid grid-cols-3 gap-3">
                             <div className="col-span-2 grid gap-2">
-                                <Label htmlFor="grp_name">Group Name *</Label>
+                                <Label htmlFor="grp_name">
+                                    {t('academic.group_name')}
+                                </Label>
                                 <Input
                                     id="grp_name"
                                     value={form.data.name}
                                     onChange={(e) =>
                                         form.setData('name', e.target.value)
                                     }
-                                    placeholder="e.g. 1CI - Groupe A"
+                                    placeholder={t(
+                                        'academic.group_name_placeholder',
+                                    )}
                                     required
                                 />
                                 {form.errors.name && (
@@ -226,7 +233,9 @@ export function StudentGroupDialog({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="grp_code">Code</Label>
+                                <Label htmlFor="grp_code">
+                                    {t('common.code')}
+                                </Label>
                                 <Input
                                     id="grp_code"
                                     value={form.data.code}
@@ -236,7 +245,7 @@ export function StudentGroupDialog({
                                             e.target.value.toUpperCase(),
                                         )
                                     }
-                                    placeholder="e.g. G1"
+                                    placeholder="G1"
                                 />
                                 {form.errors.code && (
                                     <p className="text-xs text-red-500">
@@ -252,7 +261,7 @@ export function StudentGroupDialog({
                                 className="flex items-center gap-1.5"
                             >
                                 <Users className="size-4 text-indigo-500" />
-                                Expected Student Headcount *
+                                {t('academic.group_headcount')}
                             </Label>
                             <Input
                                 id="grp_headcount"
@@ -268,8 +277,7 @@ export function StudentGroupDialog({
                                 required
                             />
                             <p className="text-xs text-neutral-500">
-                                Strictly enforced against room Course Capacity
-                                during timetable scheduling.
+                                {t('academic.group_headcount_hint')}
                             </p>
                             {form.errors.expected_headcount && (
                                 <p className="text-xs text-red-500">
@@ -290,8 +298,7 @@ export function StudentGroupDialog({
                                 htmlFor="grp_active"
                                 className="cursor-pointer text-sm font-normal"
                             >
-                                Active group (enrolled in current timetable
-                                sessions)
+                                {t('academic.group_active_label')}
                             </Label>
                         </div>
                     </div>
@@ -303,14 +310,14 @@ export function StudentGroupDialog({
                             onClick={() => onOpenChange(false)}
                             disabled={form.processing}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={form.processing}>
                             {form.processing
-                                ? 'Saving...'
+                                ? t('common.saving')
                                 : isEditing
-                                  ? 'Update Group'
-                                  : 'Create Group'}
+                                  ? t('common.edit')
+                                  : t('common.create')}
                         </Button>
                     </DialogFooter>
                 </form>

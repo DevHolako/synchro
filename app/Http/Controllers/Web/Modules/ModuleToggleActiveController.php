@@ -19,9 +19,11 @@ class ModuleToggleActiveController extends Controller
 
         $module = $action->execute($module);
 
+        $status = $module->is_active ? __('messages.activated') : __('messages.deactivated');
+
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Module {$module->name} ".($module->is_active ? 'activated' : 'deactivated').' successfully.',
+            'message' => __('messages.module_status_updated', ['name' => $module->name, 'status' => $status]),
         ]);
 
         return back();

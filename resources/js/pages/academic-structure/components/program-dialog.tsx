@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Department, Program, ProgramModality } from './types';
 
 interface ProgramDialogProps {
@@ -29,6 +30,7 @@ export function ProgramDialog({
     departments,
     programToEdit,
 }: ProgramDialogProps) {
+    const { t } = useTranslation();
     const isEditing = Boolean(programToEdit);
 
     const form = useForm({
@@ -69,18 +71,14 @@ export function ProgramDialog({
         if (isEditing && programToEdit) {
             form.put(`/programs/${programToEdit.id}`, {
                 onSuccess: () => {
-                    toast.success(
-                        `Program ${form.data.name} updated successfully.`,
-                    );
+                    toast.success(t('toasts.program_updated'));
                     onOpenChange(false);
                 },
             });
         } else {
             form.post('/programs', {
                 onSuccess: () => {
-                    toast.success(
-                        `Program ${form.data.name} created successfully.`,
-                    );
+                    toast.success(t('toasts.program_created'));
                     onOpenChange(false);
                 },
             });
@@ -94,18 +92,21 @@ export function ProgramDialog({
                     <DialogHeader>
                         <DialogTitle>
                             {isEditing
-                                ? 'Edit Academic Program'
-                                : 'Create Academic Program'}
+                                ? t('academic.prog_dialog_edit_title', {
+                                      name: programToEdit?.name ?? '',
+                                  })
+                                : t('academic.prog_dialog_create_title')}
                         </DialogTitle>
                         <DialogDescription>
-                            Configure degree programs and specify their academic
-                            schedule regime (Modality).
+                            {t('academic.prog_dialog_desc')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="prog_dept">Department *</Label>
+                            <Label htmlFor="prog_dept">
+                                {t('academic.prog_department')}
+                            </Label>
                             <select
                                 id="prog_dept"
                                 value={form.data.department_id}
@@ -119,7 +120,7 @@ export function ProgramDialog({
                                 required
                             >
                                 <option value="" disabled>
-                                    Select parent department
+                                    {t('academic.prog_department_select')}
                                 </option>
                                 {departments.map((dept) => (
                                     <option key={dept.id} value={dept.id}>
@@ -137,7 +138,7 @@ export function ProgramDialog({
                         <div className="grid grid-cols-3 gap-3">
                             <div className="col-span-2 grid gap-2">
                                 <Label htmlFor="prog_name">
-                                    Program Name *
+                                    {t('academic.prog_name')}
                                 </Label>
                                 <Input
                                     id="prog_name"
@@ -145,7 +146,9 @@ export function ProgramDialog({
                                     onChange={(e) =>
                                         form.setData('name', e.target.value)
                                     }
-                                    placeholder="e.g. 1ère Année Cycle Ingénieur"
+                                    placeholder={t(
+                                        'academic.prog_name_placeholder',
+                                    )}
                                     required
                                 />
                                 {form.errors.name && (
@@ -156,7 +159,9 @@ export function ProgramDialog({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="prog_code">Code *</Label>
+                                <Label htmlFor="prog_code">
+                                    {t('academic.prog_code')}
+                                </Label>
                                 <Input
                                     id="prog_code"
                                     value={form.data.code}
@@ -166,7 +171,9 @@ export function ProgramDialog({
                                             e.target.value.toUpperCase(),
                                         )
                                     }
-                                    placeholder="e.g. 1CI, 2CI"
+                                    placeholder={t(
+                                        'academic.prog_code_placeholder',
+                                    )}
                                     required
                                 />
                                 {form.errors.code && (
@@ -178,7 +185,7 @@ export function ProgramDialog({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label>Program Modality *</Label>
+                            <Label>{t('academic.prog_modality_label')}</Label>
                             <div className="grid grid-cols-2 gap-3">
                                 <label
                                     className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
@@ -207,10 +214,10 @@ export function ProgramDialog({
                                     <div>
                                         <div className="flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                             <Sun className="size-4 text-blue-500" />
-                                            Formation Initiale
+                                            {t('academic.modality_initiale')}
                                         </div>
                                         <div className="mt-0.5 text-xs text-neutral-500">
-                                            Standard weekday daytime schedules
+                                            {t('academic.prog_initiale_desc')}
                                         </div>
                                     </div>
                                 </label>
@@ -242,10 +249,10 @@ export function ProgramDialog({
                                     <div>
                                         <div className="flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                             <Clock className="size-4 text-amber-500" />
-                                            Temps Aménagé
+                                            {t('academic.modality_amenage')}
                                         </div>
                                         <div className="mt-0.5 text-xs text-neutral-500">
-                                            Executive evening & weekend slots
+                                            {t('academic.prog_amenage_desc')}
                                         </div>
                                     </div>
                                 </label>
@@ -258,14 +265,18 @@ export function ProgramDialog({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="prog_desc">Description</Label>
+                            <Label htmlFor="prog_desc">
+                                {t('common.description')}
+                            </Label>
                             <Input
                                 id="prog_desc"
                                 value={form.data.description}
                                 onChange={(e) =>
                                     form.setData('description', e.target.value)
                                 }
-                                placeholder="Curriculum or syllabus summary"
+                                placeholder={t(
+                                    'common.description_placeholder',
+                                )}
                             />
                             {form.errors.description && (
                                 <p className="text-xs text-red-500">
@@ -286,8 +297,7 @@ export function ProgramDialog({
                                 htmlFor="prog_active"
                                 className="cursor-pointer text-sm font-normal"
                             >
-                                Active program (accepts courses and group
-                                planning)
+                                {t('academic.prog_active_label')}
                             </Label>
                         </div>
                     </div>
@@ -299,14 +309,14 @@ export function ProgramDialog({
                             onClick={() => onOpenChange(false)}
                             disabled={form.processing}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={form.processing}>
                             {form.processing
-                                ? 'Saving...'
+                                ? t('common.saving')
                                 : isEditing
-                                  ? 'Update Program'
-                                  : 'Create Program'}
+                                  ? t('common.edit')
+                                  : t('common.create')}
                         </Button>
                     </DialogFooter>
                 </form>

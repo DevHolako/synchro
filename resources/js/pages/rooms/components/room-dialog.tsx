@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Campus, Room } from './types';
 
 interface RoomDialogProps {
@@ -28,6 +29,7 @@ export function RoomDialog({
     campuses,
     roomToEdit,
 }: RoomDialogProps) {
+    const { t } = useTranslation();
     const isEditing = Boolean(roomToEdit);
 
     const form = useForm({
@@ -82,9 +84,7 @@ export function RoomDialog({
         const exam = parseInt(form.data.exam_capacity, 10);
 
         if (exam > course) {
-            toast.error(
-                'Validation Error: Exam capacity cannot exceed course capacity.',
-            );
+            toast.error(t('toasts.error_exam_capacity_exceeds'));
             return;
         }
 
@@ -92,7 +92,7 @@ export function RoomDialog({
             form.put(`/rooms/${roomToEdit.id}`, {
                 onSuccess: () => {
                     onOpenChange(false);
-                    toast.success('Room updated successfully.');
+                    toast.success(t('toasts.room_updated'));
                 },
                 onError: (errors) => {
                     const firstError = Object.values(errors)[0];
@@ -104,7 +104,7 @@ export function RoomDialog({
                 onSuccess: () => {
                     onOpenChange(false);
                     form.reset();
-                    toast.success('Room created successfully.');
+                    toast.success(t('toasts.room_created'));
                 },
                 onError: (errors) => {
                     const firstError = Object.values(errors)[0];
@@ -121,19 +121,20 @@ export function RoomDialog({
                     <DialogHeader>
                         <DialogTitle>
                             {isEditing
-                                ? `Edit Room: ${roomToEdit?.name}`
-                                : 'Add New Room'}
+                                ? t('rooms.dialog_edit_title', {
+                                      name: roomToEdit?.name || '',
+                                  })
+                                : t('rooms.dialog_create_title')}
                         </DialogTitle>
                         <DialogDescription>
-                            Register a teaching space with both lecture and
-                            distanced exam capacities.
+                            {t('rooms.dialog_description')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         <div className="space-y-1.5">
                             <Label htmlFor="room_dialog_building_id">
-                                Building *
+                                {t('rooms.dialog_building')}
                             </Label>
                             <select
                                 id="room_dialog_building_id"
@@ -162,11 +163,13 @@ export function RoomDialog({
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <Label htmlFor="room_dialog_name">
-                                    Room Name *
+                                    {t('rooms.dialog_name')}
                                 </Label>
                                 <Input
                                     id="room_dialog_name"
-                                    placeholder="e.g. Salle 101, Amphi 1"
+                                    placeholder={t(
+                                        'rooms.dialog_name_placeholder',
+                                    )}
                                     value={form.data.name}
                                     onChange={(e) =>
                                         form.setData('name', e.target.value)
@@ -176,11 +179,13 @@ export function RoomDialog({
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="room_dialog_code">
-                                    Room Code
+                                    {t('rooms.dialog_code')}
                                 </Label>
                                 <Input
                                     id="room_dialog_code"
-                                    placeholder="e.g. A-101"
+                                    placeholder={t(
+                                        'rooms.dialog_code_placeholder',
+                                    )}
                                     value={form.data.code}
                                     onChange={(e) =>
                                         form.setData('code', e.target.value)
@@ -191,7 +196,9 @@ export function RoomDialog({
 
                         <div className="grid grid-cols-3 gap-3">
                             <div className="space-y-1.5">
-                                <Label htmlFor="room_dialog_floor">Floor</Label>
+                                <Label htmlFor="room_dialog_floor">
+                                    {t('rooms.dialog_floor')}
+                                </Label>
                                 <Input
                                     id="room_dialog_floor"
                                     type="number"
@@ -203,7 +210,7 @@ export function RoomDialog({
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="room_dialog_course_capacity">
-                                    Course Cap. *
+                                    {t('rooms.dialog_course_cap')}
                                 </Label>
                                 <Input
                                     id="room_dialog_course_capacity"
@@ -229,7 +236,7 @@ export function RoomDialog({
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="room_dialog_exam_capacity">
-                                    Exam Cap. *
+                                    {t('rooms.dialog_exam_cap')}
                                 </Label>
                                 <Input
                                     id="room_dialog_exam_capacity"
@@ -249,14 +256,14 @@ export function RoomDialog({
                         </div>
 
                         <div className="rounded-lg bg-neutral-50 p-2.5 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
-                            💡 <strong>Exam Capacity Rule:</strong> Strictly
-                            cannot exceed Course Capacity. Default is 50% for
-                            exam distancing.
+                            💡{' '}
+                            <strong>{t('rooms.dialog_capacity_rule')}</strong>{' '}
+                            {t('rooms.dialog_capacity_rule_text')}
                         </div>
 
                         <div className="space-y-2 pt-2">
                             <Label className="text-xs font-semibold text-neutral-500 uppercase">
-                                Equipment & Facilities
+                                {t('rooms.dialog_equipment_section')}
                             </Label>
                             <div className="grid grid-cols-2 gap-2">
                                 <label className="flex cursor-pointer items-center gap-2 text-xs">
@@ -266,7 +273,7 @@ export function RoomDialog({
                                             form.setData('has_projector', !!c)
                                         }
                                     />
-                                    Video Projector
+                                    {t('rooms.projector')}
                                 </label>
                                 <label className="flex cursor-pointer items-center gap-2 text-xs">
                                     <Checkbox
@@ -275,7 +282,7 @@ export function RoomDialog({
                                             form.setData('is_lab', !!c)
                                         }
                                     />
-                                    Computer Lab
+                                    {t('rooms.lab')}
                                 </label>
                                 <label className="flex cursor-pointer items-center gap-2 text-xs">
                                     <Checkbox
@@ -284,7 +291,7 @@ export function RoomDialog({
                                             form.setData('has_computers', !!c)
                                         }
                                     />
-                                    Student PCs
+                                    {t('rooms.computers')}
                                 </label>
                                 <label className="flex cursor-pointer items-center gap-2 text-xs">
                                     <Checkbox
@@ -296,7 +303,7 @@ export function RoomDialog({
                                             )
                                         }
                                     />
-                                    Sound System
+                                    {t('rooms.sound')}
                                 </label>
                             </div>
                         </div>
@@ -308,14 +315,14 @@ export function RoomDialog({
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={form.processing}>
                             {form.processing
-                                ? 'Saving...'
+                                ? t('common.saving')
                                 : isEditing
-                                  ? 'Save Changes'
-                                  : 'Create Room'}
+                                  ? t('common.save')
+                                  : t('rooms.new_room')}
                         </Button>
                     </DialogFooter>
                 </form>

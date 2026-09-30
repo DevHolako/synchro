@@ -230,4 +230,17 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
   - Hoist static JSX and default non-primitive props outside component bodies.
   - Avoid barrel files when importing heavy components.
 
+=== synchro-custom/localization rules ===
+
+# Full-Stack Localization (EN Base, FR Default Display, Zero Hardcoded Strings) (MUST-FOLLOW RULE)
+
+- **French (`fr`) Default Presentation**: The application UI MUST display French (`fr`) by default. Users may toggle between French and English via the language switcher.
+- **English (`en`) Base Parity**: All translation dictionaries must maintain 100% key parity between English (`en`) and French (`fr`).
+- **Zero Hardcoded Strings**: NEVER hardcode raw user-facing strings in React components, modals, buttons, table headers, badges, tooltips, or toast notifications. Every piece of user-facing text MUST be retrieved via `const { t } = useTranslation()`.
+- **Backend Messages**: All controller flash messages, redirects, and validation feedback MUST use Laravel's `__('messages.xxx', [...])` helper via `lang/fr/messages.php` and `lang/en/messages.php`.
+- **Tri-File Parity**: Every new or updated translation key MUST be defined across all three i18n files:
+  1. `resources/js/i18n/types.ts` (TypeScript interface contract).
+  2. `resources/js/i18n/fr.ts` (French dictionary - default).
+  3. `resources/js/i18n/en.ts` (English dictionary - 100% parity).
+
 </laravel-boost-guidelines>

@@ -16,7 +16,7 @@ class RoomStoreController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Room {$room->name} created successfully.",
+            'message' => __('messages.room_created', ['name' => $room->name]),
         ]);
 
         return back();

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/LanguageContext';
 import { BuildingDialog } from './components/building-dialog';
 import { CampusDialog } from './components/campus-dialog';
 import { RoomDialog } from './components/room-dialog';
@@ -25,6 +26,8 @@ export default function RoomsIndex({
     filters,
     stats,
 }: RoomsIndexProps) {
+    const { t } = useTranslation();
+
     // Filter local states
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [selectedCampus, setSelectedCampus] = useState(
@@ -92,7 +95,12 @@ export default function RoomsIndex({
                 preserveScroll: true,
                 onSuccess: () => {
                     toast.success(
-                        `Room ${room.name} ${room.is_active ? 'deactivated' : 'activated'}.`,
+                        t('rooms.toast_status_updated', {
+                            name: room.name,
+                            status: room.is_active
+                                ? t('common.deactivated')
+                                : t('common.activated'),
+                        }),
                     );
                 },
             },
@@ -101,18 +109,17 @@ export default function RoomsIndex({
 
     return (
         <>
-            <Head title="Teaching Spaces & Referentials" />
+            <Head title={t('rooms.title')} />
 
             <div className="flex flex-col gap-6 p-6">
                 {/* Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-                            Teaching Spaces & Referentials
+                            {t('rooms.title')}
                         </h1>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Manage campuses, buildings, and rooms with explicit
-                            Course and Exam capacities.
+                            {t('rooms.description')}
                         </p>
                     </div>
 
@@ -123,7 +130,7 @@ export default function RoomsIndex({
                             onClick={() => setIsCreateCampusOpen(true)}
                         >
                             <MapPin className="mr-1.5 size-4" />
-                            New Campus
+                            {t('rooms.new_campus')}
                         </Button>
                         <Button
                             variant="outline"
@@ -131,14 +138,14 @@ export default function RoomsIndex({
                             onClick={() => setIsCreateBuildingOpen(true)}
                         >
                             <Building2 className="mr-1.5 size-4" />
-                            New Building
+                            {t('rooms.new_building')}
                         </Button>
                         <Button
                             size="sm"
                             onClick={() => setIsCreateRoomOpen(true)}
                         >
                             <Plus className="mr-1.5 size-4" />
-                            New Room
+                            {t('rooms.new_room')}
                         </Button>
                     </div>
                 </div>

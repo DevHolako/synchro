@@ -17,7 +17,7 @@ class CampusUpdateController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Campus {$campus->name} updated successfully.",
+            'message' => __('messages.campus_updated', ['name' => $campus->name]),
         ]);
 
         return back();

@@ -1,6 +1,7 @@
 import { BookOpen, Clock, GraduationCap, Layers } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { ModuleStats } from './types';
 
 interface ModuleStatsCardsProps {
@@ -8,12 +9,14 @@ interface ModuleStatsCardsProps {
 }
 
 export function ModuleStatsCards({ stats }: ModuleStatsCardsProps) {
+    const { t } = useTranslation();
+
     return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium">
-                        Total Modules
+                        {t('modules.stats_total_modules')}
                     </CardTitle>
                     <BookOpen className="size-4 text-neutral-500" />
                 </CardHeader>
@@ -22,7 +25,9 @@ export function ModuleStatsCards({ stats }: ModuleStatsCardsProps) {
                         {stats.total_modules}
                     </div>
                     <p className="text-xs text-neutral-500">
-                        {stats.active_modules} active across academic programs
+                        {t('modules.stats_active_modules', {
+                            active: stats.active_modules,
+                        })}
                     </p>
                 </CardContent>
             </Card>
@@ -30,7 +35,7 @@ export function ModuleStatsCards({ stats }: ModuleStatsCardsProps) {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium">
-                        Syllabus Hours
+                        {t('modules.stats_total_hours')}
                     </CardTitle>
                     <Clock className="size-4 text-blue-500" />
                 </CardHeader>
@@ -39,7 +44,7 @@ export function ModuleStatsCards({ stats }: ModuleStatsCardsProps) {
                         {stats.total_syllabus_hours}h
                     </div>
                     <p className="text-xs text-neutral-500">
-                        Total curriculum contact teaching volume
+                        {t('modules.stats_hours_desc')}
                     </p>
                 </CardContent>
             </Card>
@@ -47,22 +52,19 @@ export function ModuleStatsCards({ stats }: ModuleStatsCardsProps) {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium">
-                        Teaching Distribution
+                        {t('modules.stats_distribution')}
                     </CardTitle>
                     <Layers className="size-4 text-emerald-500" />
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center gap-2 text-sm font-semibold">
-                        <span className="text-blue-600 dark:text-blue-400">
-                            {stats.total_lecture_hours}h Lectures
-                        </span>
-                        <span>•</span>
-                        <span className="text-emerald-600 dark:text-emerald-400">
-                            {stats.total_tp_hours}h TP
-                        </span>
+                    <div className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                        {t('modules.stats_hours_breakdown', {
+                            lecture: stats.total_lecture_hours,
+                            tp: stats.total_tp_hours,
+                        })}
                     </div>
                     <p className="mt-1 text-xs text-neutral-500">
-                        Theory vs practical laboratory work
+                        {t('modules.stats_distribution_desc')}
                     </p>
                 </CardContent>
             </Card>
@@ -70,7 +72,7 @@ export function ModuleStatsCards({ stats }: ModuleStatsCardsProps) {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium">
-                        Staffing Coverage
+                        {t('modules.stats_teachers_assigned')}
                     </CardTitle>
                     <GraduationCap className="size-4 text-indigo-500" />
                 </CardHeader>
@@ -82,7 +84,10 @@ export function ModuleStatsCards({ stats }: ModuleStatsCardsProps) {
                         </span>
                     </div>
                     <p className="text-xs text-neutral-500">
-                        Active modules with designated teacher
+                        {t('modules.stats_assigned_desc', {
+                            assigned: stats.assigned_modules,
+                            total: stats.active_modules,
+                        })}
                     </p>
                 </CardContent>
             </Card>

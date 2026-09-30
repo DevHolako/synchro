@@ -17,7 +17,7 @@ class DepartmentUpdateController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Department {$department->name} updated successfully.",
+            'message' => __('messages.department_updated', ['name' => $department->name]),
         ]);
 
         return back();

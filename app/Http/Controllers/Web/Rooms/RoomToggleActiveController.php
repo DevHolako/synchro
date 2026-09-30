@@ -18,11 +18,11 @@ class RoomToggleActiveController extends Controller
 
         $action->execute($room);
 
-        $status = $room->is_active ? 'activated' : 'deactivated';
+        $status = $room->is_active ? __('messages.activated') : __('messages.deactivated');
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Room {$room->name} {$status} successfully.",
+            'message' => __('messages.room_status_updated', ['name' => $room->name, 'status' => $status]),
         ]);
 
         return back();

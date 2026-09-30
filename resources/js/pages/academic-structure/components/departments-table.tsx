@@ -2,6 +2,7 @@ import { Building2, Edit2, Power } from 'lucide-react';
 import React, { memo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Department } from './types';
 
 interface DepartmentsTableProps {
@@ -20,6 +21,8 @@ const DepartmentRow = memo(function DepartmentRow({
     onEdit: (department: Department) => void;
     onToggleActive: (department: Department) => void;
 }) {
+    const { t } = useTranslation();
+
     return (
         <tr
             className={`transition-colors hover:bg-neutral-50/50 dark:hover:bg-neutral-800/40 ${
@@ -48,7 +51,9 @@ const DepartmentRow = memo(function DepartmentRow({
                     <span className="text-neutral-900 dark:text-neutral-100">
                         {department.programs_count ?? 0}
                     </span>
-                    <span className="text-xs text-neutral-500">programs</span>
+                    <span className="text-xs text-neutral-500">
+                        {t('academic.tab_programs').toLowerCase()}
+                    </span>
                 </div>
             </td>
 
@@ -57,7 +62,9 @@ const DepartmentRow = memo(function DepartmentRow({
                     <span className="text-neutral-900 dark:text-neutral-100">
                         {department.student_groups_count ?? 0}
                     </span>
-                    <span className="text-xs text-neutral-500">groups</span>
+                    <span className="text-xs text-neutral-500">
+                        {t('academic.col_groups_count').toLowerCase()}
+                    </span>
                 </div>
             </td>
 
@@ -67,14 +74,14 @@ const DepartmentRow = memo(function DepartmentRow({
                         variant="outline"
                         className="border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
                     >
-                        Active
+                        {t('common.active')}
                     </Badge>
                 ) : (
                     <Badge
                         variant="outline"
                         className="border-neutral-300 text-neutral-500"
                     >
-                        Inactive
+                        {t('common.inactive')}
                     </Badge>
                 )}
             </td>
@@ -85,7 +92,7 @@ const DepartmentRow = memo(function DepartmentRow({
                         variant="ghost"
                         size="icon"
                         onClick={() => onEdit(department)}
-                        title="Edit department"
+                        title={t('common.edit')}
                     >
                         <Edit2 className="size-4" />
                     </Button>
@@ -94,7 +101,11 @@ const DepartmentRow = memo(function DepartmentRow({
                         variant="ghost"
                         size="icon"
                         onClick={() => onToggleActive(department)}
-                        title={department.is_active ? 'Deactivate' : 'Activate'}
+                        title={
+                            department.is_active
+                                ? t('common.deactivate')
+                                : t('common.activate')
+                        }
                         className={
                             department.is_active
                                 ? 'text-neutral-500 hover:text-red-600'
@@ -115,15 +126,17 @@ export function DepartmentsTable({
     onToggleActive,
     onResetFilters,
 }: DepartmentsTableProps) {
+    const { t } = useTranslation();
+
     if (departments.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-300 p-12 text-center dark:border-neutral-700">
                 <Building2 className="size-12 text-neutral-400" />
                 <h3 className="mt-4 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                    No departments found
+                    {t('academic.no_dept_found')}
                 </h3>
                 <p className="mt-1 text-sm text-neutral-500">
-                    No academic departments match the selected filters.
+                    {t('rooms.no_rooms_desc')}
                 </p>
                 <Button
                     variant="outline"
@@ -131,7 +144,7 @@ export function DepartmentsTable({
                     className="mt-4"
                     onClick={onResetFilters}
                 >
-                    Clear filters
+                    {t('common.reset_filters')}
                 </Button>
             </div>
         );
@@ -142,12 +155,18 @@ export function DepartmentsTable({
             <table className="w-full text-left text-sm">
                 <thead className="border-b border-neutral-200 bg-neutral-50/50 text-xs font-medium text-neutral-500 dark:border-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-400">
                     <tr>
-                        <th className="px-6 py-3">Department Name</th>
-                        <th className="px-6 py-3">Code</th>
-                        <th className="px-6 py-3">Programs</th>
-                        <th className="px-6 py-3">Groups</th>
-                        <th className="px-6 py-3">Status</th>
-                        <th className="px-6 py-3 text-right">Actions</th>
+                        <th className="px-6 py-3">{t('academic.dept_name')}</th>
+                        <th className="px-6 py-3">{t('common.code')}</th>
+                        <th className="px-6 py-3">
+                            {t('academic.col_programs_count')}
+                        </th>
+                        <th className="px-6 py-3">
+                            {t('academic.col_groups_count')}
+                        </th>
+                        <th className="px-6 py-3">{t('common.status')}</th>
+                        <th className="px-6 py-3 text-right">
+                            {t('common.actions')}
+                        </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">

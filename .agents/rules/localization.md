@@ -5,7 +5,7 @@ globs: '**'
 
 # Full-Stack Localization & Multi-Language Standards
 
-We Creatif is a bilingual platform supporting both English (`en`) and French (`fr`). All agents working in this repository must strictly prioritize and enforce localization standards when generating, modifying, or reviewing code.
+Synchro is a bilingual platform supporting both English (`en`) and French (`fr`), with French (`fr`) configured as the default UI presentation. All agents working in this repository must strictly prioritize and enforce localization standards when generating, modifying, or reviewing code.
 
 ## 1. Never Hardcode User-Facing Text
 

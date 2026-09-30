@@ -16,7 +16,7 @@ class ModuleStoreController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Module {$module->name} created successfully.",
+            'message' => __('messages.module_created', ['name' => $module->name]),
         ]);
 
         return back();

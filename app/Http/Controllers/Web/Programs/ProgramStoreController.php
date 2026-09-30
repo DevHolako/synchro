@@ -16,7 +16,7 @@ class ProgramStoreController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Program {$program->name} created successfully.",
+            'message' => __('messages.program_created', ['name' => $program->name]),
         ]);
 
         return back();

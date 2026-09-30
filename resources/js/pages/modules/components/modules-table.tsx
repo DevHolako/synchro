@@ -2,6 +2,7 @@ import { BookOpen, Edit2, GraduationCap, Power } from 'lucide-react';
 import React, { memo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Module } from './types';
 
 interface ModulesTableProps {
@@ -20,6 +21,7 @@ const ModuleRow = memo(function ModuleRow({
     onEdit: (module: Module) => void;
     onToggleActive: (module: Module) => void;
 }) {
+    const { t } = useTranslation();
     const lecturePct =
         module.total_hours > 0
             ? (module.lecture_hours / module.total_hours) * 100
@@ -41,7 +43,9 @@ const ModuleRow = memo(function ModuleRow({
                     <div
                         className="flex h-9 items-center justify-center rounded-md px-2.5 font-mono text-xs font-bold text-white shadow-xs"
                         style={{ backgroundColor: module.color_code }}
-                        title={`Calendar Badge Preview (${module.color_code})`}
+                        title={t('modules.badge_preview', {
+                            code: module.color_code,
+                        })}
                     >
                         {module.code}
                     </div>
@@ -74,10 +78,15 @@ const ModuleRow = memo(function ModuleRow({
                 <div className="flex w-[160px] flex-col gap-1.5">
                     <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-neutral-900 dark:text-neutral-100">
-                            {module.total_hours}h total
+                            {t('modules.hours_total', {
+                                hours: module.total_hours,
+                            })}
                         </span>
                         <span className="text-neutral-500">
-                            {module.lecture_hours}h C / {module.tp_hours}h TP
+                            {t('modules.hours_split', {
+                                lecture: module.lecture_hours,
+                                tp: module.tp_hours,
+                            })}
                         </span>
                     </div>
 
@@ -86,12 +95,12 @@ const ModuleRow = memo(function ModuleRow({
                         <div
                             style={{ width: `${lecturePct}%` }}
                             className="bg-blue-500"
-                            title={`Lectures: ${module.lecture_hours}h (${Math.round(lecturePct)}%)`}
+                            title={`${t('modules.dialog_lecture_hours')}: ${module.lecture_hours}h (${Math.round(lecturePct)}%)`}
                         />
                         <div
                             style={{ width: `${tpPct}%` }}
                             className="bg-emerald-500"
-                            title={`Practical Work: ${module.tp_hours}h (${Math.round(tpPct)}%)`}
+                            title={`${t('modules.dialog_tp_hours')}: ${module.tp_hours}h (${Math.round(tpPct)}%)`}
                         />
                     </div>
                 </div>
@@ -112,7 +121,7 @@ const ModuleRow = memo(function ModuleRow({
                     </div>
                 ) : (
                     <span className="text-xs text-neutral-400 italic">
-                        Unassigned
+                        {t('modules.unassigned')}
                     </span>
                 )}
             </td>
@@ -123,14 +132,14 @@ const ModuleRow = memo(function ModuleRow({
                         variant="outline"
                         className="border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
                     >
-                        Active
+                        {t('common.active')}
                     </Badge>
                 ) : (
                     <Badge
                         variant="outline"
                         className="border-neutral-300 text-neutral-500"
                     >
-                        Inactive
+                        {t('common.inactive')}
                     </Badge>
                 )}
             </td>
@@ -141,7 +150,7 @@ const ModuleRow = memo(function ModuleRow({
                         variant="ghost"
                         size="icon"
                         onClick={() => onEdit(module)}
-                        title="Edit module"
+                        title={t('common.edit')}
                     >
                         <Edit2 className="size-4" />
                     </Button>
@@ -150,7 +159,11 @@ const ModuleRow = memo(function ModuleRow({
                         variant="ghost"
                         size="icon"
                         onClick={() => onToggleActive(module)}
-                        title={module.is_active ? 'Deactivate' : 'Activate'}
+                        title={
+                            module.is_active
+                                ? t('common.deactivate')
+                                : t('common.activate')
+                        }
                         className={
                             module.is_active
                                 ? 'text-neutral-500 hover:text-red-600'
@@ -171,15 +184,17 @@ export function ModulesTable({
     onToggleActive,
     onResetFilters,
 }: ModulesTableProps) {
+    const { t } = useTranslation();
+
     if (modules.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-300 p-12 text-center dark:border-neutral-700">
                 <BookOpen className="size-12 text-neutral-400" />
                 <h3 className="mt-4 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                    No modules found
+                    {t('modules.no_modules_found')}
                 </h3>
                 <p className="mt-1 text-sm text-neutral-500">
-                    No course modules match the selected filters.
+                    {t('modules.no_modules_desc')}
                 </p>
                 <Button
                     variant="outline"
@@ -187,7 +202,7 @@ export function ModulesTable({
                     className="mt-4"
                     onClick={onResetFilters}
                 >
-                    Clear filters
+                    {t('common.reset_filters')}
                 </Button>
             </div>
         );
@@ -198,12 +213,20 @@ export function ModulesTable({
             <table className="w-full text-left text-sm">
                 <thead className="border-b border-neutral-200 bg-neutral-50/50 text-xs font-medium text-neutral-500 dark:border-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-400">
                     <tr>
-                        <th className="px-6 py-3">Module & Badge Preview</th>
-                        <th className="px-6 py-3">Program & Department</th>
-                        <th className="px-6 py-3">Syllabus Breakdown</th>
-                        <th className="px-6 py-3">Assigned Teacher</th>
-                        <th className="px-6 py-3">Status</th>
-                        <th className="px-6 py-3 text-right">Actions</th>
+                        <th className="px-6 py-3">{t('modules.col_module')}</th>
+                        <th className="px-6 py-3">
+                            {t('modules.col_program')}
+                        </th>
+                        <th className="px-6 py-3">
+                            {t('modules.col_syllabus')}
+                        </th>
+                        <th className="px-6 py-3">
+                            {t('modules.col_instructor')}
+                        </th>
+                        <th className="px-6 py-3">{t('common.status')}</th>
+                        <th className="px-6 py-3 text-right">
+                            {t('common.actions')}
+                        </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">

@@ -17,7 +17,7 @@ class StudentGroupUpdateController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Student Group {$group->name} updated successfully.",
+            'message' => __('messages.student_group_updated', ['name' => $group->name]),
         ]);
 
         return back();

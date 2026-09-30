@@ -16,7 +16,7 @@ class BuildingStoreController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Building {$building->name} created successfully.",
+            'message' => __('messages.building_created', ['name' => $building->name]),
         ]);
 
         return back();

@@ -16,7 +16,7 @@ class StudentGroupStoreController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Student Group {$group->name} created successfully.",
+            'message' => __('messages.student_group_created', ['name' => $group->name]),
         ]);
 
         return back();

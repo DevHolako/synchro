@@ -19,9 +19,11 @@ class StudentGroupToggleActiveController extends Controller
 
         $group = $action->execute($studentGroup);
 
+        $status = $group->is_active ? __('messages.activated') : __('messages.deactivated');
+
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Student Group {$group->name} ".($group->is_active ? 'activated' : 'deactivated').' successfully.',
+            'message' => __('messages.student_group_status_updated', ['name' => $group->name, 'status' => $status]),
         ]);
 
         return back();

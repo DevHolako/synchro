@@ -19,9 +19,11 @@ class DepartmentToggleActiveController extends Controller
 
         $department = $action->execute($department);
 
+        $status = $department->is_active ? __('messages.activated') : __('messages.deactivated');
+
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Department {$department->name} ".($department->is_active ? 'activated' : 'deactivated').' successfully.',
+            'message' => __('messages.department_status_updated', ['name' => $department->name, 'status' => $status]),
         ]);
 
         return back();

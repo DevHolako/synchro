@@ -7,6 +7,7 @@ import {
     LayoutGrid,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -19,46 +20,49 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useTranslation } from '@/i18n/LanguageContext';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Teaching Spaces',
-        href: '/rooms',
-        icon: Building2,
-    },
-    {
-        title: 'Academic Structure',
-        href: '/academic-structure',
-        icon: GraduationCap,
-    },
-    {
-        title: 'Modules & Syllabus',
-        href: '/modules',
-        icon: BookOpen,
-    },
-];
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
-
 export function AppSidebar() {
+    const { t } = useTranslation();
+
+    const mainNavItems: NavItem[] = [
+        {
+            title: t('nav.dashboard'),
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+        {
+            title: t('nav.teaching_spaces'),
+            href: '/rooms',
+            icon: Building2,
+        },
+        {
+            title: t('nav.academic_structure'),
+            href: '/academic-structure',
+            icon: GraduationCap,
+        },
+        {
+            title: t('nav.modules_catalog'),
+            href: '/modules',
+            icon: BookOpen,
+        },
+    ];
+
+    const footerNavItems: NavItem[] = [
+        {
+            title: t('nav.repository'),
+            href: 'https://github.com/laravel/react-starter-kit',
+            icon: FolderGit2,
+        },
+        {
+            title: t('nav.documentation'),
+            href: 'https://laravel.com/docs/starter-kits#react',
+            icon: BookOpen,
+        },
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -78,6 +82,9 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
+                <div className="px-2 py-1">
+                    <LanguageSwitcher />
+                </div>
                 <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>

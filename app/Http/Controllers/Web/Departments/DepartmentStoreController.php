@@ -16,7 +16,7 @@ class DepartmentStoreController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Department {$department->name} created successfully.",
+            'message' => __('messages.department_created', ['name' => $department->name]),
         ]);
 
         return back();

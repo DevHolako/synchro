@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Campus } from './types';
 
 interface BuildingDialogProps {
@@ -25,6 +26,8 @@ export function BuildingDialog({
     onOpenChange,
     campuses,
 }: BuildingDialogProps) {
+    const { t } = useTranslation();
+
     const form = useForm({
         campus_id: campuses[0]?.id?.toString() || '',
         name: '',
@@ -43,7 +46,7 @@ export function BuildingDialog({
             onSuccess: () => {
                 onOpenChange(false);
                 form.reset();
-                toast.success('Building created successfully.');
+                toast.success(t('toasts.building_created'));
             },
             onError: (errors) => {
                 const first = Object.values(errors)[0];
@@ -57,16 +60,18 @@ export function BuildingDialog({
             <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Add Building</DialogTitle>
+                        <DialogTitle>
+                            {t('rooms.dialog_building_title')}
+                        </DialogTitle>
                         <DialogDescription>
-                            Register a building attached to a campus.
+                            {t('rooms.dialog_building_desc')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-3 py-4">
                         <div className="space-y-1.5">
                             <Label htmlFor="dialog_building_campus_id">
-                                Campus *
+                                {t('academic.col_campus')} *
                             </Label>
                             <select
                                 id="dialog_building_campus_id"
@@ -88,11 +93,13 @@ export function BuildingDialog({
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <Label htmlFor="dialog_building_name">
-                                    Building Name *
+                                    {t('rooms.dialog_building_name')}
                                 </Label>
                                 <Input
                                     id="dialog_building_name"
-                                    placeholder="e.g. Bâtiment A"
+                                    placeholder={t(
+                                        'rooms.dialog_building_name_placeholder',
+                                    )}
                                     value={form.data.name}
                                     onChange={(e) =>
                                         form.setData('name', e.target.value)
@@ -102,11 +109,13 @@ export function BuildingDialog({
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="dialog_building_code">
-                                    Code
+                                    {t('rooms.dialog_building_code')}
                                 </Label>
                                 <Input
                                     id="dialog_building_code"
-                                    placeholder="e.g. BAT-A"
+                                    placeholder={t(
+                                        'rooms.dialog_building_code_placeholder',
+                                    )}
                                     value={form.data.code}
                                     onChange={(e) =>
                                         form.setData(
@@ -125,10 +134,12 @@ export function BuildingDialog({
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={form.processing}>
-                            {form.processing ? 'Saving...' : 'Create Building'}
+                            {form.processing
+                                ? t('common.saving')
+                                : t('rooms.dialog_building_title')}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/i18n/LanguageContext';
 import type { Campus } from './types';
 
 interface RoomsFilterBarProps {
@@ -50,6 +51,8 @@ export function RoomsFilterBar({
     onApplyFilters,
     onResetFilters,
 }: RoomsFilterBarProps) {
+    const { t } = useTranslation();
+
     const availableBuildings = useMemo(() => {
         if (!selectedCampus) {
             return campuses.flatMap((c) => c.buildings || []);
@@ -67,7 +70,7 @@ export function RoomsFilterBar({
                     <div className="flex items-center gap-2">
                         <Filter className="size-4 text-neutral-500" />
                         <CardTitle className="text-base font-semibold">
-                            Filter Teaching Spaces
+                            {t('rooms.filter_title')}
                         </CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
@@ -76,10 +79,10 @@ export function RoomsFilterBar({
                             size="sm"
                             onClick={onResetFilters}
                         >
-                            Reset
+                            {t('common.reset')}
                         </Button>
                         <Button size="sm" onClick={onApplyFilters}>
-                            Apply Filters
+                            {t('common.apply_filters')}
                         </Button>
                     </div>
                 </div>
@@ -87,11 +90,15 @@ export function RoomsFilterBar({
             <CardContent className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
                     <div className="space-y-1.5">
-                        <Label className="text-xs font-medium">Search</Label>
+                        <Label className="text-xs font-medium">
+                            {t('common.search')}
+                        </Label>
                         <div className="relative">
                             <Search className="absolute top-2.5 left-2.5 size-4 text-neutral-400" />
                             <Input
-                                placeholder="Room, code, or building..."
+                                placeholder={t(
+                                    'rooms.filter_search_placeholder',
+                                )}
                                 value={searchTerm}
                                 onChange={(e) => onSearchChange(e.target.value)}
                                 className="pl-8"
@@ -103,13 +110,15 @@ export function RoomsFilterBar({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label className="text-xs font-medium">Campus</Label>
+                        <Label className="text-xs font-medium">
+                            {t('academic.col_campus')}
+                        </Label>
                         <select
                             value={selectedCampus}
                             onChange={(e) => onCampusChange(e.target.value)}
                             className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs"
                         >
-                            <option value="">All Campuses</option>
+                            <option value="">{t('rooms.all_campuses')}</option>
                             {campuses.map((c) => (
                                 <option key={c.id} value={c.id}>
                                     {c.name} ({c.code})
@@ -119,13 +128,15 @@ export function RoomsFilterBar({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label className="text-xs font-medium">Building</Label>
+                        <Label className="text-xs font-medium">
+                            {t('rooms.dialog_building')}
+                        </Label>
                         <select
                             value={selectedBuilding}
                             onChange={(e) => onBuildingChange(e.target.value)}
                             className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs"
                         >
-                            <option value="">All Buildings</option>
+                            <option value="">{t('rooms.all_buildings')}</option>
                             {availableBuildings.map((b) => (
                                 <option key={b.id} value={b.id}>
                                     {b.name}
@@ -135,50 +146,56 @@ export function RoomsFilterBar({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label className="text-xs font-medium">Status</Label>
+                        <Label className="text-xs font-medium">
+                            {t('common.status')}
+                        </Label>
                         <select
                             value={selectedStatus}
                             onChange={(e) => onStatusChange(e.target.value)}
                             className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs"
                         >
-                            <option value="all">All Statuses</option>
-                            <option value="1">Active Only</option>
-                            <option value="0">Inactive Only</option>
+                            <option value="all">
+                                {t('common.all_statuses')}
+                            </option>
+                            <option value="1">{t('common.active_only')}</option>
+                            <option value="0">
+                                {t('common.inactive_only')}
+                            </option>
                         </select>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                     <span className="text-xs font-semibold text-neutral-500 uppercase">
-                        Equipment:
+                        {t('rooms.equipment')}
                     </span>
                     <label className="flex cursor-pointer items-center gap-1.5 text-xs">
                         <Checkbox
                             checked={filterProjector}
                             onCheckedChange={(c) => onProjectorChange(!!c)}
                         />
-                        Projector
+                        {t('rooms.projector')}
                     </label>
                     <label className="flex cursor-pointer items-center gap-1.5 text-xs">
                         <Checkbox
                             checked={filterLab}
                             onCheckedChange={(c) => onLabChange(!!c)}
                         />
-                        Computer Lab
+                        {t('rooms.lab')}
                     </label>
                     <label className="flex cursor-pointer items-center gap-1.5 text-xs">
                         <Checkbox
                             checked={filterComputers}
                             onCheckedChange={(c) => onComputersChange(!!c)}
                         />
-                        Student PCs
+                        {t('rooms.computers')}
                     </label>
                     <label className="flex cursor-pointer items-center gap-1.5 text-xs">
                         <Checkbox
                             checked={filterSound}
                             onCheckedChange={(c) => onSoundChange(!!c)}
                         />
-                        Sound System
+                        {t('rooms.sound')}
                     </label>
                 </div>
             </CardContent>

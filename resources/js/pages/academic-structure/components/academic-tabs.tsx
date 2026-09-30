@@ -1,6 +1,7 @@
 import { BookOpen, Building2, Plus, Users } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/i18n/LanguageContext';
 
 export type AcademicTab = 'departments' | 'programs' | 'groups';
 
@@ -25,6 +26,8 @@ export function AcademicTabs({
     onNewProgram,
     onNewGroup,
 }: AcademicTabsProps) {
+    const { t } = useTranslation();
+
     return (
         <div className="flex flex-col gap-4 border-b border-neutral-200 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-neutral-800">
             <div className="flex items-center gap-2">
@@ -38,7 +41,7 @@ export function AcademicTabs({
                     }`}
                 >
                     <Building2 className="size-4" />
-                    Departments
+                    {t('academic.tab_departments')}
                     <span className="ml-1 rounded-full bg-neutral-200 px-2 py-0.5 text-xs text-neutral-800 dark:bg-neutral-700 dark:text-neutral-200">
                         {departmentsCount}
                     </span>
@@ -54,7 +57,7 @@ export function AcademicTabs({
                     }`}
                 >
                     <BookOpen className="size-4" />
-                    Programs
+                    {t('academic.tab_programs')}
                     <span className="ml-1 rounded-full bg-neutral-200 px-2 py-0.5 text-xs text-neutral-800 dark:bg-neutral-700 dark:text-neutral-200">
                         {programsCount}
                     </span>
@@ -70,7 +73,7 @@ export function AcademicTabs({
                     }`}
                 >
                     <Users className="size-4" />
-                    Student Groups
+                    {t('academic.tab_student_groups')}
                     <span className="ml-1 rounded-full bg-neutral-200 px-2 py-0.5 text-xs text-neutral-800 dark:bg-neutral-700 dark:text-neutral-200">
                         {groupsCount}
                     </span>
@@ -80,15 +83,15 @@ export function AcademicTabs({
             <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={onNewDepartment}>
                     <Plus className="mr-1.5 size-4" />
-                    Department
+                    {t('academic.new_department')}
                 </Button>
                 <Button variant="outline" size="sm" onClick={onNewProgram}>
                     <Plus className="mr-1.5 size-4" />
-                    Program
+                    {t('academic.new_program')}
                 </Button>
                 <Button variant="default" size="sm" onClick={onNewGroup}>
                     <Plus className="mr-1.5 size-4" />
-                    Student Group
+                    {t('academic.new_student_group')}
                 </Button>
             </div>
         </div>

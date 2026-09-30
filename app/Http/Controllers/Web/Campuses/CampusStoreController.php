@@ -16,7 +16,7 @@ class CampusStoreController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "Campus {$campus->name} created successfully.",
+            'message' => __('messages.campus_created', ['name' => $campus->name]),
         ]);
 
         return back();

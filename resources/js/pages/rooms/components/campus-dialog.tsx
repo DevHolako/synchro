@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/i18n/LanguageContext';
 
 interface CampusDialogProps {
     open: boolean;
@@ -19,6 +20,8 @@ interface CampusDialogProps {
 }
 
 export function CampusDialog({ open, onOpenChange }: CampusDialogProps) {
+    const { t } = useTranslation();
+
     const form = useForm({
         name: '',
         code: '',
@@ -32,7 +35,7 @@ export function CampusDialog({ open, onOpenChange }: CampusDialogProps) {
             onSuccess: () => {
                 onOpenChange(false);
                 form.reset();
-                toast.success('Campus created successfully.');
+                toast.success(t('toasts.campus_created'));
             },
             onError: (errors) => {
                 const first = Object.values(errors)[0];
@@ -46,21 +49,24 @@ export function CampusDialog({ open, onOpenChange }: CampusDialogProps) {
             <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Add Campus</DialogTitle>
+                        <DialogTitle>
+                            {t('rooms.dialog_campus_title')}
+                        </DialogTitle>
                         <DialogDescription>
-                            Register a new institutional campus (e.g.
-                            Casablanca, Rabat).
+                            {t('rooms.dialog_campus_desc')}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-3 py-4">
                         <div className="space-y-1.5">
                             <Label htmlFor="dialog_campus_name">
-                                Campus Name *
+                                {t('rooms.dialog_campus_name')}
                             </Label>
                             <Input
                                 id="dialog_campus_name"
-                                placeholder="e.g. Campus Casablanca"
+                                placeholder={t(
+                                    'rooms.dialog_campus_name_placeholder',
+                                )}
                                 value={form.data.name}
                                 onChange={(e) =>
                                     form.setData('name', e.target.value)
@@ -72,11 +78,13 @@ export function CampusDialog({ open, onOpenChange }: CampusDialogProps) {
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                                 <Label htmlFor="dialog_campus_code">
-                                    Code (Unique) *
+                                    {t('rooms.dialog_campus_code')}
                                 </Label>
                                 <Input
                                     id="dialog_campus_code"
-                                    placeholder="e.g. CASA"
+                                    placeholder={t(
+                                        'rooms.dialog_campus_code_placeholder',
+                                    )}
                                     value={form.data.code}
                                     onChange={(e) =>
                                         form.setData(
@@ -88,10 +96,14 @@ export function CampusDialog({ open, onOpenChange }: CampusDialogProps) {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="dialog_campus_city">City</Label>
+                                <Label htmlFor="dialog_campus_city">
+                                    {t('rooms.dialog_campus_city')}
+                                </Label>
                                 <Input
                                     id="dialog_campus_city"
-                                    placeholder="e.g. Casablanca"
+                                    placeholder={t(
+                                        'rooms.dialog_campus_city_placeholder',
+                                    )}
                                     value={form.data.city}
                                     onChange={(e) =>
                                         form.setData('city', e.target.value)
@@ -102,11 +114,13 @@ export function CampusDialog({ open, onOpenChange }: CampusDialogProps) {
 
                         <div className="space-y-1.5">
                             <Label htmlFor="dialog_campus_address">
-                                Address
+                                {t('rooms.dialog_campus_address')}
                             </Label>
                             <Input
                                 id="dialog_campus_address"
-                                placeholder="e.g. Boulevard Bir Anzarane"
+                                placeholder={t(
+                                    'rooms.dialog_campus_address_placeholder',
+                                )}
                                 value={form.data.address}
                                 onChange={(e) =>
                                     form.setData('address', e.target.value)
@@ -121,10 +135,12 @@ export function CampusDialog({ open, onOpenChange }: CampusDialogProps) {
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button type="submit" disabled={form.processing}>
-                            {form.processing ? 'Saving...' : 'Create Campus'}
+                            {form.processing
+                                ? t('common.saving')
+                                : t('rooms.dialog_campus_title')}
                         </Button>
                     </DialogFooter>
                 </form>
