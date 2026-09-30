@@ -38,6 +38,11 @@ const mainNavItems: NavItem[] = [
         href: '/academic-structure',
         icon: GraduationCap,
     },
+    {
+        title: 'Modules & Syllabus',
+        href: '/modules',
+        icon: BookOpen,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
