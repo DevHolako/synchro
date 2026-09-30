@@ -1,0 +1,113 @@
+import { useForm } from '@inertiajs/react';
+import React, { useEffect } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import type { Campus } from './types';
+
+interface BuildingDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    campuses: Campus[];
+}
+
+export function BuildingDialog({ open, onOpenChange, campuses }: BuildingDialogProps) {
+    const form = useForm({
+        campus_id: campuses[0]?.id?.toString() || '',
+        name: '',
+        code: '',
+    });
+
+    useEffect(() => {
+        if (!form.data.campus_id && campuses[0]) {
+            form.setData('campus_id', campuses[0].id.toString());
+        }
+    }, [campuses]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        form.post('/buildings', {
+            onSuccess: () => {
+                onOpenChange(false);
+                form.reset();
+                toast.success('Building created successfully.');
+            },
+            onError: (errors) => {
+                const first = Object.values(errors)[0];
+                if (first) toast.error(first as string);
+            },
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
+                <form onSubmit={handleSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>Add Building</DialogTitle>
+                        <DialogDescription>Register a building attached to a campus.</DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-3 py-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="dialog_building_campus_id">Campus *</Label>
+                            <select
+                                id="dialog_building_campus_id"
+                                value={form.data.campus_id}
+                                onChange={(e) => form.setData('campus_id', e.target.value)}
+                                className="border-input bg-background flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs"
+                                required
+                            >
+                                {campuses.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.name} ({c.code})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="dialog_building_name">Building Name *</Label>
+                                <Input
+                                    id="dialog_building_name"
+                                    placeholder="e.g. Bâtiment A"
+                                    value={form.data.name}
+                                    onChange={(e) => form.setData('name', e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="dialog_building_code">Code</Label>
+                                <Input
+                                    id="dialog_building_code"
+                                    placeholder="e.g. BAT-A"
+                                    value={form.data.code}
+                                    onChange={(e) => form.setData('code', e.target.value.toUpperCase())}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={form.processing}>
+                            {form.processing ? 'Saving...' : 'Create Building'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+}
