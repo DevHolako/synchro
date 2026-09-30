@@ -38,5 +38,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(ReferentialsSeeder::class);
         $this->call(AcademicStructureSeeder::class);
+        $this->call(ModuleSeeder::class);
     }
 }

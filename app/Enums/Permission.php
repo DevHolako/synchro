@@ -45,8 +45,11 @@ enum Permission: string
     case UpdateStudentGroups = 'update:student-groups';
     case DeleteStudentGroups = 'delete:student-groups';
 
-    // Module permissions (for subsequent tickets)
+    // Module permissions
     case ViewModules = 'view:modules';
+    case CreateModules = 'create:modules';
+    case UpdateModules = 'update:modules';
+    case DeleteModules = 'delete:modules';
     case ManageModules = 'manage:modules';
 
     // Planning & Scheduling permissions

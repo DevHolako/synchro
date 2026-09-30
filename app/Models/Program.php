@@ -58,6 +58,14 @@ class Program extends Model
     }
 
     /**
+     * @return HasMany<Module, $this>
+     */
+    public function modules(): HasMany
+    {
+        return $this->hasMany(Module::class);
+    }
+
+    /**
      * Scope a query to only include active programs.
      *
      * @param  Builder<Program>  $query
