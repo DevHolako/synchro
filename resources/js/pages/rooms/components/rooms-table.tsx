@@ -38,7 +38,7 @@ const RoomRow = memo(function RoomRow({
     return (
         <tr
             className={`transition-colors hover:bg-neutral-50/50 dark:hover:bg-neutral-800/40 ${
-                !room.is_active ? 'opacity-60 bg-neutral-50/20' : ''
+                !room.is_active ? 'bg-neutral-50/20 opacity-60' : ''
             }`}
         >
             <td className="px-6 py-4">
@@ -46,7 +46,7 @@ const RoomRow = memo(function RoomRow({
                     {room.name}
                 </div>
                 {room.code && (
-                    <div className="text-xs text-neutral-500 font-mono">
+                    <div className="font-mono text-xs text-neutral-500">
                         {room.code}
                     </div>
                 )}
@@ -62,12 +62,16 @@ const RoomRow = memo(function RoomRow({
                     {room.building?.name || 'Unknown Building'}
                 </div>
                 <div className="text-xs text-neutral-500">
-                    {room.building?.campus?.name} ({room.building?.campus?.code})
+                    {room.building?.campus?.name} ({room.building?.campus?.code}
+                    )
                 </div>
             </td>
 
             <td className="px-6 py-4 text-center">
-                <Badge variant="secondary" className="px-2.5 py-1 text-sm font-semibold">
+                <Badge
+                    variant="secondary"
+                    className="px-2.5 py-1 text-sm font-semibold"
+                >
                     <Users className="mr-1 size-3.5 text-blue-500" />
                     {room.course_capacity} seats
                 </Badge>
@@ -77,12 +81,12 @@ const RoomRow = memo(function RoomRow({
                 <div className="inline-flex flex-col items-center">
                     <Badge
                         variant="outline"
-                        className="px-2.5 py-1 text-sm font-semibold border-emerald-500/30 text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20"
+                        className="border-emerald-500/30 bg-emerald-50/50 px-2.5 py-1 text-sm font-semibold text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
                     >
                         <CheckCircle2 className="mr-1 size-3.5 text-emerald-500" />
                         {room.exam_capacity} seats
                     </Badge>
-                    <span className="text-[10px] text-neutral-400 mt-0.5">
+                    <span className="mt-0.5 text-[10px] text-neutral-400">
                         {ratio}% density
                     </span>
                 </div>
@@ -91,25 +95,37 @@ const RoomRow = memo(function RoomRow({
             <td className="px-6 py-4">
                 <div className="flex flex-wrap gap-1.5">
                     {room.has_projector && (
-                        <Badge variant="outline" className="text-[11px] gap-1 bg-neutral-50 dark:bg-neutral-800">
+                        <Badge
+                            variant="outline"
+                            className="gap-1 bg-neutral-50 text-[11px] dark:bg-neutral-800"
+                        >
                             <MonitorPlay className="size-3 text-indigo-500" />
                             Projector
                         </Badge>
                     )}
                     {room.is_lab && (
-                        <Badge variant="outline" className="text-[11px] gap-1 bg-neutral-50 dark:bg-neutral-800">
+                        <Badge
+                            variant="outline"
+                            className="gap-1 bg-neutral-50 text-[11px] dark:bg-neutral-800"
+                        >
                             <SlidersHorizontal className="size-3 text-purple-500" />
                             Lab
                         </Badge>
                     )}
                     {room.has_computers && (
-                        <Badge variant="outline" className="text-[11px] gap-1 bg-neutral-50 dark:bg-neutral-800">
+                        <Badge
+                            variant="outline"
+                            className="gap-1 bg-neutral-50 text-[11px] dark:bg-neutral-800"
+                        >
                             <Computer className="size-3 text-cyan-500" />
                             PCs
                         </Badge>
                     )}
                     {room.has_sound_system && (
-                        <Badge variant="outline" className="text-[11px] gap-1 bg-neutral-50 dark:bg-neutral-800">
+                        <Badge
+                            variant="outline"
+                            className="gap-1 bg-neutral-50 text-[11px] dark:bg-neutral-800"
+                        >
                             <Volume2 className="size-3 text-amber-500" />
                             Audio
                         </Badge>
@@ -125,7 +141,7 @@ const RoomRow = memo(function RoomRow({
 
             <td className="px-6 py-4">
                 {room.is_active ? (
-                    <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-transparent">
+                    <Badge className="border-transparent bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
                         Active
                     </Badge>
                 ) : (
@@ -166,7 +182,12 @@ const RoomRow = memo(function RoomRow({
     );
 });
 
-export function RoomsTable({ rooms, onEdit, onToggleActive, onResetFilters }: RoomsTableProps) {
+export function RoomsTable({
+    rooms,
+    onEdit,
+    onToggleActive,
+    onResetFilters,
+}: RoomsTableProps) {
     return (
         <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xs dark:border-neutral-800 dark:bg-neutral-900">
             <div className="border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
@@ -187,9 +208,15 @@ export function RoomsTable({ rooms, onEdit, onToggleActive, onResetFilters }: Ro
                         No rooms match your filters
                     </h3>
                     <p className="mt-1 text-sm text-neutral-500">
-                        Try adjusting your search query or clear the active filters.
+                        Try adjusting your search query or clear the active
+                        filters.
                     </p>
-                    <Button variant="outline" size="sm" onClick={onResetFilters} className="mt-4">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={onResetFilters}
+                        className="mt-4"
+                    >
                         Reset Filters
                     </Button>
                 </div>
@@ -200,11 +227,17 @@ export function RoomsTable({ rooms, onEdit, onToggleActive, onResetFilters }: Ro
                             <tr>
                                 <th className="px-6 py-3.5">Room & Code</th>
                                 <th className="px-6 py-3.5">Location</th>
-                                <th className="px-6 py-3.5 text-center">Course Capacity</th>
-                                <th className="px-6 py-3.5 text-center">Exam Capacity</th>
+                                <th className="px-6 py-3.5 text-center">
+                                    Course Capacity
+                                </th>
+                                <th className="px-6 py-3.5 text-center">
+                                    Exam Capacity
+                                </th>
                                 <th className="px-6 py-3.5">Equipment</th>
                                 <th className="px-6 py-3.5">Status</th>
-                                <th className="px-6 py-3.5 text-right">Actions</th>
+                                <th className="px-6 py-3.5 text-right">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">

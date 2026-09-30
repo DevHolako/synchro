@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { Building2, DoorClosed, MapPin, Plus } from 'lucide-react';
+import { Building2, MapPin, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -19,16 +19,33 @@ interface RoomsIndexProps {
     stats: Stats;
 }
 
-export default function RoomsIndex({ rooms, campuses, filters, stats }: RoomsIndexProps) {
+export default function RoomsIndex({
+    rooms,
+    campuses,
+    filters,
+    stats,
+}: RoomsIndexProps) {
     // Filter local states
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
-    const [selectedCampus, setSelectedCampus] = useState(filters.campus_id || '');
-    const [selectedBuilding, setSelectedBuilding] = useState(filters.building_id || '');
-    const [selectedStatus, setSelectedStatus] = useState(filters.is_active || 'all');
-    const [filterProjector, setFilterProjector] = useState(filters.has_projector || false);
+    const [selectedCampus, setSelectedCampus] = useState(
+        filters.campus_id || '',
+    );
+    const [selectedBuilding, setSelectedBuilding] = useState(
+        filters.building_id || '',
+    );
+    const [selectedStatus, setSelectedStatus] = useState(
+        filters.is_active || 'all',
+    );
+    const [filterProjector, setFilterProjector] = useState(
+        filters.has_projector || false,
+    );
     const [filterLab, setFilterLab] = useState(filters.is_lab || false);
-    const [filterComputers, setFilterComputers] = useState(filters.has_computers || false);
-    const [filterSound, setFilterSound] = useState(filters.has_sound_system || false);
+    const [filterComputers, setFilterComputers] = useState(
+        filters.has_computers || false,
+    );
+    const [filterSound, setFilterSound] = useState(
+        filters.has_sound_system || false,
+    );
 
     // Modal dialogs state
     const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
@@ -43,13 +60,14 @@ export default function RoomsIndex({ rooms, campuses, filters, stats }: RoomsInd
                 search: searchTerm || undefined,
                 campus_id: selectedCampus || undefined,
                 building_id: selectedBuilding || undefined,
-                is_active: selectedStatus !== 'all' ? selectedStatus : undefined,
+                is_active:
+                    selectedStatus !== 'all' ? selectedStatus : undefined,
                 has_projector: filterProjector ? '1' : undefined,
                 is_lab: filterLab ? '1' : undefined,
                 has_computers: filterComputers ? '1' : undefined,
                 has_sound_system: filterSound ? '1' : undefined,
             },
-            { preserveState: true }
+            { preserveState: true },
         );
     };
 
@@ -73,9 +91,11 @@ export default function RoomsIndex({ rooms, campuses, filters, stats }: RoomsInd
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    toast.success(`Room ${room.name} ${room.is_active ? 'deactivated' : 'activated'}.`);
+                    toast.success(
+                        `Room ${room.name} ${room.is_active ? 'deactivated' : 'activated'}.`,
+                    );
                 },
-            }
+            },
         );
     };
 
@@ -91,20 +111,32 @@ export default function RoomsIndex({ rooms, campuses, filters, stats }: RoomsInd
                             Teaching Spaces & Referentials
                         </h1>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Manage campuses, buildings, and rooms with explicit Course and Exam capacities.
+                            Manage campuses, buildings, and rooms with explicit
+                            Course and Exam capacities.
                         </p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => setIsCreateCampusOpen(true)}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsCreateCampusOpen(true)}
+                        >
                             <MapPin className="mr-1.5 size-4" />
                             New Campus
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => setIsCreateBuildingOpen(true)}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsCreateBuildingOpen(true)}
+                        >
                             <Building2 className="mr-1.5 size-4" />
                             New Building
                         </Button>
-                        <Button size="sm" onClick={() => setIsCreateRoomOpen(true)}>
+                        <Button
+                            size="sm"
+                            onClick={() => setIsCreateRoomOpen(true)}
+                        >
                             <Plus className="mr-1.5 size-4" />
                             New Room
                         </Button>

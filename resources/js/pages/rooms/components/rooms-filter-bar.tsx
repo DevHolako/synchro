@@ -54,7 +54,10 @@ export function RoomsFilterBar({
         if (!selectedCampus) {
             return campuses.flatMap((c) => c.buildings || []);
         }
-        return campuses.find((c) => c.id.toString() === selectedCampus)?.buildings || [];
+        return (
+            campuses.find((c) => c.id.toString() === selectedCampus)
+                ?.buildings || []
+        );
     }, [campuses, selectedCampus]);
 
     return (
@@ -63,10 +66,16 @@ export function RoomsFilterBar({
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Filter className="size-4 text-neutral-500" />
-                        <CardTitle className="text-base font-semibold">Filter Teaching Spaces</CardTitle>
+                        <CardTitle className="text-base font-semibold">
+                            Filter Teaching Spaces
+                        </CardTitle>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" onClick={onResetFilters}>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onResetFilters}
+                        >
                             Reset
                         </Button>
                         <Button size="sm" onClick={onApplyFilters}>
@@ -86,7 +95,9 @@ export function RoomsFilterBar({
                                 value={searchTerm}
                                 onChange={(e) => onSearchChange(e.target.value)}
                                 className="pl-8"
-                                onKeyDown={(e) => e.key === 'Enter' && onApplyFilters()}
+                                onKeyDown={(e) =>
+                                    e.key === 'Enter' && onApplyFilters()
+                                }
                             />
                         </div>
                     </div>
@@ -96,7 +107,7 @@ export function RoomsFilterBar({
                         <select
                             value={selectedCampus}
                             onChange={(e) => onCampusChange(e.target.value)}
-                            className="border-input bg-background flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs"
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs"
                         >
                             <option value="">All Campuses</option>
                             {campuses.map((c) => (
@@ -112,7 +123,7 @@ export function RoomsFilterBar({
                         <select
                             value={selectedBuilding}
                             onChange={(e) => onBuildingChange(e.target.value)}
-                            className="border-input bg-background flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs"
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs"
                         >
                             <option value="">All Buildings</option>
                             {availableBuildings.map((b) => (
@@ -128,7 +139,7 @@ export function RoomsFilterBar({
                         <select
                             value={selectedStatus}
                             onChange={(e) => onStatusChange(e.target.value)}
-                            className="border-input bg-background flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs"
+                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs"
                         >
                             <option value="all">All Statuses</option>
                             <option value="1">Active Only</option>
@@ -138,7 +149,9 @@ export function RoomsFilterBar({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 pt-2">
-                    <span className="text-xs font-semibold text-neutral-500 uppercase">Equipment:</span>
+                    <span className="text-xs font-semibold text-neutral-500 uppercase">
+                        Equipment:
+                    </span>
                     <label className="flex cursor-pointer items-center gap-1.5 text-xs">
                         <Checkbox
                             checked={filterProjector}

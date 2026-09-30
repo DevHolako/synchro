@@ -20,7 +20,11 @@ interface BuildingDialogProps {
     campuses: Campus[];
 }
 
-export function BuildingDialog({ open, onOpenChange, campuses }: BuildingDialogProps) {
+export function BuildingDialog({
+    open,
+    onOpenChange,
+    campuses,
+}: BuildingDialogProps) {
     const form = useForm({
         campus_id: campuses[0]?.id?.toString() || '',
         name: '',
@@ -54,17 +58,23 @@ export function BuildingDialog({ open, onOpenChange, campuses }: BuildingDialogP
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle>Add Building</DialogTitle>
-                        <DialogDescription>Register a building attached to a campus.</DialogDescription>
+                        <DialogDescription>
+                            Register a building attached to a campus.
+                        </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-3 py-4">
                         <div className="space-y-1.5">
-                            <Label htmlFor="dialog_building_campus_id">Campus *</Label>
+                            <Label htmlFor="dialog_building_campus_id">
+                                Campus *
+                            </Label>
                             <select
                                 id="dialog_building_campus_id"
                                 value={form.data.campus_id}
-                                onChange={(e) => form.setData('campus_id', e.target.value)}
-                                className="border-input bg-background flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs"
+                                onChange={(e) =>
+                                    form.setData('campus_id', e.target.value)
+                                }
+                                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs"
                                 required
                             >
                                 {campuses.map((c) => (
@@ -77,29 +87,44 @@ export function BuildingDialog({ open, onOpenChange, campuses }: BuildingDialogP
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                                <Label htmlFor="dialog_building_name">Building Name *</Label>
+                                <Label htmlFor="dialog_building_name">
+                                    Building Name *
+                                </Label>
                                 <Input
                                     id="dialog_building_name"
                                     placeholder="e.g. Bâtiment A"
                                     value={form.data.name}
-                                    onChange={(e) => form.setData('name', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('name', e.target.value)
+                                    }
                                     required
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="dialog_building_code">Code</Label>
+                                <Label htmlFor="dialog_building_code">
+                                    Code
+                                </Label>
                                 <Input
                                     id="dialog_building_code"
                                     placeholder="e.g. BAT-A"
                                     value={form.data.code}
-                                    onChange={(e) => form.setData('code', e.target.value.toUpperCase())}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'code',
+                                            e.target.value.toUpperCase(),
+                                        )
+                                    }
                                 />
                             </div>
                         </div>
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => onOpenChange(false)}
+                        >
                             Cancel
                         </Button>
                         <Button type="submit" disabled={form.processing}>

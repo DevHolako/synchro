@@ -22,7 +22,12 @@ interface RoomDialogProps {
     roomToEdit?: Room | null;
 }
 
-export function RoomDialog({ open, onOpenChange, campuses, roomToEdit }: RoomDialogProps) {
+export function RoomDialog({
+    open,
+    onOpenChange,
+    campuses,
+    roomToEdit,
+}: RoomDialogProps) {
     const isEditing = Boolean(roomToEdit);
 
     const form = useForm({
@@ -77,7 +82,9 @@ export function RoomDialog({ open, onOpenChange, campuses, roomToEdit }: RoomDia
         const exam = parseInt(form.data.exam_capacity, 10);
 
         if (exam > course) {
-            toast.error('Validation Error: Exam capacity cannot exceed course capacity.');
+            toast.error(
+                'Validation Error: Exam capacity cannot exceed course capacity.',
+            );
             return;
         }
 
@@ -112,24 +119,36 @@ export function RoomDialog({ open, onOpenChange, campuses, roomToEdit }: RoomDia
             <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>{isEditing ? `Edit Room: ${roomToEdit?.name}` : 'Add New Room'}</DialogTitle>
+                        <DialogTitle>
+                            {isEditing
+                                ? `Edit Room: ${roomToEdit?.name}`
+                                : 'Add New Room'}
+                        </DialogTitle>
                         <DialogDescription>
-                            Register a teaching space with both lecture and distanced exam capacities.
+                            Register a teaching space with both lecture and
+                            distanced exam capacities.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
                         <div className="space-y-1.5">
-                            <Label htmlFor="room_dialog_building_id">Building *</Label>
+                            <Label htmlFor="room_dialog_building_id">
+                                Building *
+                            </Label>
                             <select
                                 id="room_dialog_building_id"
                                 value={form.data.building_id}
-                                onChange={(e) => form.setData('building_id', e.target.value)}
-                                className="border-input bg-background flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs"
+                                onChange={(e) =>
+                                    form.setData('building_id', e.target.value)
+                                }
+                                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs"
                                 required
                             >
                                 {campuses.map((c) => (
-                                    <optgroup key={c.id} label={`${c.name} (${c.code})`}>
+                                    <optgroup
+                                        key={c.id}
+                                        label={`${c.name} (${c.code})`}
+                                    >
                                         {c.buildings?.map((b) => (
                                             <option key={b.id} value={b.id}>
                                                 {b.name}
@@ -142,22 +161,30 @@ export function RoomDialog({ open, onOpenChange, campuses, roomToEdit }: RoomDia
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                                <Label htmlFor="room_dialog_name">Room Name *</Label>
+                                <Label htmlFor="room_dialog_name">
+                                    Room Name *
+                                </Label>
                                 <Input
                                     id="room_dialog_name"
                                     placeholder="e.g. Salle 101, Amphi 1"
                                     value={form.data.name}
-                                    onChange={(e) => form.setData('name', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('name', e.target.value)
+                                    }
                                     required
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="room_dialog_code">Room Code</Label>
+                                <Label htmlFor="room_dialog_code">
+                                    Room Code
+                                </Label>
                                 <Input
                                     id="room_dialog_code"
                                     placeholder="e.g. A-101"
                                     value={form.data.code}
-                                    onChange={(e) => form.setData('code', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('code', e.target.value)
+                                    }
                                 />
                             </div>
                         </div>
@@ -169,11 +196,15 @@ export function RoomDialog({ open, onOpenChange, campuses, roomToEdit }: RoomDia
                                     id="room_dialog_floor"
                                     type="number"
                                     value={form.data.floor}
-                                    onChange={(e) => form.setData('floor', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('floor', e.target.value)
+                                    }
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="room_dialog_course_capacity">Course Cap. *</Label>
+                                <Label htmlFor="room_dialog_course_capacity">
+                                    Course Cap. *
+                                </Label>
                                 <Input
                                     id="room_dialog_course_capacity"
                                     type="number"
@@ -181,32 +212,46 @@ export function RoomDialog({ open, onOpenChange, campuses, roomToEdit }: RoomDia
                                     value={form.data.course_capacity}
                                     onChange={(e) => {
                                         const course = e.target.value;
-                                        const examVal = Math.floor(parseInt(course || '0', 10) / 2);
+                                        const examVal = Math.floor(
+                                            parseInt(course || '0', 10) / 2,
+                                        );
                                         form.setData({
                                             ...form.data,
                                             course_capacity: course,
-                                            exam_capacity: examVal > 0 ? examVal.toString() : '1',
+                                            exam_capacity:
+                                                examVal > 0
+                                                    ? examVal.toString()
+                                                    : '1',
                                         });
                                     }}
                                     required
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="room_dialog_exam_capacity">Exam Cap. *</Label>
+                                <Label htmlFor="room_dialog_exam_capacity">
+                                    Exam Cap. *
+                                </Label>
                                 <Input
                                     id="room_dialog_exam_capacity"
                                     type="number"
                                     min="1"
                                     max={form.data.course_capacity}
                                     value={form.data.exam_capacity}
-                                    onChange={(e) => form.setData('exam_capacity', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'exam_capacity',
+                                            e.target.value,
+                                        )
+                                    }
                                     required
                                 />
                             </div>
                         </div>
 
                         <div className="rounded-lg bg-neutral-50 p-2.5 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
-                            💡 <strong>Exam Capacity Rule:</strong> Strictly cannot exceed Course Capacity. Default is 50% for exam distancing.
+                            💡 <strong>Exam Capacity Rule:</strong> Strictly
+                            cannot exceed Course Capacity. Default is 50% for
+                            exam distancing.
                         </div>
 
                         <div className="space-y-2 pt-2">
@@ -217,28 +262,39 @@ export function RoomDialog({ open, onOpenChange, campuses, roomToEdit }: RoomDia
                                 <label className="flex cursor-pointer items-center gap-2 text-xs">
                                     <Checkbox
                                         checked={form.data.has_projector}
-                                        onCheckedChange={(c) => form.setData('has_projector', !!c)}
+                                        onCheckedChange={(c) =>
+                                            form.setData('has_projector', !!c)
+                                        }
                                     />
                                     Video Projector
                                 </label>
                                 <label className="flex cursor-pointer items-center gap-2 text-xs">
                                     <Checkbox
                                         checked={form.data.is_lab}
-                                        onCheckedChange={(c) => form.setData('is_lab', !!c)}
+                                        onCheckedChange={(c) =>
+                                            form.setData('is_lab', !!c)
+                                        }
                                     />
                                     Computer Lab
                                 </label>
                                 <label className="flex cursor-pointer items-center gap-2 text-xs">
                                     <Checkbox
                                         checked={form.data.has_computers}
-                                        onCheckedChange={(c) => form.setData('has_computers', !!c)}
+                                        onCheckedChange={(c) =>
+                                            form.setData('has_computers', !!c)
+                                        }
                                     />
                                     Student PCs
                                 </label>
                                 <label className="flex cursor-pointer items-center gap-2 text-xs">
                                     <Checkbox
                                         checked={form.data.has_sound_system}
-                                        onCheckedChange={(c) => form.setData('has_sound_system', !!c)}
+                                        onCheckedChange={(c) =>
+                                            form.setData(
+                                                'has_sound_system',
+                                                !!c,
+                                            )
+                                        }
                                     />
                                     Sound System
                                 </label>
@@ -247,11 +303,19 @@ export function RoomDialog({ open, onOpenChange, campuses, roomToEdit }: RoomDia
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => onOpenChange(false)}
+                        >
                             Cancel
                         </Button>
                         <Button type="submit" disabled={form.processing}>
-                            {form.processing ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Room'}
+                            {form.processing
+                                ? 'Saving...'
+                                : isEditing
+                                  ? 'Save Changes'
+                                  : 'Create Room'}
                         </Button>
                     </DialogFooter>
                 </form>
