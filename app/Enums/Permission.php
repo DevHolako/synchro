@@ -26,9 +26,26 @@ enum Permission: string
     case UpdateBuildings = 'update:buildings';
     case DeleteBuildings = 'delete:buildings';
 
-    // Academic structure permissions (for subsequent tickets)
+    // Department permissions
+    case ViewDepartments = 'view:departments';
+    case CreateDepartments = 'create:departments';
+    case UpdateDepartments = 'update:departments';
+    case DeleteDepartments = 'delete:departments';
+
+    // Program permissions
     case ViewPrograms = 'view:programs';
+    case CreatePrograms = 'create:programs';
+    case UpdatePrograms = 'update:programs';
+    case DeletePrograms = 'delete:programs';
     case ManagePrograms = 'manage:programs';
+
+    // Student Group permissions
+    case ViewStudentGroups = 'view:student-groups';
+    case CreateStudentGroups = 'create:student-groups';
+    case UpdateStudentGroups = 'update:student-groups';
+    case DeleteStudentGroups = 'delete:student-groups';
+
+    // Module permissions (for subsequent tickets)
     case ViewModules = 'view:modules';
     case ManageModules = 'manage:modules';
 
