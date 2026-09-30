@@ -4,10 +4,10 @@
 
 **Blocked by:** 02: Academic Hierarchy: Departments, Programs with Modality, and Student Groups
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Module model with `code`, `name`, `total_hours`, `lecture_hours`, `tp_hours`, and `color_code`
-- [ ] Relationship between Module and Program
-- [ ] Assigned teacher relationship on Module
-- [ ] Web UI allowing coordinators to manage modules and preview calendar badge colors
-- [ ] Automated tests asserting syllabus hour validation and unique module codes per program
+- [x] Module model with `code`, `name`, `total_hours`, `lecture_hours`, `tp_hours`, and `color_code`
+- [x] Relationship between Module and Program
+- [x] Assigned teacher relationship on Module
+- [x] Web UI allowing coordinators to manage modules and preview calendar badge colors
+- [x] Automated tests asserting syllabus hour validation and unique module codes per program
