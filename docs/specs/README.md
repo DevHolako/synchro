@@ -6,16 +6,16 @@ This document serves as the **Master Context & Progress Tracker** for the Synchr
 
 ## 🗺️ Master Part Tracker
 
-| Part | Spec File | Focus Area | Status | Target Seam |
+| Part | Specification & Tickets | Focus Area | Status | Target Seam |
 | :---: | :--- | :--- | :---: | :--- |
-| **01** | [`01-core-foundation-and-referentials.md`](./01-core-foundation-and-referentials.md) | Campuses, Rooms (dual capacity), Programs, Groups, Modules, CSV Import, Invitation Auth | ⏳ Pending | `ImportReferentialsAction`, `ProvisionUserAction` |
-| **02** | [`02-availability-and-conflict-engine.md`](./02-availability-and-conflict-engine.md) | Conflict Engine (Hard 422 vs Soft with Audit Override), Teacher Unavailability | ⏳ Pending | `ConflictDetectorService` |
-| **03** | [`03-interactive-course-planning.md`](./03-interactive-course-planning.md) | Batch Module Wizard, FullCalendar Drag-and-Drop, Attendance Register, iCal Feed | ⏳ Pending | `BatchCreateCourseSessionsAction`, FullCalendar UX |
-| **04** | [`04-examination-logistics-and-convocations.md`](./04-examination-logistics-and-convocations.md) | 5-State Exam Lifecycle, Auto Room Split, Invigilators, PDF Convocations, QR Mobile Check-in | ⏳ Pending | `ScheduleExamAction`, `VerifyConvocationAction` |
-| **05** | [`05-grade-entry-and-deliberations.md`](./05-grade-entry-and-deliberations.md) | Teacher Draft Grades, Deliberations, Coordinator Lock, Official Signed PV Archival | ⏳ Pending | `GradeEntryController`, `LockDeliberationAction` |
-| **06** | [`06-notifications-and-mobile-api.md`](./06-notifications-and-mobile-api.md) | Driver-based Urgent Gateway (SMS/WhatsApp), In-App/Email, Versioned Sanctum REST API | ⏳ Pending | `UrgentAlertManager`, `/api/v1/` Endpoints |
+| **01** | [`spec.md`](./01-core-foundation-and-referentials/spec.md) &nbsp;•&nbsp; [**5 Tickets**](./01-core-foundation-and-referentials/tickets/) | Campuses, Rooms (dual capacity), Programs, Groups, Modules, CSV Import, Invitation Auth | ⏳ Pending | `ImportReferentialsAction`, `ProvisionUserAction` |
+| **02** | [`spec.md`](./02-availability-and-conflict-engine/spec.md) &nbsp;•&nbsp; [**3 Tickets**](./02-availability-and-conflict-engine/tickets/) | Conflict Engine (Hard 422 vs Soft with Audit Override), Teacher Unavailability | ⏳ Pending | `ConflictDetectorService` (< 80ms) |
+| **03** | [`spec.md`](./03-interactive-course-planning/spec.md) &nbsp;•&nbsp; [**5 Tickets**](./03-interactive-course-planning/tickets/) | Batch Module Wizard, FullCalendar Drag-and-Drop, Attendance Register, iCal Feed | ⏳ Pending | `BatchCreateCourseSessionsAction`, FullCalendar UX |
+| **04** | [`spec.md`](./04-examination-logistics-and-convocations/spec.md) &nbsp;•&nbsp; [**5 Tickets**](./04-examination-logistics-and-convocations/tickets/) | 5-State Exam Lifecycle, Auto Room Split, Invigilators, PDF Convocations, QR Mobile Check-in | ⏳ Pending | `ScheduleExamAction`, `VerifyConvocationAction` |
+| **05** | [`spec.md`](./05-grade-entry-and-deliberations/spec.md) &nbsp;•&nbsp; [**4 Tickets**](./05-grade-entry-and-deliberations/tickets/) | Teacher Draft Grades, Deliberations, Coordinator Lock, Official Signed PV Archival | ⏳ Pending | `GradeEntryController`, `LockDeliberationAction` |
+| **06** | [`spec.md`](./06-notifications-and-mobile-api/spec.md) &nbsp;•&nbsp; [**4 Tickets**](./06-notifications-and-mobile-api/tickets/) | Driver-based Urgent Gateway (SMS/WhatsApp), In-App/Email, Versioned Sanctum REST API | ⏳ Pending | `UrgentAlertManager`, `/api/v1/` Endpoints |
 
-*Legend: ⏳ Pending &nbsp;|&nbsp; 🔄 In Progress &nbsp;|&nbsp; ✅ Completed*
+*Total: 6 Specifications, 26 Vertical Slice Tickets*
 
 ---
 
@@ -31,17 +31,6 @@ All implementations across the six parts strictly adhere to:
 
 ---
 
-## 🚀 Bootstrap & Execution Blueprint (`laravel new`)
+## 🚀 Bootstrap & Execution Blueprint
 
-When bootstrapping the source code:
-1. Initialize the application using the official Laravel installer:
-   ```bash
-   # In project root or target directory
-   laravel new . --react --inertia --pest
-   ```
-2. Configure database connections (MySQL 8.0) and install key foundational packages:
-   - FullCalendar React packages (`@fullcalendar/react`, `@fullcalendar/daygrid`, `@fullcalendar/timegrid`, `@fullcalendar/interaction`)
-   - QR Code & PDF generators (`simplesoftwareio/simple-qrcode`, `barryvdh/laravel-dompdf` or `spatie/browsershot`)
-   - Calendar feed builder (`spatie/icalendar-generator`)
-   - RBAC (`spatie/laravel-permission`)
-3. Execute the implementation sequentially from Part 01 to Part 06, updating this tracker at every stage.
+Execute the implementation sequentially from Part 01 to Part 06, picking up tickets along the dependency frontier and updating this tracker at every stage.
