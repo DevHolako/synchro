@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Permission;
 use App\Models\Room;
 use App\Models\User;
 
@@ -12,7 +13,8 @@ class RoomPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasPermission(Permission::ViewRooms)
+            || $user->hasPermission(Permission::ViewReferentials);
     }
 
     /**
@@ -20,7 +22,8 @@ class RoomPolicy
      */
     public function view(User $user, Room $room): bool
     {
-        return true;
+        return $user->hasPermission(Permission::ViewRooms)
+            || $user->hasPermission(Permission::ViewReferentials);
     }
 
     /**
@@ -28,7 +31,8 @@ class RoomPolicy
      */
     public function create(User $user): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::CreateRooms)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 
     /**
@@ -36,7 +40,8 @@ class RoomPolicy
      */
     public function update(User $user, Room $room): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::UpdateRooms)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 
     /**
@@ -44,6 +49,7 @@ class RoomPolicy
      */
     public function delete(User $user, Room $room): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::DeleteRooms)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 }

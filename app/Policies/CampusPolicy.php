@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Permission;
 use App\Models\Campus;
 use App\Models\User;
 
@@ -12,7 +13,8 @@ class CampusPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasPermission(Permission::ViewCampuses)
+            || $user->hasPermission(Permission::ViewReferentials);
     }
 
     /**
@@ -20,7 +22,8 @@ class CampusPolicy
      */
     public function view(User $user, Campus $campus): bool
     {
-        return true;
+        return $user->hasPermission(Permission::ViewCampuses)
+            || $user->hasPermission(Permission::ViewReferentials);
     }
 
     /**
@@ -28,7 +31,8 @@ class CampusPolicy
      */
     public function create(User $user): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::CreateCampuses)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 
     /**
@@ -36,7 +40,8 @@ class CampusPolicy
      */
     public function update(User $user, Campus $campus): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::UpdateCampuses)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 
     /**
@@ -44,6 +49,7 @@ class CampusPolicy
      */
     public function delete(User $user, Campus $campus): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::DeleteCampuses)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 }

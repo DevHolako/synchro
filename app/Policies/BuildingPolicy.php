@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Permission;
 use App\Models\Building;
 use App\Models\User;
 
@@ -12,7 +13,8 @@ class BuildingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasPermission(Permission::ViewBuildings)
+            || $user->hasPermission(Permission::ViewReferentials);
     }
 
     /**
@@ -20,7 +22,8 @@ class BuildingPolicy
      */
     public function view(User $user, Building $building): bool
     {
-        return true;
+        return $user->hasPermission(Permission::ViewBuildings)
+            || $user->hasPermission(Permission::ViewReferentials);
     }
 
     /**
@@ -28,7 +31,8 @@ class BuildingPolicy
      */
     public function create(User $user): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::CreateBuildings)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 
     /**
@@ -36,7 +40,8 @@ class BuildingPolicy
      */
     public function update(User $user, Building $building): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::UpdateBuildings)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 
     /**
@@ -44,6 +49,7 @@ class BuildingPolicy
      */
     public function delete(User $user, Building $building): bool
     {
-        return $user->canManageReferentials();
+        return $user->hasPermission(Permission::DeleteBuildings)
+            || $user->hasPermission(Permission::ManageReferentials);
     }
 }

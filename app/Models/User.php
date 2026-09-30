@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Permission;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -47,28 +48,13 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function isAdministrator(): bool
+    public function hasPermission(Permission|string $permission): bool
     {
-        return $this->role === UserRole::Administrator;
-    }
-
-    public function isCoordinator(): bool
-    {
-        return $this->role === UserRole::Coordinator;
-    }
-
-    public function isTeacher(): bool
-    {
-        return $this->role === UserRole::Teacher;
-    }
-
-    public function isStudent(): bool
-    {
-        return $this->role === UserRole::Student;
+        return $this->role?->hasPermission($permission) ?? false;
     }
 
     public function canManageReferentials(): bool
     {
-        return $this->role?->canManageReferentials() ?? false;
+        return $this->hasPermission(Permission::ManageReferentials);
     }
 }

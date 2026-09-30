@@ -1,10 +1,12 @@
 <?php
 
+use App\Enums\Permission;
 use App\Models\Building;
 use App\Models\Campus;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
 
 uses(RefreshDatabase::class);
 
@@ -17,6 +19,16 @@ beforeEach(function () {
     $this->coordinator = User::factory()->coordinator()->create();
     $this->teacher = User::factory()->teacher()->create();
     $this->student = User::factory()->student()->create();
+});
+
+test('permissions are the gate of check and roles bundle them', function () {
+    expect($this->admin->hasPermission(Permission::CreateRooms))->toBeTrue();
+    expect($this->coordinator->hasPermission(Permission::CreateRooms))->toBeTrue();
+    expect($this->teacher->hasPermission(Permission::CreateRooms))->toBeFalse();
+    expect($this->student->hasPermission(Permission::CreateRooms))->toBeFalse();
+
+    expect(Gate::forUser($this->coordinator)->allows('create:rooms'))->toBeTrue();
+    expect(Gate::forUser($this->teacher)->allows('create:rooms'))->toBeFalse();
 });
 
 test('administrator and coordinator can create and mutate referential records', function () {

@@ -23,10 +23,71 @@ enum UserRole: string
     }
 
     /**
-     * Check if the role can manage referentials.
+     * Get the group of permissions bundled under this role.
+     * Roles are strictly collections of permissions.
+     *
+     * @return array<Permission>
      */
-    public function canManageReferentials(): bool
+    public function permissions(): array
     {
-        return in_array($this, [self::Administrator, self::Coordinator], true);
+        return match ($this) {
+            self::Administrator => Permission::cases(),
+
+            self::Coordinator => [
+                Permission::ViewReferentials,
+                Permission::ManageReferentials,
+                Permission::ViewRooms,
+                Permission::CreateRooms,
+                Permission::UpdateRooms,
+                Permission::DeleteRooms,
+                Permission::ViewCampuses,
+                Permission::CreateCampuses,
+                Permission::UpdateCampuses,
+                Permission::DeleteCampuses,
+                Permission::ViewBuildings,
+                Permission::CreateBuildings,
+                Permission::UpdateBuildings,
+                Permission::DeleteBuildings,
+                Permission::ViewPrograms,
+                Permission::ManagePrograms,
+                Permission::ViewModules,
+                Permission::ManageModules,
+                Permission::ViewSchedules,
+                Permission::ManageSchedules,
+                Permission::ViewExams,
+                Permission::ManageExams,
+            ],
+
+            self::Teacher => [
+                Permission::ViewReferentials,
+                Permission::ViewRooms,
+                Permission::ViewCampuses,
+                Permission::ViewBuildings,
+                Permission::ViewPrograms,
+                Permission::ViewModules,
+                Permission::ViewSchedules,
+                Permission::ViewExams,
+                Permission::EnterGrades,
+            ],
+
+            self::Student => [
+                Permission::ViewSchedules,
+                Permission::ViewExams,
+            ],
+        };
+    }
+
+    /**
+     * Check if this role includes a specific permission.
+     */
+    public function hasPermission(Permission|string $permission): bool
+    {
+        $permissionValue = $permission instanceof Permission ? $permission : Permission::tryFrom($permission);
+
+        if ($permissionValue === null) {
+            return false;
+        }
+
+        return in_array($permissionValue, $this->permissions(), true);
     }
 }
