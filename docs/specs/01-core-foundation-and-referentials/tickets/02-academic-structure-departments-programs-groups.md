@@ -4,10 +4,10 @@
 
 **Blocked by:** 01: Campus, Building, and Room Infrastructure with Dual Capacities
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Department model, migration, factory, and seeder created
-- [ ] Program model associated with Department, storing `program_modality` enum (`temps_amenage`, `formation_initiale`)
-- [ ] StudentGroup model associated with Program with academic year and `expected_headcount`
-- [ ] Web management UI for browsing departments, programs, and nested groups
-- [ ] Automated tests verifying cascade relationships, validation rules, and modality filtering
+- [x] Department model, migration, factory, and seeder created
+- [x] Program model associated with Department, storing `program_modality` enum (`temps_amenage`, `formation_initiale`)
+- [x] StudentGroup model associated with Program with academic year and `expected_headcount`
+- [x] Web management UI for browsing departments, programs, and nested groups
+- [x] Automated tests verifying cascade relationships, validation rules, and modality filtering
