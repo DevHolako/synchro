@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Controllers\Web\StudentGroups;
+
+use App\Actions\StudentGroups\CreateStudentGroupAction;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StudentGroups\StoreStudentGroupRequest;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+
+class StudentGroupStoreController extends Controller
+{
+    public function __invoke(StoreStudentGroupRequest $request, CreateStudentGroupAction $action): RedirectResponse
+    {
+        $group = $action->execute($request->validated());
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => "Student Group {$group->name} created successfully.",
+        ]);
+
+        return back();
+    }
+}

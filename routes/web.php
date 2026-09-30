@@ -1,15 +1,25 @@
 <?php
 
+use App\Http\Controllers\Web\AcademicStructure\AcademicStructureIndexController;
 use App\Http\Controllers\Web\Buildings\BuildingStoreController;
 use App\Http\Controllers\Web\Buildings\BuildingToggleActiveController;
 use App\Http\Controllers\Web\Buildings\BuildingUpdateController;
 use App\Http\Controllers\Web\Campuses\CampusStoreController;
 use App\Http\Controllers\Web\Campuses\CampusToggleActiveController;
 use App\Http\Controllers\Web\Campuses\CampusUpdateController;
+use App\Http\Controllers\Web\Departments\DepartmentStoreController;
+use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
+use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
+use App\Http\Controllers\Web\Programs\ProgramStoreController;
+use App\Http\Controllers\Web\Programs\ProgramToggleActiveController;
+use App\Http\Controllers\Web\Programs\ProgramUpdateController;
 use App\Http\Controllers\Web\Rooms\RoomIndexController;
 use App\Http\Controllers\Web\Rooms\RoomStoreController;
 use App\Http\Controllers\Web\Rooms\RoomToggleActiveController;
 use App\Http\Controllers\Web\Rooms\RoomUpdateController;
+use App\Http\Controllers\Web\StudentGroups\StudentGroupStoreController;
+use App\Http\Controllers\Web\StudentGroups\StudentGroupToggleActiveController;
+use App\Http\Controllers\Web\StudentGroups\StudentGroupUpdateController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -30,6 +40,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('buildings', BuildingStoreController::class)->name('buildings.store');
     Route::put('buildings/{building}', BuildingUpdateController::class)->name('buildings.update');
     Route::patch('buildings/{building}/toggle-active', BuildingToggleActiveController::class)->name('buildings.toggle-active');
+
+    // Academic Structure Referentials (Departments, Programs with Modality, Student Groups)
+    Route::get('academic-structure', AcademicStructureIndexController::class)->name('academic-structure.index');
+
+    Route::post('departments', DepartmentStoreController::class)->name('departments.store');
+    Route::put('departments/{department}', DepartmentUpdateController::class)->name('departments.update');
+    Route::patch('departments/{department}/toggle-active', DepartmentToggleActiveController::class)->name('departments.toggle-active');
+
+    Route::post('programs', ProgramStoreController::class)->name('programs.store');
+    Route::put('programs/{program}', ProgramUpdateController::class)->name('programs.update');
+    Route::patch('programs/{program}/toggle-active', ProgramToggleActiveController::class)->name('programs.toggle-active');
+
+    Route::post('student-groups', StudentGroupStoreController::class)->name('student-groups.store');
+    Route::put('student-groups/{student_group}', StudentGroupUpdateController::class)->name('student-groups.update');
+    Route::patch('student-groups/{student_group}/toggle-active', StudentGroupToggleActiveController::class)->name('student-groups.toggle-active');
 });
 
 require __DIR__.'/settings.php';
