@@ -23,11 +23,17 @@ This document serves as the **Master Context & Progress Tracker** for the Synchr
 
 All implementations across the six parts strictly adhere to:
 1. **Domain Glossary**: Defined in [`CONTEXT.md`](../../CONTEXT.md).
-2. **Architecture Decisions**: Enforced via ADRs 0001 through 0010 in [`docs/adr/`](../adr/).
+2. **Architecture Decisions**: Enforced via ADRs 0001 through 0011 in [`docs/adr/`](../adr/).
 3. **Dual-Engine Single-Action Architecture**:
    - 100% of business rules reside in Single-Action classes under `app/Actions/`.
    - Web controllers (`app/Http/Controllers/Web/`) invoke actions and return Inertia.js React views.
    - API controllers (`app/Http/Controllers/Api/V1/`) invoke identical actions and return Sanctum-authenticated JSON API resources.
+4. **Strict Permission-Based Authorization (ADR 0011)**:
+   - Permissions (`App\Enums\Permission`) are the sole gate of check across policies, form requests, and gates.
+   - Roles (`App\Enums\UserRole`) are strictly groupings/bundles of permissions and must never be evaluated directly as authorization gates.
+5. **Vercel React Best Practices & Modular UI**:
+   - Strictly follow `/vercel-react-best-practices`.
+   - Zero monolithic JSX pages (> 150-200 lines). Every feature page must be decomposed into modular subcomponents under `resources/js/pages/{feature}/components/`.
 
 ---
 

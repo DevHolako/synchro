@@ -27,7 +27,7 @@ A centralized administrative referential module within Synchro that models the e
 ## Implementation Decisions
 
 - **Architectural Seam**: Core domain operations are driven through Single-Action classes (`ImportReferentialsAction`, `ProvisionUserWithInvitationAction`, `ConsumeInvitationTokenAction`, `CreateRoomAction`).
-- **Access Control & RBAC**: Dedicated roles (`Administrator`, `Coordinator`, `Teacher`, `Student`) implemented via standard Laravel policies and authorization gates.
+- **Access Control & RBAC**: Strict permission-based authorization architecture. Permissions (`App\Enums\Permission`) are the sole gate of check across policies, form requests, and gates. Roles (`Administrator`, `Coordinator`, `Teacher`, `Student` in `App\Enums\UserRole`) strictly bundle permissions and are never checked directly.
 - **Dual Room Capacities**: Every room record mandates `course_capacity` (maximum seated density for lectures) and `exam_capacity` (distanced seating density, typically 50% of course capacity).
 - **Program Modality**: Programs store an enum attribute `program_modality` (`temps_amenage`, `formation_initiale`) used for filtering and syllabus calculations (ADR 0001).
 - **Authentication & Onboarding**: Public registration is disabled; users transition through an account lifecycle (`invited`, `active`, `suspended`) activated via cryptographically signed Invitation Tokens valid for 72 hours (ADR 0007).

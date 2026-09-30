@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] Role-Based Access Control setup defining roles (`Administrator`, `Coordinator`, `Teacher`, `Student`)
+- [ ] Role-Based Access Control setup defining permissions as gates of check and roles (`Administrator`, `Coordinator`, `Teacher`, `Student`) as permission bundles
 - [ ] TeacherProfile and StudentProfile models linked to User
 - [ ] Public registration route disabled; only authenticated administrators can provision users
 - [ ] InvitationToken model and signed URL generation with 72-hour expiration window

@@ -88,6 +88,14 @@ _Avoid_: Calendar export, static download
 
 ### User Management & Provisioning
 
+**Permission**:
+The atomic capability granting access to a specific action or resource (e.g., `create:rooms`, `manage:referentials`). Permissions are the sole gate of check across all authorization boundaries.
+_Avoid_: Privilege, claim
+
+**Role**:
+A structured institutional grouping/bundle of permissions assigned to users (`Administrator`, `Coordinator`, `Teacher`, `Student`). Roles are never checked directly as gates; they serve strictly to bundle permissions.
+_Avoid_: Rank, clearance, user type
+
 **Invitation Token**:
 A secure, time-limited signed link sent via email upon CSV/Excel batch import for initial user password creation.
 _Avoid_: Reset token, signup code
