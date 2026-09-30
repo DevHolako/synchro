@@ -10,6 +10,10 @@ use App\Http\Controllers\Web\Campuses\CampusUpdateController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
 use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
+use App\Http\Controllers\Web\Modules\ModuleIndexController;
+use App\Http\Controllers\Web\Modules\ModuleStoreController;
+use App\Http\Controllers\Web\Modules\ModuleToggleActiveController;
+use App\Http\Controllers\Web\Modules\ModuleUpdateController;
 use App\Http\Controllers\Web\Programs\ProgramStoreController;
 use App\Http\Controllers\Web\Programs\ProgramToggleActiveController;
 use App\Http\Controllers\Web\Programs\ProgramUpdateController;
@@ -55,6 +59,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('student-groups', StudentGroupStoreController::class)->name('student-groups.store');
     Route::put('student-groups/{student_group}', StudentGroupUpdateController::class)->name('student-groups.update');
     Route::patch('student-groups/{student_group}/toggle-active', StudentGroupToggleActiveController::class)->name('student-groups.toggle-active');
+
+    // Modules Catalog & Syllabus
+    Route::get('modules', ModuleIndexController::class)->name('modules.index');
+    Route::post('modules', ModuleStoreController::class)->name('modules.store');
+    Route::put('modules/{module}', ModuleUpdateController::class)->name('modules.update');
+    Route::patch('modules/{module}/toggle-active', ModuleToggleActiveController::class)->name('modules.toggle-active');
 });
 
 require __DIR__.'/settings.php';
