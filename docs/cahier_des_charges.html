@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cahier des Charges — Projet Synchro | ISGA 2025/2026</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Mermaid CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'neutral',
+            flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+            sequence: { useMaxWidth: true, showSequenceNumbers: true },
+            er: { useMaxWidth: true }
+        });
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,300;1,400&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #0f172a;
+            background-color: #f8fafc;
+        }
+
+        .font-serif-title {
+            font-family: 'Merriweather', Georgia, serif;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .page-break { page-break-after: always; }
+            body { background: white; color: black; }
+            .shadow-xl, .shadow-sm, .shadow-md { box-shadow: none !important; }
+        }
+
+        .table-custom th {
+            background-color: #1e3a8a;
+            color: white;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .table-custom td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .table-custom tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Top Navigation Bar (No-Print) -->
+    <header class="no-print sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 py-3.5 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+            <span class="bg-blue-900 text-white font-bold px-2.5 py-1 rounded text-xs tracking-wider">ISGA</span>
+            <span class="font-bold text-slate-800 text-sm md:text-base">Projet Synchro — Cahier des Charges</span>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="window.print()" class="inline-flex items-center space-x-2 bg-blue-900 hover:bg-blue-800 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-all shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                <span>Imprimer / PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- ==================== PAGE DE GARDE ==================== -->
+        <section class="bg-white border border-slate-200 rounded-2xl p-8 md:p-14 shadow-sm text-center relative overflow-hidden page-break">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-900 via-indigo-700 to-blue-900"></div>
+            
+            <div class="mb-8">
+                <h3 class="text-sm md:text-base font-extrabold tracking-widest text-blue-950 uppercase mb-1 font-serif-title">Royaume du Maroc</h3>
+                <p class="text-xs md:text-sm text-slate-600 italic">Institut Supérieur d'Ingénierie et des Affaires — Filière ISI</p>
+            </div>
+
+            <div class="w-32 h-0.5 bg-blue-900 mx-auto mb-8"></div>
+
+            <div class="my-8 space-y-4">
+                <span class="inline-block bg-blue-50 text-blue-900 border border-blue-200 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">Document de Spécifications</span>
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">CAHIER DES CHARGES</h1>
+                <div class="w-24 h-1 bg-blue-900 mx-auto rounded-full"></div>
+                <h2 class="text-xl md:text-2xl font-bold text-blue-900 max-w-2xl mx-auto pt-2">
+                    Gestion du Planning des Cours du Temps Aménagé avec Gestion des Examens
+                </h2>
+                <p class="text-base font-semibold text-slate-700">Projet « Synchro »</p>
+                <p class="text-xs md:text-sm text-slate-500 italic max-w-xl mx-auto pt-1">
+                    Application web développée avec Laravel 13 (Action Pattern) — Dual Architecture : React SPA (Inertia.js) & API RESTful (Mobile-Ready)
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mt-12 text-left">
+                <!-- Équipe -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+                    <div class="bg-blue-900 text-white text-xs font-bold uppercase tracking-wider py-2.5 px-4 text-center">
+                        Équipe du Projet
+                    </div>
+                    <div class="divide-y divide-slate-100 bg-white">
+                        <div class="py-2 px-4 text-sm font-semibold text-slate-800 text-center">Marouane R'GUIBI</div>
+                        <div class="py-2 px-4 text-sm font-semibold text-slate-800 text-center bg-slate-50">Meriem BOUSSAID</div>
+                        <div class="py-2 px-4 text-sm font-semibold text-slate-800 text-center">Zineb CHATOUI</div>
+                        <div class="py-2 px-4 text-sm font-semibold text-slate-800 text-center bg-slate-50">Abdelaziz EL MOUJAHID</div>
+                    </div>
+                </div>
+
+                <!-- Encadrement & Filière -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-xs divide-y divide-slate-100 bg-white text-xs md:text-sm">
+                    <div class="p-3 flex justify-between items-center bg-slate-50">
+                        <span class="font-bold text-blue-900">Encadré par</span>
+                        <span class="font-semibold text-slate-800">M. Ahmed OUTZOURHIT</span>
+                    </div>
+                    <div class="p-3 flex justify-between items-center">
+                        <span class="font-bold text-blue-900">Filière</span>
+                        <span class="font-medium text-slate-800">1CI — ISI</span>
+                    </div>
+                    <div class="p-3 flex justify-between items-center bg-slate-50">
+                        <span class="font-bold text-blue-900">Année universitaire</span>
+                        <span class="font-medium text-slate-800">2025 / 2026</span>
+                    </div>
+                    <div class="p-3 flex justify-between items-center">
+                        <span class="font-bold text-blue-900">Établissement</span>
+                        <span class="font-medium text-slate-800">ISGA</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SOMMAIRE ==================== -->
+        <section class="bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm page-break">
+            <h2 class="text-2xl font-bold text-blue-950 border-b border-slate-200 pb-4 mb-6 flex items-center space-x-2">
+                <span>📑</span>
+                <span>Sommaire / Plan du Document</span>
+            </h2>
+            <nav class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                <div>
+                    <a href="#section-1" class="font-bold text-blue-900 hover:underline block py-1">1. Introduction & Contexte du Projet</a>
+                    <ul class="pl-4 space-y-1 text-slate-600 text-xs">
+                        <li>1.1. Contexte Général & Spécificités du Temps Aménagé</li>
+                        <li>1.2. Analyse de l'Existant & Problématique</li>
+                        <li>1.3. Objectifs Généraux & Valeur Ajoutée</li>
+                        <li>1.4. Périmètre, Extensibilité Mobile & Limites</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="#section-2" class="font-bold text-blue-900 hover:underline block py-1">2. Identification des Acteurs & Matrice (RBAC)</a>
+                    <ul class="pl-4 space-y-1 text-slate-600 text-xs">
+                        <li>2.1. Typologie des Utilisateurs</li>
+                        <li>2.2. Matrice des Droits et Privilèges d'Accès</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="#section-3" class="font-bold text-blue-900 hover:underline block py-1">3. Spécifications Fonctionnelles Détaillées</a>
+                    <ul class="pl-4 space-y-1 text-slate-600 text-xs">
+                        <li>3.1. Module 1 : Référentiel & Données de Base</li>
+                        <li>3.2. Module 2 : Gestion des Contraintes</li>
+                        <li>3.3. Module 3 : Planification Interactive & Conflits</li>
+                        <li>3.4. Module 4 : Organisation Complète des Examens</li>
+                        <li>3.5. Module 5 : Saisie des Notes, PV & Délibérations</li>
+                        <li>3.6. Module 6 : Système de Communication & Alertes</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="#section-4" class="font-bold text-blue-900 hover:underline block py-1">4. Exigences Non-Fonctionnelles & Sécurité</a>
+                    <ul class="pl-4 space-y-1 text-slate-600 text-xs">
+                        <li>4.1. Sécurité des Données (Sanctum, CSRF, SQLi)</li>
+                        <li>4.2. Performance & Temps de Réponse (< 200 ms)</li>
+                        <li>4.3. Ergonomie & Expérience Utilisateur (UI/UX)</li>
+                        <li>4.4. Maintenabilité, Robustesse & Tests</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="#section-5" class="font-bold text-blue-900 hover:underline block py-1">5. Architecture Technique & Choix Technologiques</a>
+                    <ul class="pl-4 space-y-1 text-slate-600 text-xs">
+                        <li>5.1. Justification de la Stack (Laravel 13, Inertia, React)</li>
+                        <li>5.2. Patron Logiciel : Single-Action Pattern</li>
+                        <li>5.3. Architecture Dual-Engine (SPA + API Mobile)</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="#section-6" class="font-bold text-blue-900 hover:underline block py-1">6. Modélisation du Système & Diagrammes</a>
+                    <ul class="pl-4 space-y-1 text-slate-600 text-xs">
+                        <li>6.1. Diagramme Global des Cas d'Utilisation (UML)</li>
+                        <li>6.2. Diagrammes de Séquence Métier</li>
+                        <li>6.3. Modèle Conceptuel de Données (MCD / RBAC)</li>
+                    </ul>
+                </div>
+                <div class="md:col-span-2">
+                    <a href="#section-7" class="font-bold text-blue-900 hover:underline block py-1">7. Démarche Méthodologique, Planning & Livrables</a>
+                    <ul class="pl-4 space-y-1 text-slate-600 text-xs">
+                        <li>7.1. Méthodologie de Développement (Scrum)</li>
+                        <li>7.2. Planning Prévisionnel par Phases</li>
+                        <li>7.3. Liste des Livrables Officiels</li>
+                    </ul>
+                </div>
+            </nav>
+        </section>
+
+        <!-- ==================== SECTION 1 ==================== -->
+        <section id="section-1" class="bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm space-y-6">
+            <h2 class="text-2xl font-bold text-blue-950 border-b border-slate-200 pb-3 flex items-center space-x-3">
+                <span class="bg-blue-900 text-white rounded-lg w-8 h-8 flex items-center justify-center text-sm">1</span>
+                <span>Introduction & Contexte du Projet</span>
+            </h2>
+
+            <div class="space-y-4 text-slate-700 leading-relaxed text-sm md:text-base">
+                <div>
+                    <h3 class="font-bold text-slate-900 mb-1">1.1. Contexte Général & Spécificités du Temps Aménagé à l'ISGA</h3>
+                    <p>L'Institut Supérieur d'Ingénierie et des Affaires (ISGA) dispense des formations d'excellence en <strong>temps aménagé</strong> dédiées aux professionnels en activité, aux cadres en perfectionnement et aux étudiants salariés. Ce modèle pédagogique se caractérise par des cours du soir (18h30 – 21h30), des samedis complets (08h30 – 18h30) et des dimanches matin, avec une modularité forte dispensée par des intervenants externes experts.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-slate-900 mb-1">1.2. Analyse de l'Existant & Problématique Rencontrée</h3>
+                    <p class="mb-2">La gestion historique à base de tableurs Excel et d'emails présente des défaillances critiques :</p>
+                    <ul class="list-disc pl-5 space-y-1 text-sm">
+                        <li><strong>Conflits de ressources récurrents :</strong> Doubles réservations de salles, chevauchement d'horaires d'enseignants ou de promotions.</li>
+                        <li><strong>Gestion complexe des jauges d'examen :</strong> Non-respect des capacités réduites nécessaires pour la distanciation lors des épreuves.</li>
+                        <li><strong>Affectation artisanale des surveillants :</strong> Collisions fréquentes où un intervenant est affecté sur plusieurs salles au même moment.</li>
+                        <li><strong>Lenteur administrative :</strong> Édition manuelle chronophage des convocations nominatives, feuilles d'émargement et procès-verbaux (PV).</li>
+                        <li><strong>Déficit de communication :</strong> Absence d'alertes instantanées lors des changements de salle ou reports imprévus.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-slate-900 mb-1">1.3. Objectifs Généraux & Valeur Ajoutée du Projet Synchro</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <div class="bg-blue-50/70 border border-blue-200 p-4 rounded-xl">
+                            <h4 class="font-bold text-blue-900 text-sm mb-1">🛡️ Zéro Conflit Garanti</h4>
+                            <p class="text-xs text-slate-600">Vérification mathématique et synchrone bloquant toute collision de ressources en temps réel.</p>
+                        </div>
+                        <div class="bg-indigo-50/70 border border-indigo-200 p-4 rounded-xl">
+                            <h4 class="font-bold text-indigo-900 text-sm mb-1">📅 Planification Intuitive</h4>
+                            <p class="text-xs text-slate-600">Calendrier interactif multi-vues par glisser-déposer (FullCalendar React).</p>
+                        </div>
+                        <div class="bg-amber-50/70 border border-amber-200 p-4 rounded-xl">
+                            <h4 class="font-bold text-amber-900 text-sm mb-1">🎓 Industrialisation des Examens</h4>
+                            <p class="text-xs text-slate-600">Contrôle des jauges de salles, affectation des surveillants et génération de PDF officiels avec QR Code.</p>
+                        </div>
+                        <div class="bg-emerald-50/70 border border-emerald-200 p-4 rounded-xl">
+                            <h4 class="font-bold text-emerald-900 text-sm mb-1">📱 Architecture Mobile-Ready</h4>
+                            <p class="text-xs text-slate-600">Socle Laravel 13 avec endpoints API REST natifs prêts pour une future application mobile.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-slate-900 mb-1">1.4. Périmètre, Extensibilité Mobile & Limites du Système</h3>
+                    <p class="text-sm">Le périmètre englobe la plateforme Web (SPA Inertia React) et l'API REST complète (Mobile-Ready) pour la gestion des cursus, des salles, des disponibilités, la planification interactive, les examens, la saisie des notes et les notifications. La facturation financière et les salaires des vacataires sont hors périmètre.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 2 ==================== -->
+        <section id="section-2" class="bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm space-y-6">
+            <h2 class="text-2xl font-bold text-blue-950 border-b border-slate-200 pb-3 flex items-center space-x-3">
+                <span class="bg-blue-900 text-white rounded-lg w-8 h-8 flex items-center justify-center text-sm">2</span>
+                <span>Identification des Acteurs & Matrice des Droits (RBAC)</span>
+            </h2>
+
+            <div class="space-y-4">
+                <h3 class="font-bold text-slate-900">2.1. Typologie des Utilisateurs</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                        <div class="font-bold text-blue-900 mb-1">👤 Administrateur / Coordinateur</div>
+                        <p class="text-xs text-slate-600">Accès total aux référentiels, planification visuelle globale, organisation des examens, affectation des surveillants et imports massifs.</p>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                        <div class="font-bold text-blue-900 mb-1">👨‍🏫 Enseignant / Formateur</div>
+                        <p class="text-xs text-slate-600">Consultation de son planning personnel, déclaration de ses disponibilités/indisponibilités, consultation de ses surveillances et saisie des notes.</p>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                        <div class="font-bold text-blue-900 mb-1">🎓 Étudiant / Auditeur</div>
+                        <p class="text-xs text-slate-600">Consultation de l'emploi du temps de sa promotion, téléchargement PDF/iCal, consultation de ses dates d'examens et convocation nominative.</p>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-slate-900 pt-3">2.2. Matrice des Droits et Privilèges d'Accès</h3>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-xs">
+                    <table class="w-full text-left table-custom">
+                        <thead>
+                            <tr>
+                                <th>Fonctionnalité</th>
+                                <th>Administrateur</th>
+                                <th>Enseignant</th>
+                                <th>Étudiant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-semibold">Gestion Référentiels (Filières, Salles, Modules)</td>
+                                <td class="text-blue-900 font-bold">CRUD Total</td>
+                                <td class="text-slate-400">Non</td>
+                                <td class="text-slate-400">Non</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Imports Massifs Excel / CSV</td>
+                                <td class="text-emerald-700 font-bold">Oui</td>
+                                <td class="text-slate-400">Non</td>
+                                <td class="text-slate-400">Non</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Planification Cours (Drag & Drop)</td>
+                                <td class="text-emerald-700 font-bold">Oui</td>
+                                <td class="text-slate-400">Non</td>
+                                <td class="text-slate-400">Non</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Déclaration Disponibilités / Indisponibilités</td>
+                                <td class="text-blue-900 font-semibold">Oui (Tous)</td>
+                                <td class="text-emerald-700 font-bold">Oui (Son profil)</td>
+                                <td class="text-slate-400">Non</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Consultation Plannings (Web & API Mobile)</td>
+                                <td class="text-slate-800 font-semibold">Global</td>
+                                <td class="text-slate-800 font-semibold">Ses cours</td>
+                                <td class="text-slate-800 font-semibold">Son groupe</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Organisation Examens & Salles</td>
+                                <td class="text-emerald-700 font-bold">Oui</td>
+                                <td class="text-slate-400">Non</td>
+                                <td class="text-slate-400">Non</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Accès aux Endpoints API REST Sécurisés</td>
+                                <td class="text-emerald-700 font-bold">Oui (Sanctum)</td>
+                                <td class="text-emerald-700 font-bold">Oui (Sanctum)</td>
+                                <td class="text-emerald-700 font-bold">Oui (Sanctum)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 3 ==================== -->
+        <section id="section-3" class="bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm space-y-6">
+            <h2 class="text-2xl font-bold text-blue-950 border-b border-slate-200 pb-3 flex items-center space-x-3">
+                <span class="bg-blue-900 text-white rounded-lg w-8 h-8 flex items-center justify-center text-sm">3</span>
+                <span>Spécifications Fonctionnelles Détaillées</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 space-y-2">
+                    <h3 class="font-bold text-blue-900 text-base">Module 1 : Référentiel & Données de Base</h3>
+                    <ul class="list-disc pl-5 space-y-1 text-xs text-slate-700">
+                        <li><strong>Filières & Promotions :</strong> Gestion des cursus (Temps Aménagé / Initial) et effectifs.</li>
+                        <li><strong>Salles & Espaces :</strong> Enregistrement avec double jauge (Capacité Cours vs Capacité Examen distanciée).</li>
+                        <li><strong>Modules :</strong> Volumes horaires, intervenants et codes couleur d'affichage.</li>
+                        <li><strong>Imports Massifs :</strong> Chargement rapide Excel (.xlsx) et CSV avec contrôle de format.</li>
+                    </ul>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 space-y-2">
+                    <h3 class="font-bold text-blue-900 text-base">Module 2 : Contraintes & Disponibilités</h3>
+                    <ul class="list-disc pl-5 space-y-1 text-xs text-slate-700">
+                        <li><strong>Plages Flexibles :</strong> Grilles horaires autorisées (Soir 18h30-21h30, Samedi 08h30-18h30, Dimanche).</li>
+                        <li><strong>Indisponibilités :</strong> Déclaration en ligne des plages bloquées par les intervenants.</li>
+                        <li><strong>Calendrier Institutionnel :</strong> Verrouillage automatique des fériés et vacances.</li>
+                    </ul>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 space-y-2">
+                    <h3 class="font-bold text-blue-900 text-base">Module 3 : Planification Interactive des Cours</h3>
+                    <ul class="list-disc pl-5 space-y-1 text-xs text-slate-700">
+                        <li><strong>Interface Calendrier :</strong> Vues Groupe, Prof, Salle, Globale avec Drag & Drop (FullCalendar).</li>
+                        <li><strong>Moteur Anti-Conflit :</strong> Blocage synchrone si collision Enseignant, Salle, Groupe ou Capacité.</li>
+                        <li><strong>Suivi Volume Horaire :</strong> Progression des heures dispensées vs syllabus.</li>
+                    </ul>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 space-y-2">
+                    <h3 class="font-bold text-blue-900 text-base">Module 4 : Organisation Complète des Examens</h3>
+                    <ul class="list-disc pl-5 space-y-1 text-xs text-slate-700">
+                        <li><strong>Sessions d'Examens :</strong> Sessions Normales et de Rattrapage.</li>
+                        <li><strong>Contrôle de Jauge :</strong> Scission automatique sur 2 salles si effectif > jauge examen.</li>
+                        <li><strong>Affectation Surveillants :</strong> Règles strictes anti-chevauchement.</li>
+                        <li><strong>Documents PDF :</strong> Convocations avec QR Code, feuilles d'émargement et PV.</li>
+                    </ul>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 space-y-2">
+                    <h3 class="font-bold text-blue-900 text-base">Module 5 : Saisie des Notes & Délibérations</h3>
+                    <ul class="list-disc pl-5 space-y-1 text-xs text-slate-700">
+                        <li><strong>Saisie en Ligne :</strong> Grille de notes et assiduité réservée à l'enseignant responsable.</li>
+                        <li><strong>Procès-Verbal (PV) :</strong> Édition automatique du PV officiel signé et archivé.</li>
+                    </ul>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50 space-y-2">
+                    <h3 class="font-bold text-blue-900 text-base">Module 6 : Communication & Notifications</h3>
+                    <ul class="list-disc pl-5 space-y-1 text-xs text-slate-700">
+                        <li><strong>Notifications In-App :</strong> Cloche avec compteur en temps réel.</li>
+                        <li><strong>Emails Automatisés :</strong> Envoi des plannings et convocations officielles.</li>
+                        <li><strong>Passerelle SMS / WhatsApp :</strong> Alertes d'urgence (changement de salle à H-2).</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 4 ==================== -->
+        <section id="section-4" class="bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm space-y-6">
+            <h2 class="text-2xl font-bold text-blue-950 border-b border-slate-200 pb-3 flex items-center space-x-3">
+                <span class="bg-blue-900 text-white rounded-lg w-8 h-8 flex items-center justify-center text-sm">4</span>
+                <span>Exigences Non-Fonctionnelles & Sécurité</span>
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                    <div class="text-xl mb-2">🔒</div>
+                    <h3 class="font-bold text-slate-900 mb-1">Sécurité & Sanctum</h3>
+                    <p class="text-xs text-slate-600">Chiffrement Bcrypt/Argon2ID, tokens personnels Laravel Sanctum pour l'API, protection CSRF, XSS et requêtes préparées PDO.</p>
+                </div>
+                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                    <div class="text-xl mb-2">⚡</div>
+                    <h3 class="font-bold text-slate-900 mb-1">Performance</h3>
+                    <p class="text-xs text-slate-600">Temps de réponse de l'API &lt; 200 ms, moteur de vérification de conflits en moins de 80 ms, élimination du problème N+1 via Eager Loading.</p>
+                </div>
+                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                    <div class="text-xl mb-2">🎨</div>
+                    <h3 class="font-bold text-slate-900 mb-1">Ergonomie & UX</h3>
+                    <p class="text-xs text-slate-600">Navigation SPA fluide sans rechargement de page via Inertia.js et React, responsive design complet (mobile/tablette/PC) sous Tailwind CSS.</p>
+                </div>
+                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                    <div class="text-xl mb-2">🛠️</div>
+                    <h3 class="font-bold text-slate-900 mb-1">Maintenabilité</h3>
+                    <p class="text-xs text-slate-600">Architecture Single-Action Pattern découplée, transactions atomiques DB::transaction() et suite de tests automatisés (Pest/PHPUnit).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 5 ==================== -->
+        <section id="section-5" class="bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm space-y-6">
+            <h2 class="text-2xl font-bold text-blue-950 border-b border-slate-200 pb-3 flex items-center space-x-3">
+                <span class="bg-blue-900 text-white rounded-lg w-8 h-8 flex items-center justify-center text-sm">5</span>
+                <span>Architecture Technique & Choix Technologiques</span>
+            </h2>
+
+            <div class="space-y-4">
+                <h3 class="font-bold text-slate-900 text-base">5.1. Justification Approfondie de la Stack</h3>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-xs">
+                    <table class="w-full text-left table-custom">
+                        <thead>
+                            <tr>
+                                <th>Couche</th>
+                                <th>Technologie</th>
+                                <th>Justification & Valeur Ajoutée</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-semibold">Backend Core</td>
+                                <td class="font-bold text-blue-900">Laravel 13</td>
+                                <td class="text-slate-600 text-xs">Dernière version majeure offrant performances PHP accrues, ORM Eloquent, et files d'attente asynchrones.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Architecture Métier</td>
+                                <td class="font-bold text-blue-900">Single-Action Pattern</td>
+                                <td class="text-slate-600 text-xs">Isole chaque règle métier dans une classe unique partagée à 100% entre Inertia et l'API REST.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Pont Web SPA</td>
+                                <td class="font-bold text-blue-900">Inertia.js v2</td>
+                                <td class="text-slate-600 text-xs">Permet de concevoir une SPA React sans la complexité de gestion manuelle des tokens JWT côté navigateur.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">API REST (Mobile-Ready)</td>
+                                <td class="font-bold text-blue-900">Laravel Sanctum + Resources</td>
+                                <td class="text-slate-600 text-xs">API REST JSON native prête à être consommée par une future application mobile (Flutter / React Native).</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Frontend Web & UI</td>
+                                <td class="font-bold text-blue-900">React + Tailwind CSS</td>
+                                <td class="text-slate-600 text-xs">Composants hautement réactifs, intégration de FullCalendar et interface ergonomique moderne.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Moteur Calendrier</td>
+                                <td class="font-bold text-blue-900">FullCalendar React</td>
+                                <td class="text-slate-600 text-xs">Standard industriel pour la manipulation de grilles horaires en Glisser-Déposer (Drag & Drop).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="font-bold text-slate-900 text-base pt-4">5.2. Architecture Dual-Engine (Inertia SPA + API REST Mobile-Ready)</h3>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto">
+                    <pre class="mermaid text-center">
+flowchart TB
+    subgraph Clients ["Couche Clients"]
+        WebSPA["Application Web (React SPA via Inertia.js)"]
+        MobileApp["Future Application Mobile (iOS / Android / Flutter)"]
+    end
+
+    subgraph EntryLayer ["Couche d'Entrée & Contrôleurs (Laravel 13)"]
+        WebCtrl["Web Inertia Controllers"]
+        ApiCtrl["REST API Controllers (Sanctum Auth)"]
+    end
+
+    subgraph ActionLayer ["Couche Métier Unique (Single-Action Pattern)"]
+        ActCourse["CreateCourseSessionAction"]
+        ActExam["ScheduleExamAction"]
+        ActConflict["ConflictDetectorService (Moteur Anti-Conflit)"]
+    end
+
+    subgraph DataLayer ["Couche Données & Services"]
+        Eloquent["ORM Eloquent (Laravel 13)"]
+        DB[("Base de Données MySQL 8.0")]
+        Pdf["Service PDF (Convocations/PV)"]
+        Notif["Service Notifications (Email/SMS/Push)"]
+    end
+
+    WebSPA --> WebCtrl
+    MobileApp --> ApiCtrl
+
+    WebCtrl --> ActCourse
+    WebCtrl --> ActExam
+    ApiCtrl --> ActCourse
+    ApiCtrl --> ActExam
+
+    ActCourse --> ActConflict
+    ActExam --> ActConflict
+
+    ActCourse --> Eloquent
+    ActExam --> Eloquent
+    ActCourse --> Notif
+    ActExam --> Pdf
+
+    Eloquent --> DB
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 6 ==================== -->
+        <section id="section-6" class="bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm space-y-8">
+            <h2 class="text-2xl font-bold text-blue-950 border-b border-slate-200 pb-3 flex items-center space-x-3">
+                <span class="bg-blue-900 text-white rounded-lg w-8 h-8 flex items-center justify-center text-sm">6</span>
+                <span>Modélisation du Système & Diagrammes</span>
+            </h2>
+
+            <!-- 6.1 Use Case -->
+            <div class="space-y-3">
+                <h3 class="font-bold text-slate-900 text-base">6.1. Diagramme Global des Cas d'Utilisation (Use Case)</h3>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto">
+                    <pre class="mermaid text-center">
+flowchart LR
+    Admin["👤 Administrateur / Coordinateur"]
+    Prof["👨‍🏫 Enseignant / Formateur"]
+    Etud["🎓 Étudiant / Auditeur"]
+
+    subgraph System [" Système Synchro (Web & API Mobile) "]
+        UC_Ref(["Gérer les Référentiels (Filières, Salles, Modules)"])
+        UC_Import(["Importer les données massives (Excel/CSV)"])
+        UC_Plan(["Planifier les Séances de Cours (Drag & Drop)"])
+        UC_Conflict(["Vérifier la non-collision des ressources"])
+        UC_Disp(["Déclarer ses Disponibilités & Indisponibilités"])
+        UC_Exam(["Organiser les Sessions d'Examens & Salles"])
+        UC_Surv(["Affecter les Surveillants d'Examens"])
+        UC_Consult(["Consulter son Planning (Web & Mobile)"])
+        UC_PDF(["Télécharger Convocations & Feuilles d'Émargement"])
+        UC_Notes(["Saisir & Valider les Notes d'Examen"])
+        UC_Notif(["Recevoir les Notifications Multi-Canaux"])
+    end
+
+    Admin --> UC_Ref
+    Admin --> UC_Import
+    Admin --> UC_Plan
+    Admin --> UC_Exam
+    Admin --> UC_Surv
+    Admin --> UC_PDF
+    Admin --> UC_Notes
+
+    UC_Plan -.->|«include»| UC_Conflict
+    UC_Exam -.->|«include»| UC_Conflict
+
+    Prof --> UC_Disp
+    Prof --> UC_Consult
+    Prof --> UC_PDF
+    Prof --> UC_Notes
+    Prof --> UC_Notif
+
+    Etud --> UC_Consult
+    Etud --> UC_PDF
+    Etud --> UC_Notif
+                    </pre>
+                </div>
+            </div>
+
+            <!-- 6.2 Sequence -->
+            <div class="space-y-3">
+                <h3 class="font-bold text-slate-900 text-base">6.2. Diagramme de Séquence : Planification & Détection Automatique des Conflits</h3>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto">
+                    <pre class="mermaid text-center">
+sequenceDiagram
+    autonumber
+    actor User as Client (Web React ou Mobile App)
+    participant Ctrl as ScheduleController (Web ou API)
+    participant Action as CreateCourseSessionAction
+    participant Engine as ConflictDetectorService
+    participant DB as Base de Données MySQL
+    participant Notif as NotificationService
+
+    User->>Ctrl: POST /schedules/sessions (Créneau, Prof, Salle, Groupe)
+    Ctrl->>Action: execute(CourseSessionDTO)
+    
+    Action->>Engine: checkAllConflicts(prof_id, room_id, group_id, start_time, end_time)
+    Engine->>DB: Contrôle collisions Enseignant, Salle, Groupe & Capacité
+    
+    alt Conflit Détecté (Collision de ressource)
+        Engine-->>Action: Erreur Conflit (Ressource indisponible)
+        Action-->>Ctrl: Exception 422
+        Ctrl-->>User: Message d'erreur explicite & Annulation du déplacement
+    else Aucun Conflit Détecté
+        Engine-->>Action: Validation OK (Zéro conflit)
+        Action->>DB: INSERT INTO course_sessions (...)
+        DB-->>Action: Séance enregistrée (ID)
+        Action->>Notif: sendScheduleUpdateNotification(session)
+        Action-->>Ctrl: Succès (201 Created)
+        Ctrl-->>User: Confirmation & Mise à jour de l'affichage
+    end
+                    </pre>
+                </div>
+            </div>
+
+            <!-- 6.3 MCD -->
+            <div class="space-y-3">
+                <h3 class="font-bold text-slate-900 text-base">6.3. Modèle Conceptuel de Données (MCD / Entités-Relations & RBAC)</h3>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto">
+                    <pre class="mermaid text-center">
+erDiagram
+    USERS ||--o{ MODEL_HAS_ROLES : "possède"
+    ROLES ||--o{ MODEL_HAS_ROLES : "assigné à"
+    ROLES ||--o{ ROLE_HAS_PERMISSIONS : "détient"
+    PERMISSIONS ||--o{ ROLE_HAS_PERMISSIONS : "accordée à"
+
+    USERS ||--o{ TEACHER_PROFILES : "est"
+    USERS ||--o{ STUDENT_PROFILES : "est"
+    USERS ||--o{ NOTIFICATIONS : "reçoit"
+
+    DEPARTMENTS ||--|{ PROGRAMS : "comprend"
+    PROGRAMS ||--|{ GROUPS : "contient"
+    PROGRAMS ||--|{ MODULES : "dispense"
+
+    GROUPS ||--o{ STUDENT_PROFILES : "inscrit"
+    GROUPS ||--o{ COURSE_SESSIONS : "participe"
+    GROUPS ||--o{ EXAMS : "passe"
+
+    TEACHER_PROFILES ||--o{ TEACHER_UNAVAILABILITIES : "déclare"
+    TEACHER_PROFILES ||--o{ COURSE_SESSIONS : "anime"
+    TEACHER_PROFILES ||--o{ EXAM_INVIGILATORS : "surveille"
+
+    ROOMS ||--o{ COURSE_SESSIONS : "accueille"
+    ROOMS ||--o{ EXAM_ROOM_ASSIGNMENTS : "héberge"
+
+    MODULES ||--o{ COURSE_SESSIONS : "concerne"
+    MODULES ||--o{ EXAMS : "évalue"
+
+    EXAM_PERIODS ||--|{ EXAMS : "regroupe"
+    EXAMS ||--|{ EXAM_ROOM_ASSIGNMENTS : "se déroule dans"
+    EXAM_ROOM_ASSIGNMENTS ||--|{ EXAM_INVIGILATORS : "assigne"
+    EXAMS ||--o{ EXAM_GRADES : "comporte"
+    STUDENT_PROFILES ||--o{ EXAM_GRADES : "obtient"
+
+    USERS {
+        bigint id PK
+        string name
+        string email UK
+        string password
+        string phone
+        boolean is_active
+    }
+
+    ROLES {
+        bigint id PK
+        string name UK
+        string guard_name
+        string display_name
+    }
+
+    PERMISSIONS {
+        bigint id PK
+        string name UK
+        string guard_name
+        string display_name
+    }
+
+    MODEL_HAS_ROLES {
+        bigint role_id PK,FK
+        bigint user_id PK,FK
+    }
+
+    ROLE_HAS_PERMISSIONS {
+        bigint permission_id PK,FK
+        bigint role_id PK,FK
+    }
+
+    ROOMS {
+        bigint id PK
+        string name
+        string building
+        string room_type
+        int course_capacity
+        int exam_capacity
+        boolean has_projector
+    }
+
+    MODULES {
+        bigint id PK
+        bigint program_id FK
+        string name
+        string code
+        int total_hours
+        string color_code
+    }
+
+    COURSE_SESSIONS {
+        bigint id PK
+        bigint group_id FK
+        bigint module_id FK
+        bigint teacher_id FK
+        bigint room_id FK
+        datetime start_time
+        datetime end_time
+        enum session_type "cours, tp, rattrapage"
+        enum status "scheduled, completed, cancelled"
+    }
+
+    EXAMS {
+        bigint id PK
+        bigint exam_period_id FK
+        bigint module_id FK
+        bigint group_id FK
+        date exam_date
+        time start_time
+        time end_time
+        enum status "draft, published, completed"
+    }
+
+    EXAM_ROOM_ASSIGNMENTS {
+        bigint id PK
+        bigint exam_id FK
+        bigint room_id FK
+        int allocated_students_count
+    }
+
+    EXAM_INVIGILATORS {
+        bigint id PK
+        bigint exam_room_assignment_id FK
+        bigint teacher_id FK
+        enum role "principal, adjoint"
+    }
+
+    EXAM_GRADES {
+        bigint id PK
+        bigint exam_id FK
+        bigint student_id FK
+        decimal grade
+        boolean is_absent
+        string remarks
+    }
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 7 ==================== -->
+        <section id="section-7" class="bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm space-y-6">
+            <h2 class="text-2xl font-bold text-blue-950 border-b border-slate-200 pb-3 flex items-center space-x-3">
+                <span class="bg-blue-900 text-white rounded-lg w-8 h-8 flex items-center justify-center text-sm">7</span>
+                <span>Démarche Méthodologique, Planning & Livrables</span>
+            </h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-bold text-slate-900 mb-1">7.1. Méthodologie de Développement (Scrum / Sprints)</h3>
+                    <p class="text-sm text-slate-700">Le projet est conduit selon la méthode agile <strong>Scrum</strong> à travers 5 sprints de 2 semaines chacun avec intégration continue.</p>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-slate-900 mb-3">7.2. Planning Prévisionnel par Phases</h3>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 overflow-x-auto">
+                        <pre class="mermaid text-center">
+flowchart TD
+    subgraph P1 [" Phase 1 : Cadrage & Conception (10j) "]
+        T1["Cahier des charges & Spécifications"] --> T2["Modélisation MCD/MPD & Diagrammes UML"]
+    end
+
+    subgraph P2 [" Phase 2 : Socle Backend & API (26j) "]
+        T3["Setup Laravel 13, Migrations & Auth Sanctum"] --> T4["Moteur de Conflits & Actions Métier"]
+    end
+
+    subgraph P3 [" Phase 3 : Planification des Cours (26j) "]
+        T5["UI React + Inertia + FullCalendar (Drag & Drop)"] --> T6["Gestion des Disponibilités & Endpoints API Mobile"]
+    end
+
+    subgraph P4 [" Phase 4 : Module Examens & PDF (22j) "]
+        T7["Planification Sessions, Jauges Salles & Surveillants"] --> T8["Génération Automatique PDF (Convocations QR Code & PV)"]
+    end
+
+    subgraph P5 [" Phase 5 : Clôture, Recette & Soutenance (17j) "]
+        T9["Saisie des Notes & Centre de Notifications"] --> T10["Recette Globale, Déploiement & Soutenance Finale"]
+    end
+
+    P1 --> P2
+    P2 --> P3
+    P3 --> P4
+    P4 --> P5
+
+    style P1 fill:#EFF6FF,stroke:#3B82F6,stroke-width:1.5px
+    style P2 fill:#F0FDF4,stroke:#22C55E,stroke-width:1.5px
+    style P3 fill:#FEF3C7,stroke:#F59E0B,stroke-width:1.5px
+    style P4 fill:#FEE2E2,stroke:#EF4444,stroke-width:1.5px
+    style P5 fill:#F3E8FF,stroke:#A855F7,stroke-width:1.5px
+                        </pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-slate-900 mb-2">7.3. Liste des Livrables Officiels du Projet</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs md:text-sm">
+                        <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-start space-x-2">
+                            <span class="text-blue-900 font-bold">1.</span>
+                            <span><strong>Cahier des Charges & Spécifications</strong> (Document officiel validé).</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-start space-x-2">
+                            <span class="text-blue-900 font-bold">2.</span>
+                            <span><strong>Code Source (Dépôt Git)</strong> : Laravel 13 + React SPA + API REST + Tests automatisés.</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-start space-x-2">
+                            <span class="text-blue-900 font-bold">3.</span>
+                            <span><strong>Documentation API REST</strong> (Swagger / Collection Postman) pour la future app mobile.</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-start space-x-2">
+                            <span class="text-blue-900 font-bold">4.</span>
+                            <span><strong>Guide d'Installation (README.md)</strong> & Déploiement.</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-start space-x-2">
+                            <span class="text-blue-900 font-bold">5.</span>
+                            <span><strong>Manuel Utilisateur</strong> illustré (Coordinateurs, Enseignants, Étudiants).</span>
+                        </div>
+                        <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 flex items-start space-x-2">
+                            <span class="text-blue-900 font-bold">6.</span>
+                            <span><strong>Mémoire Final & Support de Présentation</strong> pour la soutenance.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-8 text-xs text-slate-500 border-t border-slate-200">
+            <p class="font-bold text-slate-700">Projet « Synchro » — ISGA 2025 / 2026</p>
+            <p>Encadré par M. Ahmed OUTZOURHIT | Filière 1CI — ISI</p>
+        </footer>
+
+    </main>
+
+</body>
+</html>
