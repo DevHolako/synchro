@@ -11,4 +11,8 @@ enum ConflictType: string
     case Teacher = 'teacher';
     case Room = 'room';
     case Group = 'group';
+
+    // Soft conflicts: policy violations an authorized user may override with a justification.
+    case Capacity = 'capacity';
+    case Unavailability = 'unavailability';
 }

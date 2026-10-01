@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Enums\Permission;
+use App\Models\CourseSession;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -28,6 +30,17 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configurePermissionGates();
+        $this->configureMorphMap();
+    }
+
+    /**
+     * Stable aliases for polymorphic columns (e.g. the conflict override audit's schedulable).
+     */
+    protected function configureMorphMap(): void
+    {
+        Relation::morphMap([
+            'course_session' => CourseSession::class,
+        ]);
     }
 
     /**

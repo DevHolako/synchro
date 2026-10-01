@@ -68,6 +68,7 @@ enum UserRole: string
                 Permission::ManageModules,
                 Permission::ViewSchedules,
                 Permission::ManageSchedules,
+                Permission::OverrideSoftConflicts,
                 Permission::ViewExams,
                 Permission::ManageExams,
                 Permission::ReviewUnavailability,
