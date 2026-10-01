@@ -81,6 +81,8 @@ class InvitationToken extends Model
 
     /**
      * Tokens that can no longer be used and have aged past the retention window.
+     * Each user's latest invitation is kept: the user directory reads it to show
+     * that an invitation expired and needs resending.
      *
      * @return Builder<static>
      */
@@ -88,10 +90,18 @@ class InvitationToken extends Model
     {
         $cutoff = now()->subDays(self::RETENTION_DAYS);
 
-        return static::query()->where(fn (Builder $query) => $query
-            ->where('consumed_at', '<', $cutoff)
-            ->orWhere('revoked_at', '<', $cutoff)
-            ->orWhere('expires_at', '<', $cutoff));
+        return static::query()
+            ->where(fn (Builder $query) => $query
+                ->where('consumed_at', '<', $cutoff)
+                ->orWhere('revoked_at', '<', $cutoff)
+                ->orWhere('expires_at', '<', $cutoff))
+            // Wrapped in a derived table: MySQL refuses a DELETE whose subquery reads the same table.
+            ->whereNotIn('id', fn ($query) => $query
+                ->select('latest_id')
+                ->fromSub(fn ($query) => $query
+                    ->selectRaw('max(id) as latest_id')
+                    ->from($this->getTable())
+                    ->groupBy('user_id'), 'latest_invitations'));
     }
 
     /**
