@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         // Immutable audit trail of soft-conflict overrides (ADR 0002). No foreign key on the
-        // schedulable so the record outlives the session it justified.
+        // schedulable so the record outlives the session it justified; the author cannot be
+        // deleted, so the record always names who overrode.
         Schema::create('conflict_overrides', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
             $table->string('schedulable_type');
             $table->unsignedBigInteger('schedulable_id');
             $table->string('conflict_type', 30);

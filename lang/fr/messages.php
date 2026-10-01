@@ -102,4 +102,5 @@ return [
     'conflict_soft' => 'Ce créneau enfreint :count règle(s) de planification. Confirmez avec une justification pour l\'enregistrer malgré tout.',
     'conflict_capacity' => 'La salle :name compte :capacity places mais les groupes totalisent :headcount étudiants.',
     'conflict_unavailability' => ':name a déclaré une indisponibilité pendant cette séance : :reason',
+    'account_has_scheduling_history' => 'Ce compte a assuré des séances ou validé des dérogations de planification : il est conservé pour l\'emploi du temps et son historique. Demandez plutôt à un administrateur de le désactiver.',
 ];
