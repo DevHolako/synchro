@@ -11,6 +11,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { useEffect, useMemo, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { GRID_END, GRID_START } from '@/lib/scheduling-grid';
 import { toCalendarEvent, wallClockNow } from './calendar-utils';
 import { SessionEventContent } from './session-event-content';
 import type {
@@ -33,9 +34,6 @@ const MOBILE_TOOLBAR = {
     right: 'listWeek,timeGridDay',
 };
 
-/** Open operational grid, 7 days a week (ADR 0004). */
-const GRID_START = '08:00:00';
-const GRID_END = '22:00:00';
 const MONDAY = 1;
 
 interface TimetableCalendarProps {

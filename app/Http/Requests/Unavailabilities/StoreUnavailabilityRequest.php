@@ -5,17 +5,14 @@ namespace App\Http\Requests\Unavailabilities;
 use App\Enums\UnavailabilityType;
 use App\Http\Requests\Concerns\ReadsTypedInput;
 use App\Models\TeacherUnavailability;
+use App\Support\SchedulingGrid;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreUnavailabilityRequest extends FormRequest
 {
     use ReadsTypedInput;
-
-    /**
-     * A quarter-hour slot inside the 08:00–22:00 scheduling grid (ADR 0004).
-     */
-    protected const string GRID_TIME = '/^((0[89]|1\d|2[01]):(00|15|30|45)|22:00)$/';
 
     public function authorize(): bool
     {
@@ -35,8 +32,8 @@ class StoreUnavailabilityRequest extends FormRequest
             'day_of_week' => ["required_if:type,{$recurring}", "prohibited_if:type,{$adHoc}", 'nullable', 'integer', 'between:1,7'],
             'start_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'end_date' => ["required_if:type,{$adHoc}", 'nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
-            'start_time' => ["required_if:type,{$recurring}", 'required_with:end_time', 'nullable', 'regex:'.self::GRID_TIME],
-            'end_time' => ["required_if:type,{$recurring}", 'required_with:start_time', 'nullable', 'regex:'.self::GRID_TIME, 'after:start_time'],
+            'start_time' => ["required_if:type,{$recurring}", 'required_with:end_time', 'nullable', $this->gridTime()],
+            'end_time' => ["required_if:type,{$recurring}", 'required_with:start_time', 'nullable', $this->gridTime(), 'after:start_time'],
             'reason' => ['required', 'string', 'max:500'],
         ];
     }
@@ -48,10 +45,22 @@ class StoreUnavailabilityRequest extends FormRequest
     {
         return [
             'start_date.after_or_equal' => __('messages.unavailability_start_in_past'),
-            'start_time.regex' => __('messages.unavailability_time_slot'),
-            'end_time.regex' => __('messages.unavailability_time_slot'),
             'end_time.after' => __('messages.unavailability_end_before_start'),
         ];
+    }
+
+    /**
+     * A quarter-hour time inside the scheduling grid (ADR 0004).
+     *
+     * @return Closure(string, mixed, Closure(string): mixed): void
+     */
+    protected function gridTime(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            if (! is_string($value) || ! SchedulingGrid::isGridTime($value)) {
+                $fail(__('messages.unavailability_time_slot', SchedulingGrid::bounds()));
+            }
+        };
     }
 
     /**

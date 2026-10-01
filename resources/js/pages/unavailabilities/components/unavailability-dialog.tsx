@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { GRID_END, GRID_START, GRID_STEP_SECONDS } from '@/lib/scheduling-grid';
 import { store, update } from '@/routes/unavailabilities';
 import type {
     Unavailability,
@@ -248,9 +249,9 @@ export function UnavailabilityDialog({
                                 <Input
                                     id="unavailability_start_time"
                                     type="time"
-                                    step={900}
-                                    min="08:00"
-                                    max="22:00"
+                                    step={GRID_STEP_SECONDS}
+                                    min={GRID_START}
+                                    max={GRID_END}
                                     value={form.data.start_time}
                                     onChange={(e) =>
                                         form.setData(
@@ -269,9 +270,9 @@ export function UnavailabilityDialog({
                                 <Input
                                     id="unavailability_end_time"
                                     type="time"
-                                    step={900}
-                                    min="08:00"
-                                    max="22:00"
+                                    step={GRID_STEP_SECONDS}
+                                    min={GRID_START}
+                                    max={GRID_END}
                                     value={form.data.end_time}
                                     onChange={(e) =>
                                         form.setData('end_time', e.target.value)
