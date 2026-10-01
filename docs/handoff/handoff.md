@@ -8,10 +8,10 @@
   - **Backend:** Laravel 13.34.0, PHP 8.5, Laravel Fortify (public self-registration disabled), Laravel Wayfinder.
   - **Frontend:** Inertia.js (React 19 SPA), Tailwind CSS v4, Lucide React icons.
   - **Testing & Tooling:** Pest 5.2.1, Vite Plus (`vp`), Laravel Pint.
-- **Current Test Status:** 112 tests registered (107 passed, 5 skipped: 3 Fortify 2FA stubs + 2 legacy registration tests skipped because registration is disabled), 515 assertions, 100% green.
+- **Current Test Status:** 130 tests registered (125 passed, 5 skipped: 3 Fortify 2FA stubs + 2 legacy registration tests skipped because registration is disabled), 611 assertions, 100% green.
 - **Code Quality & Linting:**
   - TypeScript: `npx tsc --noEmit` clean (0 errors).
-  - Frontend Lint: `npx vp check resources/js` passing (93 files clean, 0 errors, 0 warnings).
+  - Frontend Lint: `npx vp check resources/js` passing (100 files clean, 0 errors, 0 warnings).
   - Code Style: Laravel Pint formatted (`vendor/bin/pint --dirty --format agent`).
   - Production Asset Compilation: `npm run build` succeeds cleanly.
 
@@ -83,16 +83,26 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - Role profiles: `UserRole::profileRelation()` maps a role to its profile relation, so actions never branch on role values.
    - UI: `resources/js/pages/users/` (directory, invite dialog, resend, one-time temporary password dialog), `auth/accept-invitation.tsx`, `auth/invitation-invalid.tsx`. `auth.permissions` is now a shared Inertia prop (used to show the sidebar "Users" link).
 
+5. **Ticket 05: Bulk Spreadsheet Importer for Referentials and Users** ([`05-bulk-csv-excel-importer.md`](file:///home/holako/github/synchro/docs/specs/01-core-foundation-and-referentials/tickets/05-bulk-csv-excel-importer.md))
+   - Implemented: `ImportType` enum (`rooms`, `modules`, `teachers`, `students`) defining columns, required columns, template example rows, the policy ability, and the row importer; `SpreadsheetReader` (first sheet of `.csv`/`.xlsx` via `openspout/openspout`, auto-detects `,`/`;`/tab and Windows-1252, keeps real row numbers, max 2000 rows).
+   - Actions: `ImportReferentialsAction` validates every row first (rules, in-file duplicates, reference resolution) and only then writes all rows in one transaction; any failure rolls everything back. Row importers (`app/Actions/Imports/Importers/`) delegate to `CreateRoomAction`, `CreateModuleAction`, and `ProvisionUserAction`.
+   - Invitations: `ProvisionUserAction` issues invitations via `DB::afterCommit`, and `UserInvitationNotification` is queued (`ShouldQueue`), so a rolled-back import sends no emails. A queue worker must run for invitation emails to go out.
+   - Permissions: new `ImportReferentials` (`import:referentials`) held by Administrator and Coordinator; each type additionally requires its create ability (coordinators can import rooms/modules, not accounts).
+   - UI: `resources/js/pages/imports/` wizard (type picker, column guide with CSV template download, drag-and-drop zone, row-level error report).
+
 ---
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-### **Ticket 05: Bulk Spreadsheet Importer for Referentials and Users**
-- **File:** [`docs/specs/01-core-foundation-and-referentials/tickets/05-bulk-csv-excel-importer.md`](file:///home/holako/github/synchro/docs/specs/01-core-foundation-and-referentials/tickets/05-bulk-csv-excel-importer.md)
-- **Reuse:** user rows in an import should call `ProvisionUserAction` (one invitation per imported user) rather than re-implementing account creation.
-- **Known follow-ups from Ticket 04:**
+Part 01 is complete. The frontier moves to Part 02 (Availability & Conflict Engine).
+
+### **Part 02 / Ticket 01: Teacher Unavailability Declaration and Approval Workflow**
+- **File:** [`docs/specs/02-availability-and-conflict-engine/tickets/01-teacher-unavailability-declaration.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/01-teacher-unavailability-declaration.md)
+- **Pending before starting:** the user plans a `/code-review` pass over all of Part 01.
+- **Known follow-ups from Part 01:**
   - Temporary passwords do not yet force a password change at next login.
   - The welcome/login Fortify pages still contain pre-existing hardcoded English strings.
+  - Imports run synchronously in the request (bounded at 2000 rows / 5 MB); only invitation emails are queued.
 
 ---
 
