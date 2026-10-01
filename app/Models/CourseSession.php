@@ -93,6 +93,14 @@ class CourseSession extends Model
     }
 
     /**
+     * How long the session lasts, which is what it counts towards a module's syllabus hours.
+     */
+    public function durationInMinutes(): int
+    {
+        return (int) $this->starts_at->diffInMinutes($this->ends_at);
+    }
+
+    /**
      * Sessions overlapping the half-open interval [start, end): touching edges do not overlap.
      *
      * Sessions never cross midnight, so only sessions starting the same day can overlap;

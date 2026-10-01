@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Timetable;
 
 use App\Actions\CourseSessions\CalculateSyllabusProgressAction;
+use App\Actions\CourseSessions\ListSchedulingOptionsAction;
 use App\Actions\CourseSessions\ListTimetableFilterOptionsAction;
 use App\Actions\CourseSessions\ListTimetableSessionsAction;
 use App\Enums\TimetablePerspective;
@@ -24,11 +25,13 @@ class TimetableIndexController extends Controller
         ListTimetableSessionsAction $listSessions,
         CalculateSyllabusProgressAction $calculateSyllabusProgress,
         ListTimetableFilterOptionsAction $listFilterOptions,
+        ListSchedulingOptionsAction $listSchedulingOptions,
     ): Response {
         $perspective = $request->perspective();
         $scope = $request->scope();
         [$from, $until] = $request->range();
         $canBrowse = $request->user()?->can('browse', CourseSession::class) ?? false;
+        $canSchedule = $request->user()?->can('create', CourseSession::class) ?? false;
         $groupId = $scope->perspective === TimetablePerspective::Group ? $scope->subjectId : null;
 
         return Inertia::render('timetable/index', [
@@ -42,6 +45,9 @@ class TimetableIndexController extends Controller
             'scope' => ['perspective' => $scope->perspective->value, 'id' => $scope->subjectId],
             'canBrowse' => $canBrowse,
             'options' => fn () => $canBrowse ? $listFilterOptions->execute($scope) : null,
+            'canSchedule' => $canSchedule,
+            // Loaded by the scheduling wizard the first time it opens.
+            'schedulingOptions' => Inertia::optional(fn () => $canSchedule ? $listSchedulingOptions->execute() : null),
             'syllabus' => function () use ($groupId, $calculateSyllabusProgress): ?array {
                 $group = $groupId === null ? null : StudentGroup::query()->find($groupId);
 

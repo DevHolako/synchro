@@ -30,7 +30,7 @@ class CalculateSyllabusProgressAction
             ->get(['module_id', 'starts_at', 'ends_at'])
             ->groupBy('module_id')
             ->map(fn (Collection $sessions): int => $sessions->sum(
-                fn (CourseSession $session): int => (int) $session->starts_at->diffInMinutes($session->ends_at),
+                fn (CourseSession $session): int => $session->durationInMinutes(),
             ));
 
         return array_values(Module::query()

@@ -7,6 +7,8 @@ use App\Http\Controllers\Web\Buildings\BuildingUpdateController;
 use App\Http\Controllers\Web\Campuses\CampusStoreController;
 use App\Http\Controllers\Web\Campuses\CampusToggleActiveController;
 use App\Http\Controllers\Web\Campuses\CampusUpdateController;
+use App\Http\Controllers\Web\CourseSessions\CourseSessionBatchCheckController;
+use App\Http\Controllers\Web\CourseSessions\CourseSessionBatchStoreController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionCheckController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionDestroyController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionStoreController;
@@ -92,6 +94,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Course sessions and synchronous conflict detection (Part 02 / Ticket 02, ADR 0002)
     Route::post('course-sessions/check', CourseSessionCheckController::class)->name('course-sessions.check');
     Route::post('course-sessions', CourseSessionStoreController::class)->name('course-sessions.store');
+
+    // Batch scheduling wizard (Part 03 / Ticket 02)
+    Route::post('course-sessions/batch/check', CourseSessionBatchCheckController::class)->name('course-sessions.batch.check');
+    Route::post('course-sessions/batch', CourseSessionBatchStoreController::class)->name('course-sessions.batch.store');
+
     Route::put('course-sessions/{session}', CourseSessionUpdateController::class)->name('course-sessions.update');
     Route::delete('course-sessions/{session}', CourseSessionDestroyController::class)->name('course-sessions.destroy');
 
