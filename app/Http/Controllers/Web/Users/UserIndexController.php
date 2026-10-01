@@ -56,7 +56,7 @@ class UserIndexController extends Controller
                 'total' => User::count(),
                 'active' => User::where('status', AccountStatus::Active)->count(),
                 'invited' => User::where('status', AccountStatus::Invited)->count(),
-                'teachers' => User::where('role', UserRole::Teacher)->count(),
+                'teachers' => User::teachers()->count(),
                 'students' => User::where('role', UserRole::Student)->count(),
             ],
             'can' => [

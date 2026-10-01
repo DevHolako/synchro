@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Modules;
 
+use App\Enums\UserRole;
 use App\Models\Module;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -42,7 +43,7 @@ class UpdateModuleRequest extends FormRequest
 
         return [
             'program_id' => ['sometimes', 'required', 'integer', 'exists:programs,id'],
-            'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
+            'teacher_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where('role', UserRole::Teacher->value)],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'code' => [
                 'sometimes',

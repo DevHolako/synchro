@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Modules;
 
+use App\Enums\UserRole;
 use App\Models\Module;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,7 +22,7 @@ class StoreModuleRequest extends FormRequest
     {
         return [
             'program_id' => ['required', 'integer', 'exists:programs,id'],
-            'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
+            'teacher_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where('role', UserRole::Teacher->value)],
             'name' => ['required', 'string', 'max:255'],
             'code' => [
                 'required',

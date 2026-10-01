@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Web\Modules;
 
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Program;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,9 +16,7 @@ class ModuleIndexController extends Controller
 {
     public function __invoke(Request $request): Response
     {
-        if (! $request->user()?->can('viewAny', Module::class)) {
-            abort(403, 'Unauthorized to view modules catalog.');
-        }
+        Gate::authorize('viewAny', Module::class);
 
         $search = $request->input('search');
         $programId = $request->integer('program_id');
@@ -58,7 +56,7 @@ class ModuleIndexController extends Controller
             ->orderBy('name')
             ->get(['id', 'department_id', 'name', 'code', 'program_modality']);
 
-        $teachers = User::where('role', UserRole::Teacher)
+        $teachers = User::teachers()
             ->orderBy('name')
             ->get(['id', 'name', 'email']);
 

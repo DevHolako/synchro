@@ -60,8 +60,8 @@ class CreateModuleAction
             throw new InvalidArgumentException("Program with ID {$data['program_id']} does not exist.");
         }
 
-        if (! empty($data['teacher_id']) && ! User::where('id', $data['teacher_id'])->exists()) {
-            throw new InvalidArgumentException("Teacher with ID {$data['teacher_id']} does not exist.");
+        if (! empty($data['teacher_id']) && ! User::teachers()->whereKey($data['teacher_id'])->exists()) {
+            throw new InvalidArgumentException("User {$data['teacher_id']} is not a teacher.");
         }
 
         return Module::create([

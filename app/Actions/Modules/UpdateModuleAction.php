@@ -35,8 +35,8 @@ class UpdateModuleAction
         }
 
         if (array_key_exists('teacher_id', $data)) {
-            if ($data['teacher_id'] !== null && ! User::where('id', $data['teacher_id'])->exists()) {
-                throw new InvalidArgumentException("Teacher with ID {$data['teacher_id']} does not exist.");
+            if ($data['teacher_id'] !== null && ! User::teachers()->whereKey($data['teacher_id'])->exists()) {
+                throw new InvalidArgumentException("User {$data['teacher_id']} is not a teacher.");
             }
             $payload['teacher_id'] = $data['teacher_id'];
         }
