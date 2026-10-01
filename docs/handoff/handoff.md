@@ -130,7 +130,7 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
-- Part 03 builds on `CourseSession`, `CreateCourseSessionAction` / `UpdateCourseSessionAction` (shared `PersistsCourseSessions`), `CheckSessionConflictsAction` (hard 422 / soft 409 with override) and `ConflictOverride`.
+- Part 03 builds on `CourseSession`, `CreateCourseSessionAction` / `UpdateCourseSessionAction` (both delegate to `SaveCourseSessionAction`), `CheckSessionConflictsAction` (hard 422 / soft 409 with override) and `ConflictOverride`.
 - **Code reviews:** the post-Part-01 work (`2b61777..265229c`) was reviewed and all 10 findings fixed (`dcb7957..a08b416`). The review of Part 01's own tickets (`523cfbe..2b61777`, judged against current code) ran on 2026-10-01. Fixed right away:
   - Partial updates skipped scoped-uniqueness and capacity checks (moving a room/building/program/group/module to another parent, or lowering only `course_capacity`), which ended in a 500 instead of a 422. Update requests now `mergeIfMissing` the stored values in `prepareForValidation()`.
   - Modules accepted any user as teacher on the web path; requests and actions now require a teacher.
@@ -141,12 +141,13 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete.
   - The Docker image and compose stack have not yet been built or run (Docker was unavailable in the authoring environment), and migrations have not been run against MySQL 8.0.
 - **Part 02 review (2026-10-01):** fixed right away:
   - `TeacherUnavailability` dates are normalised to `Y-m-d` on write (Carbon values were stored with a time, so a session on a range's first day was missed on SQLite).
-  - `conflict_overrides.user_id` is now required and restricts deletion; `ConflictOverride` uses an append-only builder, so bulk `update()`/`delete()` throw too. Accounts that taught a session or overrode a conflict cannot delete themselves (translated `account` error instead of a 500).
+  - `conflict_overrides.user_id` is now required and restricts deletion; `ConflictOverride` uses an append-only builder, so bulk updates, increments, upserts and deletes throw too. Accounts that taught a session or overrode a conflict (`User::hasSchedulingHistory()`) cannot delete themselves (translated `account` error instead of a 500).
   - A `justification` without `force_override` is ignored. New tests: the override 403 at the request, the `X-Inertia` rendering path, inclusive first/last days.
-  - `CheckSessionConflictsAction` (ADR 0009), `SessionSlot::fromPayload()`, a shared create/update path, a `ConflictException` base for the 422/409 rendering, and the shared unavailability components moved to `resources/js/components/unavailabilities/`.
+  - `CheckSessionConflictsAction` (ADR 0009), `SessionSlot::fromPayload()`, a shared `SaveCourseSessionAction` for create/update, a `ConflictException` base for the 422/409 rendering, and the shared unavailability components moved to `resources/js/components/unavailabilities/`.
 - **Deferred findings from the Part 02 review (not blocking):**
   - The 08:00–22:00 quarter-hour grid lives in four places (session request, unavailability request regex, dialog inputs, messages); `resources/js/lib/permissions.ts` mirrors `App\Enums\Permission` by hand.
   - "Is a teacher" is decided by role (`Rule::exists(...)->where('role')`, `User::teachers()`) while declaring is gated by `DeclareUnavailability`; settle when roles are revisited (Part 06).
+  - No admin user-delete exists yet; when one is added it must check `User::hasSchedulingHistory()` (the `course_sessions.teacher_id` and `conflict_overrides.user_id` foreign keys restrict deletion). Users also cannot be deactivated yet.
   - Tests use literal names/reasons where `testing.md` prefers `fake()`; memoized rows take whole objects; `DeclareUnavailabilityAction::attributes()` is borrowed by the update action; hard-conflict entries carry an (empty) `details` key.
 - **Deferred findings from the Part 01 review (not blocking):**
   - `academic-structure/index.tsx` (246 lines) and `rooms/index.tsx` (230 lines) exceed the page ceiling; row memoization is defeated by inline callbacks and object props, and rows live in `*-table.tsx` instead of `*-row.tsx`.
