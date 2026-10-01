@@ -8,6 +8,9 @@ use App\Models\Module;
 use App\Models\Program;
 use App\Models\User;
 
+/**
+ * @implements RowImporter<array{program_id: int, teacher_id: int|null, name: string, code: string, total_hours: int, lecture_hours: int, tp_hours: int, color_code: string, description: string|null}>
+ */
 class ModuleRowImporter implements RowImporter
 {
     private const string DEFAULT_COLOR = '#3B82F6';

@@ -2,7 +2,11 @@
 
 namespace App\Actions\Imports;
 
+use App\Actions\Imports\Importers\ModuleRowImporter;
+use App\Actions\Imports\Importers\RoomRowImporter;
 use App\Actions\Imports\Importers\RowImporter;
+use App\Actions\Imports\Importers\StudentRowImporter;
+use App\Actions\Imports\Importers\TeacherRowImporter;
 use App\Enums\ImportType;
 use App\Exceptions\ImportFailedException;
 use App\Exceptions\ImportRowException;
@@ -39,8 +43,24 @@ class ImportReferentialsAction
             throw ImportFailedException::at(2, null, __('messages.import_no_rows'));
         }
 
-        /** @var RowImporter $importer */
-        $importer = app($type->importer());
+        return match ($type) {
+            ImportType::Rooms => $this->importRows(app(RoomRowImporter::class), $rows, $actor),
+            ImportType::Modules => $this->importRows(app(ModuleRowImporter::class), $rows, $actor),
+            ImportType::Teachers => $this->importRows(app(TeacherRowImporter::class), $rows, $actor),
+            ImportType::Students => $this->importRows(app(StudentRowImporter::class), $rows, $actor),
+        };
+    }
+
+    /**
+     * @template TPayload of array<string, mixed>
+     *
+     * @param  RowImporter<TPayload>  $importer
+     * @param  array<int, array<string, string|null>>  $rows
+     *
+     * @throws ImportFailedException
+     */
+    private function importRows(RowImporter $importer, array $rows, User $actor): int
+    {
         $payloads = $this->validateRows($importer, $rows);
 
         DB::transaction(function () use ($importer, $payloads, $actor): void {
@@ -61,8 +81,11 @@ class ImportReferentialsAction
     /**
      * Validate and prepare every row, collecting all errors before any write.
      *
+     * @template TPayload of array<string, mixed>
+     *
+     * @param  RowImporter<TPayload>  $importer
      * @param  array<int, array<string, string|null>>  $rows
-     * @return array<int, array<string, mixed>>
+     * @return array<int, TPayload>
      *
      * @throws ImportFailedException
      */

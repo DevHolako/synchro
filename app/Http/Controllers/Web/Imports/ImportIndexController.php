@@ -35,7 +35,7 @@ class ImportIndexController extends Controller
         abort_unless($user->hasPermission(Permission::ImportReferentials), 403);
 
         return Inertia::render('imports/index', [
-            'types' => fn (): Collection => $this->allowedTypes($user)->map(fn (ImportType $type): array => [
+            'types' => fn (): Collection => collect($this->allowedTypes($user))->map(fn (ImportType $type): array => [
                 'type' => $type->value,
                 'columns' => $type->columns(),
                 'required' => $type->requiredColumns(),
@@ -61,11 +61,13 @@ class ImportIndexController extends Controller
     }
 
     /**
-     * @return Collection<int, ImportType>
+     * @return list<ImportType>
      */
-    private function allowedTypes(User $user): Collection
+    private function allowedTypes(User $user): array
     {
-        return collect(ImportType::cases())
-            ->filter(fn (ImportType $type): bool => $user->can(...$type->ability()));
+        return array_values(array_filter(
+            ImportType::cases(),
+            fn (ImportType $type): bool => $user->can(...$type->ability()),
+        ));
     }
 }

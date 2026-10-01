@@ -7,6 +7,8 @@ use App\Models\User;
 
 /**
  * Maps one referential's spreadsheet rows onto its existing domain action.
+ *
+ * @template TPayload of array<string, mixed> The action input that prepare() builds and persist() hands over.
  */
 interface RowImporter
 {
@@ -29,7 +31,7 @@ interface RowImporter
      * Resolve references (codes, emails) and check conflicts with existing records.
      *
      * @param  array<string, string|null>  $row
-     * @return array<string, mixed>
+     * @return TPayload
      *
      * @throws ImportRowException
      */
@@ -38,7 +40,7 @@ interface RowImporter
     /**
      * Persist a prepared row through the referential's single action.
      *
-     * @param  array<string, mixed>  $payload
+     * @param  TPayload  $payload
      */
     public function persist(array $payload, User $actor): void;
 }

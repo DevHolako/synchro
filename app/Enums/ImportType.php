@@ -2,11 +2,6 @@
 
 namespace App\Enums;
 
-use App\Actions\Imports\Importers\ModuleRowImporter;
-use App\Actions\Imports\Importers\RoomRowImporter;
-use App\Actions\Imports\Importers\RowImporter;
-use App\Actions\Imports\Importers\StudentRowImporter;
-use App\Actions\Imports\Importers\TeacherRowImporter;
 use App\Models\Module;
 use App\Models\Room;
 use App\Models\User;
@@ -80,19 +75,6 @@ enum ImportType: string
             self::Rooms => ['create', Room::class],
             self::Modules => ['create', Module::class],
             self::Teachers, self::Students => ['create', User::class],
-        };
-    }
-
-    /**
-     * @return class-string<RowImporter>
-     */
-    public function importer(): string
-    {
-        return match ($this) {
-            self::Rooms => RoomRowImporter::class,
-            self::Modules => ModuleRowImporter::class,
-            self::Teachers => TeacherRowImporter::class,
-            self::Students => StudentRowImporter::class,
         };
     }
 }

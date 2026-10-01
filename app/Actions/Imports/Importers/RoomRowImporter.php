@@ -10,6 +10,9 @@ use App\Models\Room;
 use App\Models\User;
 use Closure;
 
+/**
+ * @implements RowImporter<array{building_id: int, name: string, code: string|null, floor: int|null, course_capacity: int, exam_capacity: int, has_projector: bool, is_lab: bool, has_computers: bool, has_sound_system: bool}>
+ */
 class RoomRowImporter implements RowImporter
 {
     private const array TRUE_VALUES = ['1', 'true', 'yes', 'oui', 'y', 'o', 'x'];
@@ -78,14 +81,23 @@ class RoomRowImporter implements RowImporter
             'floor' => isset($row['floor']) ? (int) $row['floor'] : null,
             'course_capacity' => (int) $row['course_capacity'],
             'exam_capacity' => (int) $row['exam_capacity'],
-            ...collect(self::EQUIPMENT_COLUMNS)->mapWithKeys(fn (string $column): array => [
-                $column => in_array(mb_strtolower((string) ($row[$column] ?? '')), self::TRUE_VALUES, true),
-            ])->all(),
+            'has_projector' => $this->flag($row, 'has_projector'),
+            'is_lab' => $this->flag($row, 'is_lab'),
+            'has_computers' => $this->flag($row, 'has_computers'),
+            'has_sound_system' => $this->flag($row, 'has_sound_system'),
         ];
     }
 
     public function persist(array $payload, User $actor): void
     {
         $this->createRoom->execute($payload);
+    }
+
+    /**
+     * @param  array<string, string|null>  $row
+     */
+    private function flag(array $row, string $column): bool
+    {
+        return in_array(mb_strtolower((string) ($row[$column] ?? '')), self::TRUE_VALUES, true);
     }
 }

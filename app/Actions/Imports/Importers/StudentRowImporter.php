@@ -9,6 +9,9 @@ use App\Models\StudentGroup;
 use App\Models\StudentProfile;
 use App\Models\User;
 
+/**
+ * @implements RowImporter<array{name: string, email: string, role: UserRole, student_profile: array{student_group_id: int|null, student_number: string|null, phone: string|null}}>
+ */
 class StudentRowImporter implements RowImporter
 {
     public function __construct(private readonly ProvisionUserAction $provisionUser) {}
