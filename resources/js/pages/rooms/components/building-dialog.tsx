@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { store as storeBuilding } from '@/routes/buildings';
 import type { Campus } from './types';
 
 interface BuildingDialogProps {
@@ -42,11 +43,10 @@ export function BuildingDialog({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        form.post('/buildings', {
+        form.post(storeBuilding.url(), {
             onSuccess: () => {
                 onOpenChange(false);
                 form.reset();
-                toast.success(t('toasts.building_created'));
             },
             onError: (errors) => {
                 const first = Object.values(errors)[0];

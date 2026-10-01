@@ -1,7 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { Clock, Sun } from 'lucide-react';
 import React, { useEffect } from 'react';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -15,6 +14,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
+import {
+    store as storeProgram,
+    update as updateProgram,
+} from '@/routes/programs';
 import type { Department, Program, ProgramModality } from './types';
 
 interface ProgramDialogProps {
@@ -69,16 +72,14 @@ export function ProgramDialog({
         e.preventDefault();
 
         if (isEditing && programToEdit) {
-            form.put(`/programs/${programToEdit.id}`, {
+            form.put(updateProgram.url(programToEdit.id), {
                 onSuccess: () => {
-                    toast.success(t('toasts.program_updated'));
                     onOpenChange(false);
                 },
             });
         } else {
-            form.post('/programs', {
+            form.post(storeProgram.url(), {
                 onSuccess: () => {
-                    toast.success(t('toasts.program_created'));
                     onOpenChange(false);
                 },
             });

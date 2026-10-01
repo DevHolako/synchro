@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { store as storeCampus } from '@/routes/campuses';
 
 interface CampusDialogProps {
     open: boolean;
@@ -31,11 +32,10 @@ export function CampusDialog({ open, onOpenChange }: CampusDialogProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        form.post('/campuses', {
+        form.post(storeCampus.url(), {
             onSuccess: () => {
                 onOpenChange(false);
                 form.reset();
-                toast.success(t('toasts.campus_created'));
             },
             onError: (errors) => {
                 const first = Object.values(errors)[0];

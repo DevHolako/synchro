@@ -1,10 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import React, { useState } from 'react';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { index, toggleActive } from '@/routes/modules';
 import { ModuleDialog } from './components/module-dialog';
 import { ModuleFilterBar } from './components/module-filter-bar';
 import { ModuleStatsCards } from './components/module-stats';
@@ -49,7 +49,7 @@ export default function ModulesIndex({
 
     const handleApplyFilters = () => {
         router.get(
-            '/modules',
+            index().url,
             {
                 search: searchTerm || undefined,
                 program_id: selectedProgram || undefined,
@@ -66,24 +66,11 @@ export default function ModulesIndex({
         setSelectedProgram('');
         setSelectedTeacher('');
         setSelectedStatus('all');
-        router.get('/modules', {}, { preserveState: true });
+        router.get(index().url, {}, { preserveState: true });
     };
 
     const handleToggleActive = (module: Module) => {
-        router.patch(
-            `/modules/${module.id}/toggle-active`,
-            {},
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success(
-                        t('toasts.module_status_updated', {
-                            name: module.name,
-                        }),
-                    );
-                },
-            },
-        );
+        router.patch(toggleActive(module.id).url, {}, { preserveScroll: true });
     };
 
     return (

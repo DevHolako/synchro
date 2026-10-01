@@ -1,10 +1,11 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { Building2, MapPin, Plus } from 'lucide-react';
-import React, { useState } from 'react';
-import { toast } from 'sonner';
+import React, { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { dashboard } from '@/routes';
+import { index, toggleActive } from '@/routes/rooms';
 import { BuildingDialog } from './components/building-dialog';
 import { CampusDialog } from './components/campus-dialog';
 import { RoomDialog } from './components/room-dialog';
@@ -27,6 +28,15 @@ export default function RoomsIndex({
     stats,
 }: RoomsIndexProps) {
     const { t } = useTranslation();
+
+    useEffect(() => {
+        setLayoutProps({
+            breadcrumbs: [
+                { title: t('nav.dashboard'), href: dashboard().url },
+                { title: t('nav.teaching_spaces'), href: index().url },
+            ],
+        });
+    }, [t]);
 
     // Filter local states
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
@@ -58,7 +68,7 @@ export default function RoomsIndex({
 
     const handleApplyFilters = () => {
         router.get(
-            '/rooms',
+            index().url,
             {
                 search: searchTerm || undefined,
                 campus_id: selectedCampus || undefined,
@@ -84,27 +94,11 @@ export default function RoomsIndex({
         setFilterComputers(false);
         setFilterSound(false);
 
-        router.get('/rooms', {}, { preserveState: true });
+        router.get(index().url, {}, { preserveState: true });
     };
 
     const handleToggleActive = (room: Room) => {
-        router.patch(
-            `/rooms/${room.id}/toggle-active`,
-            {},
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success(
-                        t('rooms.toast_status_updated', {
-                            name: room.name,
-                            status: room.is_active
-                                ? t('common.deactivated')
-                                : t('common.activated'),
-                        }),
-                    );
-                },
-            },
-        );
+        router.patch(toggleActive(room.id).url, {}, { preserveScroll: true });
     };
 
     return (
@@ -215,16 +209,3 @@ export default function RoomsIndex({
         </>
     );
 }
-
-RoomsIndex.layout = {
-    breadcrumbs: [
-        {
-            title: 'Dashboard',
-            href: '/dashboard',
-        },
-        {
-            title: 'Teaching Spaces',
-            href: '/rooms',
-        },
-    ],
-};

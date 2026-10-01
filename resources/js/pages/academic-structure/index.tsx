@@ -1,8 +1,11 @@
 import { Head, router } from '@inertiajs/react';
 import React, { useState } from 'react';
-import { toast } from 'sonner';
 
 import { useTranslation } from '@/i18n/LanguageContext';
+import { index } from '@/routes/academic-structure';
+import { toggleActive as toggleDepartmentActive } from '@/routes/departments';
+import { toggleActive as toggleProgramActive } from '@/routes/programs';
+import { toggleActive as toggleStudentGroupActive } from '@/routes/student-groups';
 import { AcademicFilterBar } from './components/academic-filter-bar';
 import { AcademicStatsCards } from './components/academic-stats';
 import { AcademicTab, AcademicTabs } from './components/academic-tabs';
@@ -65,7 +68,7 @@ export default function AcademicStructureIndex({
 
     const handleApplyFilters = () => {
         router.get(
-            '/academic-structure',
+            index().url,
             {
                 search: searchTerm || undefined,
                 department_id: selectedDepartment || undefined,
@@ -83,54 +86,30 @@ export default function AcademicStructureIndex({
         setSelectedDepartment('');
         setSelectedModality('all');
         setSelectedStatus('all');
-        router.get('/academic-structure', {}, { preserveState: true });
+        router.get(index().url, {}, { preserveState: true });
     };
 
     const handleToggleDeptActive = (dept: Department) => {
         router.patch(
-            `/departments/${dept.id}/toggle-active`,
+            toggleDepartmentActive(dept.id).url,
             {},
-            {
-                preserveScroll: true,
-                onSuccess: () =>
-                    toast.success(
-                        t('academic.toast_dept_status_updated', {
-                            name: dept.name,
-                        }),
-                    ),
-            },
+            { preserveScroll: true },
         );
     };
 
     const handleToggleProgActive = (prog: Program) => {
         router.patch(
-            `/programs/${prog.id}/toggle-active`,
+            toggleProgramActive(prog.id).url,
             {},
-            {
-                preserveScroll: true,
-                onSuccess: () =>
-                    toast.success(
-                        t('academic.toast_prog_status_updated', {
-                            name: prog.name,
-                        }),
-                    ),
-            },
+            { preserveScroll: true },
         );
     };
 
     const handleToggleGroupActive = (group: StudentGroup) => {
         router.patch(
-            `/student-groups/${group.id}/toggle-active`,
+            toggleStudentGroupActive(group.id).url,
             {},
-            {
-                preserveScroll: true,
-                onSuccess: () =>
-                    toast.success(
-                        t('academic.toast_group_status_updated', {
-                            name: group.name,
-                        }),
-                    ),
-            },
+            { preserveScroll: true },
         );
     };
 

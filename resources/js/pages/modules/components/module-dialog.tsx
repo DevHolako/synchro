@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { store as storeModule, update as updateModule } from '@/routes/modules';
 import type { Module, Program, Teacher } from './types';
 
 const COLOR_PRESETS = [
@@ -114,16 +115,14 @@ export function ModuleDialog({
         }
 
         if (isEditing && moduleToEdit) {
-            form.put(`/modules/${moduleToEdit.id}`, {
+            form.put(updateModule.url(moduleToEdit.id), {
                 onSuccess: () => {
-                    toast.success(t('toasts.module_updated'));
                     onOpenChange(false);
                 },
             });
         } else {
-            form.post('/modules', {
+            form.post(storeModule.url(), {
                 onSuccess: () => {
-                    toast.success(t('toasts.module_created'));
                     onOpenChange(false);
                 },
             });

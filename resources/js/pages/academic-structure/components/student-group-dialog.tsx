@@ -15,6 +15,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
+import {
+    store as storeStudentGroup,
+    update as updateStudentGroup,
+} from '@/routes/student-groups';
 import type { Campus, Program, StudentGroup } from './types';
 
 interface StudentGroupDialogProps {
@@ -82,16 +86,14 @@ export function StudentGroupDialog({
         }
 
         if (isEditing && groupToEdit) {
-            form.put(`/student-groups/${groupToEdit.id}`, {
+            form.put(updateStudentGroup.url(groupToEdit.id), {
                 onSuccess: () => {
-                    toast.success(t('toasts.student_group_updated'));
                     onOpenChange(false);
                 },
             });
         } else {
-            form.post('/student-groups', {
+            form.post(storeStudentGroup.url(), {
                 onSuccess: () => {
-                    toast.success(t('toasts.student_group_created'));
                     onOpenChange(false);
                 },
             });

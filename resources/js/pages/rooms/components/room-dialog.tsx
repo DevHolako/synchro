@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { store as storeRoom, update as updateRoom } from '@/routes/rooms';
 import type { Campus, Room } from './types';
 
 interface RoomDialogProps {
@@ -89,10 +90,9 @@ export function RoomDialog({
         }
 
         if (isEditing && roomToEdit) {
-            form.put(`/rooms/${roomToEdit.id}`, {
+            form.put(updateRoom.url(roomToEdit.id), {
                 onSuccess: () => {
                     onOpenChange(false);
-                    toast.success(t('toasts.room_updated'));
                 },
                 onError: (errors) => {
                     const firstError = Object.values(errors)[0];
@@ -100,11 +100,10 @@ export function RoomDialog({
                 },
             });
         } else {
-            form.post('/rooms', {
+            form.post(storeRoom.url(), {
                 onSuccess: () => {
                     onOpenChange(false);
                     form.reset();
-                    toast.success(t('toasts.room_created'));
                 },
                 onError: (errors) => {
                     const firstError = Object.values(errors)[0];

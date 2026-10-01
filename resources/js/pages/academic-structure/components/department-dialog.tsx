@@ -1,6 +1,5 @@
 import { useForm } from '@inertiajs/react';
 import React, { useEffect } from 'react';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -14,6 +13,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
+import {
+    store as storeDepartment,
+    update as updateDepartment,
+} from '@/routes/departments';
 import type { Department } from './types';
 
 interface DepartmentDialogProps {
@@ -60,16 +63,14 @@ export function DepartmentDialog({
         e.preventDefault();
 
         if (isEditing && departmentToEdit) {
-            form.put(`/departments/${departmentToEdit.id}`, {
+            form.put(updateDepartment.url(departmentToEdit.id), {
                 onSuccess: () => {
-                    toast.success(t('toasts.department_updated'));
                     onOpenChange(false);
                 },
             });
         } else {
-            form.post('/departments', {
+            form.post(storeDepartment.url(), {
                 onSuccess: () => {
-                    toast.success(t('toasts.department_created'));
                     onOpenChange(false);
                 },
             });
