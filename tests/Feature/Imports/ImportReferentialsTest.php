@@ -6,13 +6,15 @@ use App\Models\Department;
 use App\Models\Module;
 use App\Models\Program;
 use App\Models\Room;
+use App\Models\SpreadsheetImport;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
-use Inertia\Support\SessionKey;
+use Illuminate\Support\Facades\Storage;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
 
 beforeEach(function () {
+    Storage::fake('local');
     $this->admin = User::factory()->admin()->create();
     $this->campus = Campus::factory()->create(['code' => 'CASA']);
     $this->building = Building::factory()->for($this->campus)->create(['name' => 'Bloc A', 'code' => 'BA']);
@@ -27,7 +29,13 @@ function csvUpload(string $name, array $lines, string $delimiter = ','): Uploade
 
 function importReport(): array
 {
-    return session(SessionKey::FLASH_DATA)['import_report'] ?? [];
+    $import = SpreadsheetImport::query()->latest('id')->firstOrFail();
+
+    return [
+        'status' => $import->status->value,
+        'imported' => $import->imported_count,
+        'errors' => $import->errors ?? [],
+    ];
 }
 
 test('a multi-row room spreadsheet is imported with dual capacities and equipment flags', function () {

@@ -3,15 +3,17 @@
 use App\Enums\AccountStatus;
 use App\Enums\UserRole;
 use App\Models\Department;
+use App\Models\SpreadsheetImport;
 use App\Models\StudentGroup;
 use App\Models\User;
 use App\Notifications\UserInvitationNotification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
-use Inertia\Support\SessionKey;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     Notification::fake();
+    Storage::fake('local');
     $this->admin = User::factory()->admin()->create();
 });
 
@@ -69,7 +71,7 @@ test('a failing user import creates no accounts and sends no invitations', funct
         ['', 'not-an-email', '1CI-G1', ''],
     ])])->assertRedirect();
 
-    $errors = collect(session(SessionKey::FLASH_DATA)['import_report']['errors'])
+    $errors = collect(SpreadsheetImport::query()->latest('id')->sole()->errors)
         ->map(fn (array $e) => [$e['row'], $e['column']])
         ->all();
 
