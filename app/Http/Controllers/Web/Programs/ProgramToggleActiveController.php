@@ -7,15 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Program;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ProgramToggleActiveController extends Controller
 {
     public function __invoke(Request $request, Program $program, ToggleProgramActiveAction $action): RedirectResponse
     {
-        if (! $request->user()?->can('update', $program)) {
-            abort(403, 'Unauthorized to update program status.');
-        }
+        Gate::authorize('update', $program);
 
         $program = $action->execute($program);
 

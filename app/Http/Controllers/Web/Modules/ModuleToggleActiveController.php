@@ -7,15 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Module;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ModuleToggleActiveController extends Controller
 {
     public function __invoke(Request $request, Module $module, ToggleModuleActiveAction $action): RedirectResponse
     {
-        if (! $request->user()?->can('update', $module)) {
-            abort(403, 'Unauthorized to update module status.');
-        }
+        Gate::authorize('update', $module);
 
         $module = $action->execute($module);
 

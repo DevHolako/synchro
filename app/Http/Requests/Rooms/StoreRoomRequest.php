@@ -52,8 +52,8 @@ class StoreRoomRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'exam_capacity.lte' => 'The exam capacity cannot exceed the course capacity.',
-            'name.unique' => 'A room with this name already exists in the selected building.',
+            'exam_capacity.lte' => __('messages.room_exam_capacity_exceeds_course'),
+            'name.unique' => __('messages.room_name_taken'),
         ];
     }
 }

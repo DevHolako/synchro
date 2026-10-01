@@ -16,6 +16,9 @@ return [
 
     'room_created' => 'Room :name created successfully.',
     'room_updated' => 'Room :name updated successfully.',
+    'room_exam_capacity_exceeds_course' => 'The exam capacity cannot exceed the course capacity.',
+    'room_name_taken' => 'A room with this name already exists in the selected building.',
+    'module_hours_exceed_total' => 'The sum of lecture hours and practical work (TP) hours cannot exceed total syllabus hours.',
     'room_status_updated' => 'Room :name :status successfully.',
 
     'department_created' => 'Department :name created successfully.',

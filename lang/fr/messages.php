@@ -16,6 +16,9 @@ return [
 
     'room_created' => 'Salle :name créée avec succès.',
     'room_updated' => 'Salle :name mise à jour avec succès.',
+    'room_exam_capacity_exceeds_course' => 'La capacité d\'examen ne peut pas dépasser la capacité de cours.',
+    'room_name_taken' => 'Une salle portant ce nom existe déjà dans ce bâtiment.',
+    'module_hours_exceed_total' => 'La somme des heures de cours et de TP ne peut pas dépasser le volume horaire total.',
     'room_status_updated' => 'Salle :name :status avec succès.',
 
     'department_created' => 'Département :name créé avec succès.',

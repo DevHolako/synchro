@@ -20,7 +20,7 @@ class AcademicStructureIndexController extends Controller
         if (! $request->user()?->can('viewAny', Department::class)
             && ! $request->user()?->can('viewAny', Program::class)
         ) {
-            abort(403, 'Unauthorized to view academic structure.');
+            abort(403);
         }
 
         $search = $request->input('search');

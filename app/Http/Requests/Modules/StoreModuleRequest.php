@@ -49,7 +49,7 @@ class StoreModuleRequest extends FormRequest
             if ($lectureHours + $tpHours > $totalHours) {
                 $validator->errors()->add(
                     'lecture_hours',
-                    'The sum of lecture hours and practical work (TP) hours cannot exceed total syllabus hours.'
+                    __('messages.module_hours_exceed_total')
                 );
             }
         });

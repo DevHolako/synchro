@@ -7,15 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Models\StudentGroup;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class StudentGroupToggleActiveController extends Controller
 {
     public function __invoke(Request $request, StudentGroup $studentGroup, ToggleStudentGroupActiveAction $action): RedirectResponse
     {
-        if (! $request->user()?->can('update', $studentGroup)) {
-            abort(403, 'Unauthorized to update student group status.');
-        }
+        Gate::authorize('update', $studentGroup);
 
         $group = $action->execute($studentGroup);
 

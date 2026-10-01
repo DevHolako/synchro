@@ -7,15 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Department;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class DepartmentToggleActiveController extends Controller
 {
     public function __invoke(Request $request, Department $department, ToggleDepartmentActiveAction $action): RedirectResponse
     {
-        if (! $request->user()?->can('update', $department)) {
-            abort(403, 'Unauthorized to update department status.');
-        }
+        Gate::authorize('update', $department);
 
         $department = $action->execute($department);
 
