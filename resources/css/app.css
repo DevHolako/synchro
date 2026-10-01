@@ -141,3 +141,45 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* FullCalendar follows the app's light/dark tokens (timetable page). */
+.timetable-calendar .fc {
+    --fc-border-color: var(--border);
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: var(--muted);
+    --fc-list-event-hover-bg-color: var(--accent);
+    --fc-today-bg-color: color-mix(in oklch, var(--primary) 6%, transparent);
+    --fc-button-bg-color: var(--background);
+    --fc-button-border-color: var(--border);
+    --fc-button-text-color: var(--foreground);
+    --fc-button-hover-bg-color: var(--accent);
+    --fc-button-hover-border-color: var(--border);
+    --fc-button-active-bg-color: var(--primary);
+    --fc-button-active-border-color: var(--primary);
+    --fc-now-indicator-color: var(--destructive-foreground);
+    font-size: 0.875rem;
+}
+
+.timetable-calendar .fc .fc-button-primary:not(:disabled).fc-button-active {
+    color: var(--primary-foreground);
+}
+
+.timetable-calendar .fc .fc-header-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.timetable-calendar .fc .fc-toolbar-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+@media (min-width: 768px) {
+    .timetable-calendar .fc .fc-toolbar-title {
+        font-size: 1.125rem;
+    }
+}
+
+.timetable-calendar .fc-event {
+    cursor: pointer;
+}

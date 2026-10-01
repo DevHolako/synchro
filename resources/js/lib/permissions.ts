@@ -5,6 +5,8 @@ export const Permission = {
     ImportReferentials: 'import:referentials',
     DeclareUnavailability: 'declare:unavailability',
     ReviewUnavailability: 'review:unavailability',
+    ViewSchedules: 'view:schedules',
+    BrowseSchedules: 'browse:schedules',
 } as const;
 
 export type PermissionValue = (typeof Permission)[keyof typeof Permission];

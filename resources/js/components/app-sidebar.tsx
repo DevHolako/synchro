@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     CalendarClock,
+    CalendarDays,
     CalendarX2,
     FileSpreadsheet,
     Building2,
@@ -31,6 +32,7 @@ import { index as academicStructureIndex } from '@/routes/academic-structure';
 import { index as importsIndex } from '@/routes/imports';
 import { index as modulesIndex } from '@/routes/modules';
 import { index as roomsIndex } from '@/routes/rooms';
+import { index as timetableIndex } from '@/routes/timetable';
 import { index as unavailabilityReviewsIndex } from '@/routes/unavailability-reviews';
 import { index as unavailabilitiesIndex } from '@/routes/unavailabilities';
 import { index as usersIndex } from '@/routes/users';
@@ -54,6 +56,9 @@ export function AppSidebar() {
     const canReviewUnavailability = auth.permissions.includes(
         Permission.ReviewUnavailability,
     );
+    const canViewSchedules = auth.permissions.includes(
+        Permission.ViewSchedules,
+    );
 
     const mainNavItems: NavItem[] = [
         {
@@ -76,6 +81,15 @@ export function AppSidebar() {
             href: modulesIndex(),
             icon: BookOpen,
         },
+        ...(canViewSchedules
+            ? [
+                  {
+                      title: t('nav.timetable'),
+                      href: timetableIndex(),
+                      icon: CalendarDays,
+                  },
+              ]
+            : []),
         ...(canDeclareUnavailability
             ? [
                   {

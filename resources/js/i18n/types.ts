@@ -49,6 +49,7 @@ export interface Translations {
         imports: string;
         unavailabilities: string;
         unavailability_reviews: string;
+        timetable: string;
         platform: string;
         navigation_menu: string;
     };
@@ -479,5 +480,38 @@ export interface Translations {
         pagination_summary: string;
         previous: string;
         next: string;
+    };
+    timetable: {
+        title: string;
+        description: string;
+        my_description: string;
+        perspective_label: string;
+        perspective_campus: string;
+        perspective_group: string;
+        perspective_teacher: string;
+        perspective_room: string;
+        pick_campus: string;
+        pick_group: string;
+        pick_teacher: string;
+        pick_room: string;
+        empty_pick_title: string;
+        empty_pick_desc: string;
+        no_group_title: string;
+        no_group_desc: string;
+        override_badge: string;
+        details_time: string;
+        details_teacher: string;
+        details_room: string;
+        details_groups: string;
+        details_overrides: string;
+        details_close: string;
+        override_type_capacity: string;
+        override_type_unavailability: string;
+        syllabus_title: string;
+        syllabus_desc: string;
+        syllabus_hint: string;
+        syllabus_hours: string;
+        syllabus_over: string;
+        syllabus_empty: string;
     };
 }
