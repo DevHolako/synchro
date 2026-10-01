@@ -18,6 +18,15 @@ class CourseSessionPolicy
     }
 
     /**
+     * Determine whether the user can browse any group's, teacher's, room's or campus's timetable,
+     * not only their own.
+     */
+    public function browse(User $user): bool
+    {
+        return $user->hasPermission(Permission::BrowseSchedules);
+    }
+
+    /**
      * Determine whether the user can schedule sessions or run conflict checks.
      */
     public function create(User $user): bool

@@ -33,6 +33,7 @@ use App\Http\Controllers\Web\Rooms\RoomUpdateController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupStoreController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupToggleActiveController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupUpdateController;
+use App\Http\Controllers\Web\Timetable\TimetableIndexController;
 use App\Http\Controllers\Web\Unavailabilities\UnavailabilityDestroyController;
 use App\Http\Controllers\Web\Unavailabilities\UnavailabilityIndexController;
 use App\Http\Controllers\Web\Unavailabilities\UnavailabilityReviewController;
@@ -84,6 +85,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('student-groups', StudentGroupStoreController::class)->name('student-groups.store');
     Route::put('student-groups/{student_group}', StudentGroupUpdateController::class)->name('student-groups.update');
     Route::patch('student-groups/{student_group}/toggle-active', StudentGroupToggleActiveController::class)->name('student-groups.toggle-active');
+
+    // Timetable calendar by perspective (Part 03 / Ticket 01)
+    Route::get('timetable', TimetableIndexController::class)->name('timetable.index');
 
     // Course sessions and synchronous conflict detection (Part 02 / Ticket 02, ADR 0002)
     Route::post('course-sessions/check', CourseSessionCheckController::class)->name('course-sessions.check');
