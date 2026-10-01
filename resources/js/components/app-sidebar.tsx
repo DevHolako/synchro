@@ -1,10 +1,11 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     Building2,
     FolderGit2,
     GraduationCap,
     LayoutGrid,
+    UsersRound,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -22,10 +23,17 @@ import {
 } from '@/components/ui/sidebar';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { dashboard } from '@/routes';
+import { index as usersIndex } from '@/routes/users';
 import type { NavItem } from '@/types';
+
+const USER_DIRECTORY_PERMISSIONS = ['view:users', 'manage:users'];
 
 export function AppSidebar() {
     const { t } = useTranslation();
+    const { auth } = usePage().props;
+    const canViewUsers = auth.permissions.some((permission) =>
+        USER_DIRECTORY_PERMISSIONS.includes(permission),
+    );
 
     const mainNavItems: NavItem[] = [
         {
@@ -48,6 +56,15 @@ export function AppSidebar() {
             href: '/modules',
             icon: BookOpen,
         },
+        ...(canViewUsers
+            ? [
+                  {
+                      title: t('nav.users'),
+                      href: usersIndex(),
+                      icon: UsersRound,
+                  },
+              ]
+            : []),
     ];
 
     const footerNavItems: NavItem[] = [
