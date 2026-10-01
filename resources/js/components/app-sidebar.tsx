@@ -1,6 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
+    CalendarClock,
+    CalendarX2,
     FileSpreadsheet,
     Building2,
     FolderGit2,
@@ -23,20 +25,35 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { Permission } from '@/lib/permissions';
 import { dashboard } from '@/routes';
+import { index as academicStructureIndex } from '@/routes/academic-structure';
 import { index as importsIndex } from '@/routes/imports';
+import { index as modulesIndex } from '@/routes/modules';
+import { index as roomsIndex } from '@/routes/rooms';
+import { index as unavailabilityReviewsIndex } from '@/routes/unavailability-reviews';
+import { index as unavailabilitiesIndex } from '@/routes/unavailabilities';
 import { index as usersIndex } from '@/routes/users';
 import type { NavItem } from '@/types';
 
-const USER_DIRECTORY_PERMISSIONS = ['view:users', 'manage:users'];
+const USER_DIRECTORY_PERMISSIONS = [
+    Permission.ViewUsers,
+    Permission.ManageUsers,
+];
 
 export function AppSidebar() {
     const { t } = useTranslation();
-    const { auth } = usePage().props;
-    const canViewUsers = auth.permissions.some((permission) =>
-        USER_DIRECTORY_PERMISSIONS.includes(permission),
+    const { auth, pendingUnavailabilityCount } = usePage().props;
+    const canViewUsers = USER_DIRECTORY_PERMISSIONS.some((permission) =>
+        auth.permissions.includes(permission),
     );
-    const canImport = auth.permissions.includes('import:referentials');
+    const canImport = auth.permissions.includes(Permission.ImportReferentials);
+    const canDeclareUnavailability = auth.permissions.includes(
+        Permission.DeclareUnavailability,
+    );
+    const canReviewUnavailability = auth.permissions.includes(
+        Permission.ReviewUnavailability,
+    );
 
     const mainNavItems: NavItem[] = [
         {
@@ -46,19 +63,38 @@ export function AppSidebar() {
         },
         {
             title: t('nav.teaching_spaces'),
-            href: '/rooms',
+            href: roomsIndex(),
             icon: Building2,
         },
         {
             title: t('nav.academic_structure'),
-            href: '/academic-structure',
+            href: academicStructureIndex(),
             icon: GraduationCap,
         },
         {
             title: t('nav.modules_catalog'),
-            href: '/modules',
+            href: modulesIndex(),
             icon: BookOpen,
         },
+        ...(canDeclareUnavailability
+            ? [
+                  {
+                      title: t('nav.unavailabilities'),
+                      href: unavailabilitiesIndex(),
+                      icon: CalendarX2,
+                  },
+              ]
+            : []),
+        ...(canReviewUnavailability
+            ? [
+                  {
+                      title: t('nav.unavailability_reviews'),
+                      href: unavailabilityReviewsIndex(),
+                      icon: CalendarClock,
+                      badge: pendingUnavailabilityCount ?? undefined,
+                  },
+              ]
+            : []),
         ...(canImport
             ? [
                   {

@@ -3,17 +3,18 @@ import {
     SidebarGroup,
     SidebarGroupLabel,
     SidebarMenu,
+    SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import type { NavItem } from '@/types';
 import { useTranslation } from '@/i18n/LanguageContext';
+import type { NavItem } from '@/types';
 
 export function NavMain({ items }: { items: NavItem[] }) {
     const { isCurrentUrl } = useCurrentUrl();
-
     const { t } = useTranslation();
+
     return (
         <SidebarGroup className="px-2 py-0">
             <SidebarGroupLabel>{t('nav.platform')}</SidebarGroupLabel>
@@ -30,6 +31,9 @@ export function NavMain({ items }: { items: NavItem[] }) {
                                 <span>{item.title}</span>
                             </Link>
                         </SidebarMenuButton>
+                        {item.badge ? (
+                            <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                        ) : null}
                     </SidebarMenuItem>
                 ))}
             </SidebarMenu>
