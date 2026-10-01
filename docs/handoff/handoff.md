@@ -129,8 +129,8 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete.
 
 ### **Part 03: Interactive Course Planning** (next spec)
-- **Pending first:** the user wants one `/code-review` over all of Part 02 (`origin/main..HEAD` plus the Part 02 commits already pushed, i.e. from `8aaefb0`), then triage, before starting Part 03.
-- Part 03 builds on `CourseSession`, `CreateCourseSessionAction`, the `check` endpoint (hard 422 / soft 409 with override) and `ConflictOverride`. Discuss each ticket's design first.
+- Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
+- Part 03 builds on `CourseSession`, `CreateCourseSessionAction` / `UpdateCourseSessionAction` (shared `PersistsCourseSessions`), `CheckSessionConflictsAction` (hard 422 / soft 409 with override) and `ConflictOverride`.
 - **Code reviews:** the post-Part-01 work (`2b61777..265229c`) was reviewed and all 10 findings fixed (`dcb7957..a08b416`). The review of Part 01's own tickets (`523cfbe..2b61777`, judged against current code) ran on 2026-10-01. Fixed right away:
   - Partial updates skipped scoped-uniqueness and capacity checks (moving a room/building/program/group/module to another parent, or lowering only `course_capacity`), which ended in a 500 instead of a 422. Update requests now `mergeIfMissing` the stored values in `prepareForValidation()`.
   - Modules accepted any user as teacher on the web path; requests and actions now require a teacher.
@@ -139,6 +139,15 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete.
   - Temporary passwords do not yet force a password change at next login.
   - The welcome/login Fortify pages still contain pre-existing hardcoded English strings.
   - The Docker image and compose stack have not yet been built or run (Docker was unavailable in the authoring environment), and migrations have not been run against MySQL 8.0.
+- **Part 02 review (2026-10-01):** fixed right away:
+  - `TeacherUnavailability` dates are normalised to `Y-m-d` on write (Carbon values were stored with a time, so a session on a range's first day was missed on SQLite).
+  - `conflict_overrides.user_id` is now required and restricts deletion; `ConflictOverride` uses an append-only builder, so bulk `update()`/`delete()` throw too. Accounts that taught a session or overrode a conflict cannot delete themselves (translated `account` error instead of a 500).
+  - A `justification` without `force_override` is ignored. New tests: the override 403 at the request, the `X-Inertia` rendering path, inclusive first/last days.
+  - `CheckSessionConflictsAction` (ADR 0009), `SessionSlot::fromPayload()`, a shared create/update path, a `ConflictException` base for the 422/409 rendering, and the shared unavailability components moved to `resources/js/components/unavailabilities/`.
+- **Deferred findings from the Part 02 review (not blocking):**
+  - The 08:00–22:00 quarter-hour grid lives in four places (session request, unavailability request regex, dialog inputs, messages); `resources/js/lib/permissions.ts` mirrors `App\Enums\Permission` by hand.
+  - "Is a teacher" is decided by role (`Rule::exists(...)->where('role')`, `User::teachers()`) while declaring is gated by `DeclareUnavailability`; settle when roles are revisited (Part 06).
+  - Tests use literal names/reasons where `testing.md` prefers `fake()`; memoized rows take whole objects; `DeclareUnavailabilityAction::attributes()` is borrowed by the update action; hard-conflict entries carry an (empty) `details` key.
 - **Deferred findings from the Part 01 review (not blocking):**
   - `academic-structure/index.tsx` (246 lines) and `rooms/index.tsx` (230 lines) exceed the page ceiling; row memoization is defeated by inline callbacks and object props, and rows live in `*-table.tsx` instead of `*-row.tsx`.
   - Duplicated code: three near-identical toggle handlers on the academic page, room capacity checks repeated in the Create/Update actions (untranslated `InvalidArgumentException`s), the `name LIKE / code LIKE` search in 4 index controllers. `RoomIndexController` and `AcademicStructureIndexController` build filters and stats inline.
