@@ -1,29 +1,10 @@
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { XCircle } from 'lucide-react';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { ImportErrorsTable } from './import-errors-table';
-import type { SpreadsheetImport } from './types';
+import type { ImportFailureReport } from './types';
 
-export function ImportReport({ report }: { report: SpreadsheetImport }) {
+export function ImportReport({ report }: { report: ImportFailureReport }) {
     const { t } = useTranslation();
-
-    if (report.status === 'succeeded') {
-        return (
-            <div className="flex items-start gap-3 rounded-lg border border-emerald-500/30 bg-emerald-50 p-4 dark:bg-emerald-950/20">
-                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" />
-                <div>
-                    <h2 className="text-sm font-semibold text-emerald-900 dark:text-emerald-300">
-                        {t('imports.report_success_title')}
-                    </h2>
-                    <p className="text-sm text-emerald-800 dark:text-emerald-400">
-                        {t('imports.report_success_desc', {
-                            count: report.imported_count,
-                            file: report.original_filename,
-                        })}
-                    </p>
-                </div>
-            </div>
-        );
-    }
 
     const errors = report.errors ?? [];
 

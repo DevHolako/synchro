@@ -7,10 +7,11 @@ const POLL_INTERVAL_MS = 2000;
 
 /**
  * Reloads the `imports` prop while any import is queued or processing, and
- * reports each import that finishes during this visit.
+ * reports each of the viewer's own imports that finishes during this visit.
  */
 export function useImportPolling(
     imports: SpreadsheetImport[],
+    userId: number,
     onFinished: (record: SpreadsheetImport) => void,
 ): void {
     const { start, stop } = usePoll(
@@ -38,6 +39,7 @@ export function useImportPolling(
             const before = previous.current.get(record.id);
 
             if (
+                record.user_id === userId &&
                 before &&
                 ACTIVE_IMPORT_STATUSES.includes(before) &&
                 !ACTIVE_IMPORT_STATUSES.includes(record.status)
@@ -49,5 +51,5 @@ export function useImportPolling(
         previous.current = new Map(
             imports.map((record) => [record.id, record.status]),
         );
-    }, [imports, onFinished]);
+    }, [imports, userId, onFinished]);
 }

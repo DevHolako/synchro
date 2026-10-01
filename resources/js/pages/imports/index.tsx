@@ -1,4 +1,4 @@
-import { Head, setLayoutProps } from '@inertiajs/react';
+import { Head, router, setLayoutProps, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslation } from '@/i18n/LanguageContext';
@@ -10,6 +10,7 @@ import { ImportReport } from './components/import-report';
 import { ImportTypePicker } from './components/import-type-picker';
 import { ImportUploadForm } from './components/import-upload-form';
 import type {
+    ImportFailureReport,
     ImportLimits,
     ImportTypeDefinition,
     ImportTypeKey,
@@ -20,15 +21,30 @@ import { useImportPolling } from './components/use-import-polling';
 interface ImportsIndexProps {
     types: ImportTypeDefinition[];
     imports: SpreadsheetImport[];
+    report?: ImportFailureReport | null;
     limits: ImportLimits;
+}
+
+/**
+ * Loads one failed import's error report through the optional `report` prop.
+ */
+function loadReport(id: number): void {
+    router.reload({
+        only: ['report'],
+        data: { report: id },
+        preserveUrl: true,
+        async: true,
+    });
 }
 
 export default function ImportsIndex({
     types,
     imports,
+    report,
     limits,
 }: ImportsIndexProps) {
     const { t } = useTranslation();
+    const userId = usePage().props.auth.user.id;
     const [selectedType, setSelectedType] = useState<ImportTypeKey | null>(
         types[0]?.type ?? null,
     );
@@ -36,7 +52,6 @@ export default function ImportsIndex({
         null,
     );
     const definition = types.find((type) => type.type === selectedType);
-    const selectedImport = imports.find((i) => i.id === selectedImportId);
 
     useEffect(() => {
         setLayoutProps({
@@ -67,16 +82,25 @@ export default function ImportsIndex({
                 }),
             );
             setSelectedImportId(record.id);
+            loadReport(record.id);
         },
         [t],
     );
 
-    useImportPolling(imports, handleFinished);
+    useImportPolling(imports, userId, handleFinished);
 
     const handleToggleImport = useCallback(
-        (id: number) =>
-            setSelectedImportId((current) => (current === id ? null : id)),
-        [],
+        (id: number) => {
+            if (id === selectedImportId) {
+                setSelectedImportId(null);
+
+                return;
+            }
+
+            setSelectedImportId(id);
+            loadReport(id);
+        },
+        [selectedImportId],
     );
 
     return (
@@ -121,7 +145,9 @@ export default function ImportsIndex({
                     onToggle={handleToggleImport}
                 />
 
-                {selectedImport && <ImportReport report={selectedImport} />}
+                {report && report.id === selectedImportId && (
+                    <ImportReport report={report} />
+                )}
             </div>
         </>
     );

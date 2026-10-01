@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { ImportHistoryRow } from './import-history-row';
 import type { SpreadsheetImport } from './types';
@@ -13,7 +14,15 @@ export function ImportHistoryTable({
     selectedId,
     onToggle,
 }: ImportHistoryTableProps) {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
+    const dateFormat = useMemo(
+        () =>
+            new Intl.DateTimeFormat(locale, {
+                dateStyle: 'short',
+                timeStyle: 'short',
+            }),
+        [locale],
+    );
 
     return (
         <section className="flex flex-col gap-3">
@@ -60,7 +69,16 @@ export function ImportHistoryTable({
                             {imports.map((record) => (
                                 <ImportHistoryRow
                                     key={record.id}
-                                    record={record}
+                                    id={record.id}
+                                    type={record.type}
+                                    status={record.status}
+                                    filename={record.original_filename}
+                                    importedCount={record.imported_count}
+                                    errorCount={record.error_count}
+                                    uploadedBy={record.user?.name}
+                                    uploadedAt={dateFormat.format(
+                                        new Date(record.created_at),
+                                    )}
                                     isSelected={record.id === selectedId}
                                     onToggle={onToggle}
                                 />

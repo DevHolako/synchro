@@ -342,8 +342,6 @@ export interface Translations {
         dropzone_invalid: string;
         remove_file: string;
         submit: string;
-        report_success_title: string;
-        report_success_desc: string;
         report_failed_title: string;
         report_failed_desc: string;
         report_truncated: string;

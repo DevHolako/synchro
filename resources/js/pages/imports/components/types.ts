@@ -21,15 +21,22 @@ export type ImportStatus = 'pending' | 'processing' | 'succeeded' | 'failed';
 
 export interface SpreadsheetImport {
     id: number;
+    user_id: number;
     type: ImportTypeKey;
     status: ImportStatus;
     original_filename: string;
     imported_count: number;
     error_count: number;
-    errors: ImportRowError[] | null;
     created_at: string;
     finished_at: string | null;
     user: { id: number; name: string } | null;
+}
+
+export interface ImportFailureReport {
+    id: number;
+    original_filename: string;
+    error_count: number;
+    errors: ImportRowError[] | null;
 }
 
 export const ACTIVE_IMPORT_STATUSES: readonly ImportStatus[] = [

@@ -372,8 +372,6 @@ export const en: Translations = {
         dropzone_invalid: 'Only .csv and .xlsx files are accepted.',
         remove_file: 'Remove file',
         submit: 'Validate and import',
-        report_success_title: 'Import completed',
-        report_success_desc: '{count} rows imported from {file}.',
         report_failed_title: 'Import cancelled — nothing was saved',
         report_failed_desc:
             '{total} problems found in {file}. Fix the rows below and upload the file again.',

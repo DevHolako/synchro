@@ -378,8 +378,6 @@ export const fr: Translations = {
         dropzone_invalid: 'Seuls les fichiers .csv et .xlsx sont acceptés.',
         remove_file: 'Retirer le fichier',
         submit: 'Valider et importer',
-        report_success_title: 'Import terminé',
-        report_success_desc: '{count} lignes importées depuis {file}.',
         report_failed_title: 'Import annulé — aucune donnée enregistrée',
         report_failed_desc:
             '{total} problèmes détectés dans {file}. Corrigez les lignes ci-dessous puis déposez à nouveau le fichier.',
