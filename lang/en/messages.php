@@ -99,4 +99,7 @@ return [
     'conflict_room' => 'Room :name is already booked on :date from :start to :end.',
     'conflict_teacher' => ':name is already teaching on :date from :start to :end.',
     'conflict_group' => 'Group :name already has a session on :date from :start to :end.',
+    'conflict_soft' => 'This slot breaks :count scheduling rule(s). Confirm with a justification to save it anyway.',
+    'conflict_capacity' => 'Room :name seats :capacity but the groups total :headcount students.',
+    'conflict_unavailability' => ':name declared an unavailability during this session: :reason',
 ];

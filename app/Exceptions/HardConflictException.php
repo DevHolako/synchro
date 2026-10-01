@@ -11,6 +11,8 @@ use RuntimeException;
 
 /**
  * A write would physically double-book a teacher, room or group (ADR 0002). Non-bypassable: HTTP 422.
+ *
+ * Any soft conflicts are reported alongside, so the caller sees everything at once.
  */
 class HardConflictException extends RuntimeException
 {
@@ -21,19 +23,32 @@ class HardConflictException extends RuntimeException
 
     /**
      * JSON callers get the structured conflicts; Inertia and form callers get translated
-     * messages under `conflicts` in the errors bag.
+     * messages under `conflicts` (and `soft_conflicts`) in the errors bag.
      */
     public function render(Request $request): JsonResponse|RedirectResponse
     {
+        $result = $this->result->toArray();
+
         if (! $request->header('X-Inertia') && $request->expectsJson()) {
             return new JsonResponse([
                 'message' => $this->getMessage(),
-                'conflicts' => $this->result->toArray()['hard_conflicts'],
+                'conflicts' => $result['hard_conflicts'],
+                'soft_conflicts' => $result['soft_conflicts'],
             ], 422);
         }
 
-        return back()->withInput()->withErrors([
-            'conflicts' => array_map(fn (Conflict $conflict): string => $conflict->message(), $this->result->hardConflicts),
-        ]);
+        return back()->withInput()->withErrors(array_filter([
+            'conflicts' => self::messages($this->result->hardConflicts),
+            'soft_conflicts' => self::messages($this->result->softConflicts),
+        ]));
+    }
+
+    /**
+     * @param  list<Conflict>  $conflicts
+     * @return list<string>
+     */
+    public static function messages(array $conflicts): array
+    {
+        return array_map(fn (Conflict $conflict): string => $conflict->message(), $conflicts);
     }
 }

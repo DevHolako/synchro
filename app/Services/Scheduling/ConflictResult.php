@@ -9,7 +9,7 @@ final readonly class ConflictResult
 {
     /**
      * @param  list<Conflict>  $hardConflicts
-     * @param  list<Conflict>  $softConflicts  Filled by the soft-conflict detectors (Part 02 / Ticket 03).
+     * @param  list<Conflict>  $softConflicts
      */
     public function __construct(
         public array $hardConflicts = [],

@@ -99,4 +99,7 @@ return [
     'conflict_room' => 'La salle :name est déjà réservée le :date de :start à :end.',
     'conflict_teacher' => ':name enseigne déjà le :date de :start à :end.',
     'conflict_group' => 'Le groupe :name a déjà une séance le :date de :start à :end.',
+    'conflict_soft' => 'Ce créneau enfreint :count règle(s) de planification. Confirmez avec une justification pour l\'enregistrer malgré tout.',
+    'conflict_capacity' => 'La salle :name compte :capacity places mais les groupes totalisent :headcount étudiants.',
+    'conflict_unavailability' => ':name a déclaré une indisponibilité pendant cette séance : :reason',
 ];

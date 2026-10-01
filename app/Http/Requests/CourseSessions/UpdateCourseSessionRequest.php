@@ -11,6 +11,6 @@ class UpdateCourseSessionRequest extends StoreCourseSessionRequest
         /** @var CourseSession $session */
         $session = $this->route('session');
 
-        return $this->user()?->can('update', $session) ?? false;
+        return ($this->user()?->can('update', $session) ?? false) && $this->mayOverride();
     }
 }

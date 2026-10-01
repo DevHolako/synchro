@@ -12,7 +12,7 @@ class CourseSessionStoreController extends Controller
 {
     public function __invoke(StoreCourseSessionRequest $request, CreateCourseSessionAction $action): RedirectResponse
     {
-        $action->execute($request->payload());
+        $action->execute($request->payload(), $request->softConflictOverride());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('messages.course_session_created')]);
 

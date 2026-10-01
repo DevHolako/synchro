@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UnavailabilityStatus;
 use App\Enums\UnavailabilityType;
+use Carbon\CarbonInterface;
 use Database\Factories\TeacherUnavailabilityFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -122,6 +123,34 @@ class TeacherUnavailability extends Model
                     fn (Builder $query) => $query->where('start_time', '<', $endTime)->where('end_time', '>', $startTime),
                 ),
             ));
+    }
+
+    /**
+     * Active unavailabilities covering any part of a same-day session [start, end).
+     *
+     * Recurring blocks match on weekday, effective period and times; ad-hoc ranges on their
+     * dates and, when they have a time window, its times (no times means whole days).
+     *
+     * @param  Builder<TeacherUnavailability>  $query
+     */
+    public function scopeOverlappingSession(Builder $query, CarbonInterface $start, CarbonInterface $end): void
+    {
+        $column = fn (string $name): string => $query->qualifyColumn($name);
+        $day = $start->toDateString();
+
+        $query->whereIn($column('status'), UnavailabilityStatus::active())
+            ->where($column('start_date'), '<=', $day)
+            ->where(fn (Builder $query) => $query->whereNull($column('end_date'))->orWhere($column('end_date'), '>=', $day))
+            ->where(fn (Builder $query) => $query
+                ->where(fn (Builder $query) => $query
+                    ->where($column('type'), UnavailabilityType::RecurringWeekly)
+                    ->where($column('day_of_week'), $start->dayOfWeekIso))
+                ->orWhere($column('type'), UnavailabilityType::AdHocDate))
+            ->where(fn (Builder $query) => $query
+                ->whereNull($column('start_time'))
+                ->orWhere(fn (Builder $query) => $query
+                    ->where($column('start_time'), '<', $end->format('H:i:s'))
+                    ->where($column('end_time'), '>', $start->format('H:i:s'))));
     }
 
     /**

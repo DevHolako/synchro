@@ -16,7 +16,7 @@ class CourseSessionUpdateController extends Controller
         CourseSession $session,
         UpdateCourseSessionAction $action,
     ): RedirectResponse {
-        $action->execute($session, $request->payload());
+        $action->execute($session, $request->payload(), $request->softConflictOverride());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('messages.course_session_updated')]);
 

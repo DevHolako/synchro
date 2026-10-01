@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests\CourseSessions;
 
+use App\Enums\Permission;
 use App\Enums\UserRole;
 use App\Http\Requests\Concerns\ReadsTypedInput;
 use App\Models\CourseSession;
 use App\Models\Module;
 use App\Models\StudentGroup;
+use App\Services\Scheduling\SoftConflictOverride;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,7 +27,16 @@ class StoreCourseSessionRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return $this->user()?->can('create', CourseSession::class) ?? false;
+        return ($this->user()?->can('create', CourseSession::class) ?? false) && $this->mayOverride();
+    }
+
+    /**
+     * Asking to override soft conflicts needs its own permission.
+     */
+    protected function mayOverride(): bool
+    {
+        return ! $this->boolean('force_override')
+            || ($this->user()?->hasPermission(Permission::OverrideSoftConflicts) ?? false);
     }
 
     /**
@@ -51,6 +62,8 @@ class StoreCourseSessionRequest extends FormRequest
             'student_group_ids.*' => ['integer', 'distinct', Rule::exists('student_groups', 'id')->where('is_active', true)],
             'starts_at' => ['required', 'date_format:'.self::DATETIME_FORMAT],
             'ends_at' => ['required', 'date_format:'.self::DATETIME_FORMAT, 'after:starts_at'],
+            'force_override' => ['sometimes', 'boolean'],
+            'justification' => ['nullable', 'required_if_accepted:force_override', 'string', 'min:10', 'max:1000'],
         ];
     }
 
@@ -116,6 +129,20 @@ class StoreCourseSessionRequest extends FormRequest
     private function groupIds(): array
     {
         return array_values(array_map('intval', (array) $this->input('student_group_ids', [])));
+    }
+
+    /**
+     * The user's override of soft conflicts, when they asked for one.
+     */
+    public function softConflictOverride(): ?SoftConflictOverride
+    {
+        $user = $this->user();
+
+        if (! $this->boolean('force_override') || $user === null) {
+            return null;
+        }
+
+        return new SoftConflictOverride($user, $this->string('justification')->trim()->value());
     }
 
     /**
