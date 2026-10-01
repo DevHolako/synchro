@@ -13,6 +13,8 @@ class ProcessSpreadsheetImportJob implements ShouldQueue
 {
     use Queueable;
 
+    public const int TIMEOUT_SECONDS = 600;
+
     /**
      * Imports are atomic but not blindly retryable: a crash after commit must
      * not replay the file, so a single attempt is made.
@@ -22,7 +24,7 @@ class ProcessSpreadsheetImportJob implements ShouldQueue
     /**
      * Must stay below the `supervisor-imports` timeout in config/horizon.php.
      */
-    public int $timeout = 600;
+    public int $timeout = self::TIMEOUT_SECONDS;
 
     public bool $failOnTimeout = true;
 
@@ -43,18 +45,9 @@ class ProcessSpreadsheetImportJob implements ShouldQueue
      */
     public function failed(?Throwable $exception): void
     {
-        $import = $this->import->refresh();
-
-        if ($import->status->isFinished()) {
-            return;
-        }
-
-        app(RunSpreadsheetImportAction::class)->markFailed($import, [
+        app(RunSpreadsheetImportAction::class)->fail($this->import, [
             new ImportRowError(1, null, __('messages.import_crashed')),
         ]);
-
-        $import->forceFill(['finished_at' => now()])->save();
-        $import->deleteStoredFile();
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Imports;
 
 use App\Actions\Imports\QueueSpreadsheetImportAction;
+use App\Enums\ImportStatus;
 use App\Enums\ImportType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Imports\ImportSpreadsheetRequest;
@@ -15,10 +16,9 @@ class ImportStoreController extends Controller
     {
         $import = $action->execute($type, $request->spreadsheet(), $request->user());
 
-        Inertia::flash('toast', [
-            'type' => 'info',
-            'message' => __('messages.import_queued', ['file' => $import->original_filename]),
-        ]);
+        Inertia::flash('toast', $import->status === ImportStatus::Failed
+            ? ['type' => 'error', 'message' => __('messages.import_queue_unavailable')]
+            : ['type' => 'info', 'message' => __('messages.import_queued', ['file' => $import->original_filename])]);
 
         return back();
     }

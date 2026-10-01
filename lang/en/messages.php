@@ -71,4 +71,6 @@ return [
     'import_student_number_exists' => 'Student number ":number" is already assigned.',
     'import_queued' => 'File ":file" received: the import is queued and will be processed shortly.',
     'import_crashed' => 'Import processing failed unexpectedly. No data was saved; try again or contact an administrator.',
+    'import_queue_unavailable' => 'The import could not be queued. No data was saved; try again in a few minutes or contact an administrator.',
+    'import_stale' => 'The import was never completed and has been abandoned. No data was saved; upload the file again.',
 ];

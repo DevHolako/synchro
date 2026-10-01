@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * A spreadsheet upload processed asynchronously on the `imports` queue.
@@ -69,17 +68,6 @@ class SpreadsheetImport extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Remove the uploaded spreadsheet once it is no longer needed.
-     */
-    public function deleteStoredFile(): void
-    {
-        if ($this->path !== null) {
-            Storage::disk($this->disk)->delete($this->path);
-            $this->forceFill(['path' => null])->save();
-        }
     }
 
     /**

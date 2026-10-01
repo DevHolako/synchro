@@ -71,4 +71,6 @@ return [
     'import_student_number_exists' => 'Le numéro étudiant « :number » est déjà attribué.',
     'import_queued' => 'Fichier « :file » reçu : l\'import est en file d\'attente et sera traité dans quelques instants.',
     'import_crashed' => 'Le traitement de l\'import a échoué de manière inattendue. Aucune donnée n\'a été enregistrée ; réessayez ou contactez un administrateur.',
+    'import_queue_unavailable' => 'L\'import n\'a pas pu être mis en file d\'attente. Aucune donnée n\'a été enregistrée ; réessayez dans quelques minutes ou contactez un administrateur.',
+    'import_stale' => 'L\'import n\'a jamais abouti et a été abandonné. Aucune donnée n\'a été enregistrée ; téléversez à nouveau le fichier.',
 ];
