@@ -109,6 +109,12 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - Validation: active module/room/groups, teacher role (defaults to the module's teacher), groups in the module's program, same day inside 08:00–22:00 on quarter hours; past dates allowed.
    - Benchmark: `php artisan conflicts:benchmark --sessions=N` (rolled back). Local SQLite: 5,000 sessions → 2.4 ms average / 4.0 ms p95; 30,000 → 6.8 ms / 10.0 ms.
 
+3. **Ticket 03: Soft Conflict Detection and Audit Trail Override** ([`03-soft-conflict-and-audit-override.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/03-soft-conflict-and-audit-override.md), design decisions recorded in the ticket)
+   - Soft rules (`SoftConflictRule`, one query each): `CapacityRule` (summed group headcount vs `course_capacity`) and `TeacherUnavailabilityRule` (`TeacherUnavailability::scopeOverlappingSession()`: pending/approved, weekday + period + times for recurring, dates + optional window for ad-hoc). A check is now 5 queries; local SQLite benchmark 5,000 sessions → 4.0 ms average / 6.6 ms p95.
+   - Flow: hard conflicts → 422 (soft listed too); soft without override → `SoftConflictException` (409 JSON, `soft_conflicts` errors for Inertia); `force_override` + `justification` (10–1000 chars) → saved, one immutable `ConflictOverride` row per conflict (`details` JSON snapshot, morph alias `course_session`, no FK so it outlives the session). Every write re-checks.
+   - Permission: `OverrideSoftConflicts` (`override:soft-conflicts`, Coordinator); checked in the form requests (403) and again in `GuardSessionConflictsAction`.
+   - Fix found while testing: date columns are stored as `Y-m-d`, so comparisons now bind date strings (an unavailability ending today showed as past on SQLite).
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -120,11 +126,11 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is in progress: Tickets 01 and 02 are done.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete.
 
-### **Part 02 / Ticket 03: Soft Conflict Detection and Audit Trail Override**
-- **File:** [`docs/specs/02-availability-and-conflict-engine/tickets/03-soft-conflict-and-audit-override.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/03-soft-conflict-and-audit-override.md)
-- Tickets 01 and 02 are done. Soft conflicts plug into `ConflictResult::$softConflicts`: capacity overrun (sum of the session's group headcounts vs `course_capacity`) and teacher unavailability (`TeacherUnavailability::active()` matched against the session's weekday/date and times). Discuss the design first (override flag and justification shape, 409 vs 422, the audit table, how Inertia shows the warning).
+### **Part 03: Interactive Course Planning** (next spec)
+- **Pending first:** the user wants one `/code-review` over all of Part 02 (`origin/main..HEAD` plus the Part 02 commits already pushed, i.e. from `8aaefb0`), then triage, before starting Part 03.
+- Part 03 builds on `CourseSession`, `CreateCourseSessionAction`, the `check` endpoint (hard 422 / soft 409 with override) and `ConflictOverride`. Discuss each ticket's design first.
 - **Code reviews:** the post-Part-01 work (`2b61777..265229c`) was reviewed and all 10 findings fixed (`dcb7957..a08b416`). The review of Part 01's own tickets (`523cfbe..2b61777`, judged against current code) ran on 2026-10-01. Fixed right away:
   - Partial updates skipped scoped-uniqueness and capacity checks (moving a room/building/program/group/module to another parent, or lowering only `course_capacity`), which ended in a 500 instead of a 422. Update requests now `mergeIfMissing` the stored values in `prepareForValidation()`.
   - Modules accepted any user as teacher on the web path; requests and actions now require a teacher.
@@ -139,6 +145,7 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is in progress: Ti
   - Primitive obsession: modality `in_array` in `AcademicStructureIndexController`, `role === 'teacher'` in `provision-user-dialog.tsx`; the room filters are 8 states passed as 18 props.
   - Starter-kit footer links in the sidebar; duplicated language-switcher buttons.
   - No `lang/fr/validation.php`, so Laravel's built-in validation messages still display in English.
+  - "Schedule outside conventional regime hours" (spec 02 soft conflict) is not implemented: regime hours per modality are not modelled (ADR 0004 treats modality as informative). Needs a product decision.
   - Backend messages (flash toasts, validation errors) follow `APP_LOCALE`, not the UI language switcher, which is client-side only (`localStorage`). `.env.example` ships `APP_LOCALE=en`, so a local install shows English toasts in the French UI; `.env.docker.example` uses `fr`.
   - Spec gaps to decide later: a `suspended` account status, a room board-type field, and the `/api/v1` controllers of ADR 0009 (planned with Part 06). Coordinators keep import access for rooms and modules (deliberate).
 
