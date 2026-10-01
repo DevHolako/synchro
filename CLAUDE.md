@@ -83,11 +83,14 @@ Synchro is the timetable scheduling and examination logistics platform for ISGA,
 
 ## 🧪 7. Testing & Verification Workflow
 
-- **Pest Tests**: Run targeted tests with `php artisan test --compact --filter=TestName`.
-- **PHP Code Formatter**: Run `vendor/bin/pint --dirty --format agent` before finalizing changes.
-- **Frontend Typecheck**: Run `npm run types:check`.
-- **Frontend Linter**: Run `npx vp check resources/js`.
-- **Frontend Build**: Run `npm run build`.
+Full policy: `.agents/rules/mandatory-verification-tests.md`.
+
+- **Automatic, before finishing a change** (on the code you touched):
+  - **Pest Tests**: targeted only, `php artisan test --compact --filter=TestName`.
+  - **PHP Code Formatter**: `vendor/bin/pint --dirty --format agent`.
+  - **Frontend Typecheck**: `npm run types:check`.
+  - **Frontend Linter**: `npx vp check resources/js`.
+- **Only when the user asks**: full suites (`composer test`, `composer ci:check`, unfiltered `php artisan test`) and the frontend build (`npm run build`).
 
 ---
 
