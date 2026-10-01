@@ -48,7 +48,6 @@ return [
     'invitation_mail_expiry' => 'This personal link expires in :hours hours and can only be used once.',
     'invitation_mail_ignore' => 'If you were not expecting this invitation, you can ignore this email.',
 
-    'import_succeeded' => ':count row(s) imported successfully.',
     'import_failed' => 'Import cancelled: :count error(s) found. No data was saved.',
     'import_unreadable' => 'The file could not be read. Use a valid .csv or .xlsx file.',
     'import_too_many_rows' => 'The file exceeds the limit of :max data rows.',
@@ -70,4 +69,6 @@ return [
     'import_group_not_found' => 'No active group with code ":code".',
     'import_group_ambiguous' => 'Several active groups share the code ":code".',
     'import_student_number_exists' => 'Student number ":number" is already assigned.',
+    'import_queued' => 'File ":file" received: the import is queued and will be processed shortly.',
+    'import_crashed' => 'Import processing failed unexpectedly. No data was saved; try again or contact an administrator.',
 ];

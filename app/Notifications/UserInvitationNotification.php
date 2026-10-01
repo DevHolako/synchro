@@ -26,6 +26,14 @@ class UserInvitationNotification extends Notification implements ShouldQueue
         return ['mail'];
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public function viaQueues(): array
+    {
+        return ['mail' => 'notifications'];
+    }
+
     public function toMail(User $notifiable): MailMessage
     {
         return (new MailMessage)

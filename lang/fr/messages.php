@@ -48,7 +48,6 @@ return [
     'invitation_mail_expiry' => 'Ce lien personnel expire dans :hours heures et ne peut être utilisé qu\'une seule fois.',
     'invitation_mail_ignore' => 'Si vous n\'attendiez pas cette invitation, vous pouvez ignorer cet e-mail.',
 
-    'import_succeeded' => ':count ligne(s) importée(s) avec succès.',
     'import_failed' => 'Import annulé : :count erreur(s) détectée(s). Aucune donnée n\'a été enregistrée.',
     'import_unreadable' => 'Le fichier est illisible. Utilisez un fichier .csv ou .xlsx valide.',
     'import_too_many_rows' => 'Le fichier dépasse la limite de :max lignes de données.',
@@ -70,4 +69,6 @@ return [
     'import_group_not_found' => 'Aucun groupe actif avec le code « :code ».',
     'import_group_ambiguous' => 'Plusieurs groupes actifs portent le code « :code ».',
     'import_student_number_exists' => 'Le numéro étudiant « :number » est déjà attribué.',
+    'import_queued' => 'Fichier « :file » reçu : l\'import est en file d\'attente et sera traité dans quelques instants.',
+    'import_crashed' => 'Le traitement de l\'import a échoué de manière inattendue. Aucune donnée n\'a été enregistrée ; réessayez ou contactez un administrateur.',
 ];
