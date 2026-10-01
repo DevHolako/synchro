@@ -36,15 +36,27 @@ test('queue housekeeping commands are scheduled', function () {
     expect($commands)
         ->toContain('horizon:snapshot')
         ->toContain('queue:prune-failed')
-        ->toContain('model:prune');
+        ->toContain('model:prune')
+        ->toContain('imports:fail-stale');
 });
 
 test('unusable invitation tokens past the retention window are pruned', function () {
-    $stale = InvitationToken::factory()->create(['expires_at' => now()->subDays(InvitationToken::RETENTION_DAYS + 1)]);
-    $pending = InvitationToken::factory()->create();
+    $user = User::factory()->create();
+    $stale = InvitationToken::factory()->for($user)->create(['expires_at' => now()->subDays(InvitationToken::RETENTION_DAYS + 2)]);
+    $pending = InvitationToken::factory()->for($user)->create();
 
     $this->artisan('model:prune', ['--model' => [InvitationToken::class]])->assertSuccessful();
 
     expect(InvitationToken::find($stale->id))->toBeNull()
         ->and(InvitationToken::find($pending->id))->not->toBeNull();
+});
+
+test('a user\'s latest invitation is kept so the directory still shows it expired', function () {
+    $user = User::factory()->create();
+    InvitationToken::factory()->for($user)->create(['expires_at' => now()->subDays(InvitationToken::RETENTION_DAYS + 2)]);
+    $latest = InvitationToken::factory()->for($user)->create(['expires_at' => now()->subDays(InvitationToken::RETENTION_DAYS + 1)]);
+
+    $this->artisan('model:prune', ['--model' => [InvitationToken::class]])->assertSuccessful();
+
+    expect($user->invitationTokens()->pluck('id')->all())->toBe([$latest->id]);
 });
