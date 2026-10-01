@@ -12,7 +12,7 @@ class CampusStoreController extends Controller
 {
     public function __invoke(StoreCampusRequest $request, CreateCampusAction $action): RedirectResponse
     {
-        $campus = $action->execute($request->validated());
+        $campus = $action->execute($request->payload());
 
         Inertia::flash('toast', [
             'type' => 'success',

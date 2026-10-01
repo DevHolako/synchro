@@ -12,7 +12,7 @@ class DepartmentStoreController extends Controller
 {
     public function __invoke(StoreDepartmentRequest $request, CreateDepartmentAction $action): RedirectResponse
     {
-        $department = $action->execute($request->validated());
+        $department = $action->execute($request->payload());
 
         Inertia::flash('toast', [
             'type' => 'success',

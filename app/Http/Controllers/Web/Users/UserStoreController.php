@@ -12,7 +12,7 @@ class UserStoreController extends Controller
 {
     public function __invoke(StoreUserRequest $request, ProvisionUserAction $action): RedirectResponse
     {
-        $user = $action->execute($request->validated(), $request->user());
+        $user = $action->execute($request->payload(), $request->user());
 
         Inertia::flash('toast', [
             'type' => 'success',

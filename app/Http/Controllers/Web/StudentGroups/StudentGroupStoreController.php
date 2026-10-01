@@ -12,7 +12,7 @@ class StudentGroupStoreController extends Controller
 {
     public function __invoke(StoreStudentGroupRequest $request, CreateStudentGroupAction $action): RedirectResponse
     {
-        $group = $action->execute($request->validated());
+        $group = $action->execute($request->payload());
 
         Inertia::flash('toast', [
             'type' => 'success',

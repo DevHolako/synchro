@@ -12,7 +12,7 @@ class ProgramStoreController extends Controller
 {
     public function __invoke(StoreProgramRequest $request, CreateProgramAction $action): RedirectResponse
     {
-        $program = $action->execute($request->validated());
+        $program = $action->execute($request->payload());
 
         Inertia::flash('toast', [
             'type' => 'success',

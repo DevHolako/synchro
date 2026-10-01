@@ -12,7 +12,7 @@ class ModuleStoreController extends Controller
 {
     public function __invoke(StoreModuleRequest $request, CreateModuleAction $action): RedirectResponse
     {
-        $module = $action->execute($request->validated());
+        $module = $action->execute($request->payload());
 
         Inertia::flash('toast', [
             'type' => 'success',

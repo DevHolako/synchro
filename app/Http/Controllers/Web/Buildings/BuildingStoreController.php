@@ -12,7 +12,7 @@ class BuildingStoreController extends Controller
 {
     public function __invoke(StoreBuildingRequest $request, CreateBuildingAction $action): RedirectResponse
     {
-        $building = $action->execute($request->validated());
+        $building = $action->execute($request->payload());
 
         Inertia::flash('toast', [
             'type' => 'success',

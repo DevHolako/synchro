@@ -3,12 +3,15 @@
 namespace App\Http\Requests\Unavailabilities;
 
 use App\Enums\UnavailabilityType;
+use App\Http\Requests\Concerns\ReadsTypedInput;
 use App\Models\TeacherUnavailability;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreUnavailabilityRequest extends FormRequest
 {
+    use ReadsTypedInput;
+
     /**
      * A quarter-hour slot inside the 08:00–22:00 scheduling grid (ADR 0004).
      */
@@ -62,11 +65,11 @@ class StoreUnavailabilityRequest extends FormRequest
 
         return [
             'type' => $this->string('type')->value(),
-            'day_of_week' => $this->filled('day_of_week') ? $this->integer('day_of_week') : null,
+            'day_of_week' => $this->nullableInteger('day_of_week'),
             'start_date' => $this->string('start_date')->value(),
-            'end_date' => $this->filled('end_date') ? $this->string('end_date')->value() : null,
-            'start_time' => $this->filled('start_time') ? $this->string('start_time')->value() : null,
-            'end_time' => $this->filled('end_time') ? $this->string('end_time')->value() : null,
+            'end_date' => $this->nullableString('end_date'),
+            'start_time' => $this->nullableString('start_time'),
+            'end_time' => $this->nullableString('end_time'),
             'reason' => $this->string('reason')->value(),
         ];
     }

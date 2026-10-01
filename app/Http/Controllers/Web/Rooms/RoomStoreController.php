@@ -12,7 +12,7 @@ class RoomStoreController extends Controller
 {
     public function __invoke(StoreRoomRequest $request, CreateRoomAction $action): RedirectResponse
     {
-        $room = $action->execute($request->validated());
+        $room = $action->execute($request->payload());
 
         Inertia::flash('toast', [
             'type' => 'success',
