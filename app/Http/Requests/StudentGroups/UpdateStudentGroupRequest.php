@@ -17,6 +17,20 @@ class UpdateStudentGroupRequest extends FormRequest
     }
 
     /**
+     * Validate scoped uniqueness and cross-field invariants against the stored values
+     * when a partial update omits them (e.g. moving a record to another parent).
+     */
+    protected function prepareForValidation(): void
+    {
+        /** @var StudentGroup $studentGroup */
+        $studentGroup = $this->route('student_group');
+
+        $this->mergeIfMissing([
+            'name' => $studentGroup->name,
+        ]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function rules(): array

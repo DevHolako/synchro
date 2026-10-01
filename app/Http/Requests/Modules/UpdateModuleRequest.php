@@ -18,6 +18,20 @@ class UpdateModuleRequest extends FormRequest
     }
 
     /**
+     * Validate scoped uniqueness and cross-field invariants against the stored values
+     * when a partial update omits them (e.g. moving a record to another parent).
+     */
+    protected function prepareForValidation(): void
+    {
+        /** @var Module $module */
+        $module = $this->route('module');
+
+        $this->mergeIfMissing([
+            'code' => $module->code,
+        ]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function rules(): array

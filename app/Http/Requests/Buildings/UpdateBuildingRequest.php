@@ -18,6 +18,20 @@ class UpdateBuildingRequest extends FormRequest
     }
 
     /**
+     * Validate scoped uniqueness and cross-field invariants against the stored values
+     * when a partial update omits them (e.g. moving a record to another parent).
+     */
+    protected function prepareForValidation(): void
+    {
+        /** @var Building $building */
+        $building = $this->route('building');
+
+        $this->mergeIfMissing([
+            'name' => $building->name,
+        ]);
+    }
+
+    /**
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array

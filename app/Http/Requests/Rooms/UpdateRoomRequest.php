@@ -21,6 +21,22 @@ class UpdateRoomRequest extends FormRequest
     }
 
     /**
+     * Validate scoped uniqueness and cross-field invariants against the stored values
+     * when a partial update omits them (e.g. moving a record to another parent).
+     */
+    protected function prepareForValidation(): void
+    {
+        /** @var Room $room */
+        $room = $this->route('room');
+
+        $this->mergeIfMissing([
+            'name' => $room->name,
+            'course_capacity' => $room->course_capacity,
+            'exam_capacity' => $room->exam_capacity,
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
