@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
+    FileSpreadsheet,
     Building2,
     FolderGit2,
     GraduationCap,
@@ -23,6 +24,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { dashboard } from '@/routes';
+import { index as importsIndex } from '@/routes/imports';
 import { index as usersIndex } from '@/routes/users';
 import type { NavItem } from '@/types';
 
@@ -34,6 +36,7 @@ export function AppSidebar() {
     const canViewUsers = auth.permissions.some((permission) =>
         USER_DIRECTORY_PERMISSIONS.includes(permission),
     );
+    const canImport = auth.permissions.includes('import:referentials');
 
     const mainNavItems: NavItem[] = [
         {
@@ -56,6 +59,15 @@ export function AppSidebar() {
             href: '/modules',
             icon: BookOpen,
         },
+        ...(canImport
+            ? [
+                  {
+                      title: t('nav.imports'),
+                      href: importsIndex(),
+                      icon: FileSpreadsheet,
+                  },
+              ]
+            : []),
         ...(canViewUsers
             ? [
                   {
