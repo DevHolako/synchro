@@ -5,12 +5,12 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import {
     UnavailabilityStatusBadge,
     UnavailabilityTypeBadge,
-} from '@/pages/unavailabilities/components/unavailability-badges';
+} from '@/components/unavailabilities/unavailability-badges';
 import {
     describePeriod,
     describeSlot,
-} from '@/pages/unavailabilities/components/unavailability-format';
-import { UnavailabilityReviewNote } from '@/pages/unavailabilities/components/unavailability-review-note';
+} from '@/components/unavailabilities/unavailability-format';
+import { UnavailabilityReviewNote } from '@/components/unavailabilities/unavailability-review-note';
 import type { ReviewableUnavailability, ReviewDecision } from './types';
 
 interface ReviewRowProps {

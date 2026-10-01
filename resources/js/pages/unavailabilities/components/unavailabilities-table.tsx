@@ -1,6 +1,6 @@
 import { CalendarX2 } from 'lucide-react';
 import { useTranslation } from '@/i18n/LanguageContext';
-import type { Unavailability } from './types';
+import type { Unavailability } from '@/components/unavailabilities/types';
 import { UnavailabilityRow } from './unavailability-row';
 
 interface UnavailabilitiesTableProps {

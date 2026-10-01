@@ -15,8 +15,14 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { store, update } from '@/routes/unavailabilities';
-import type { Unavailability, UnavailabilityType } from './types';
-import { UNAVAILABILITY_TYPES, WEEKDAYS } from './types';
+import type {
+    Unavailability,
+    UnavailabilityType,
+} from '@/components/unavailabilities/types';
+import {
+    UNAVAILABILITY_TYPES,
+    WEEKDAYS,
+} from '@/components/unavailabilities/types';
 
 const FIELD_CLASS =
     'w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900';

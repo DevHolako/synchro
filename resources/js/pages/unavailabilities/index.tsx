@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { dashboard } from '@/routes';
 import { index } from '@/routes/unavailabilities';
+import type { Unavailability } from '@/components/unavailabilities/types';
 import type {
-    Unavailability,
     UnavailabilityFilters,
     UnavailabilityPeriod,
 } from './components/types';

@@ -13,7 +13,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { describeSlot } from '@/pages/unavailabilities/components/unavailability-format';
+import { describeSlot } from '@/components/unavailabilities/unavailability-format';
 import { update } from '@/routes/unavailability-reviews';
 import type { PendingReview } from './types';
 

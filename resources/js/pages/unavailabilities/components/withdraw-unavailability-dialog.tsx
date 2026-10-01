@@ -12,8 +12,11 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { destroy } from '@/routes/unavailabilities';
-import { describePeriod, describeSlot } from './unavailability-format';
-import type { Unavailability } from './types';
+import {
+    describePeriod,
+    describeSlot,
+} from '@/components/unavailabilities/unavailability-format';
+import type { Unavailability } from '@/components/unavailabilities/types';
 
 interface WithdrawUnavailabilityDialogProps {
     unavailability: Unavailability | null;

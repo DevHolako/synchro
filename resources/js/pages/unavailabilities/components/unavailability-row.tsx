@@ -5,10 +5,13 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import {
     UnavailabilityStatusBadge,
     UnavailabilityTypeBadge,
-} from './unavailability-badges';
-import { describePeriod, describeSlot } from './unavailability-format';
-import { UnavailabilityReviewNote } from './unavailability-review-note';
-import type { Unavailability } from './types';
+} from '@/components/unavailabilities/unavailability-badges';
+import {
+    describePeriod,
+    describeSlot,
+} from '@/components/unavailabilities/unavailability-format';
+import { UnavailabilityReviewNote } from '@/components/unavailabilities/unavailability-review-note';
+import type { Unavailability } from '@/components/unavailabilities/types';
 
 interface UnavailabilityRowProps {
     unavailability: Unavailability;

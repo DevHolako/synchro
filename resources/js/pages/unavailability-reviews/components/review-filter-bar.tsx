@@ -4,7 +4,7 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import {
     UNAVAILABILITY_STATUSES,
     UNAVAILABILITY_TYPES,
-} from '@/pages/unavailabilities/components/types';
+} from '@/components/unavailabilities/types';
 import type { ReviewFilters, Teacher } from './types';
 
 const SELECT_CLASS =

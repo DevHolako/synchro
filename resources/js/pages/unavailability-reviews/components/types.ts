@@ -2,7 +2,7 @@ import type {
     Unavailability,
     UnavailabilityStatus,
     UnavailabilityType,
-} from '@/pages/unavailabilities/components/types';
+} from '@/components/unavailabilities/types';
 
 export interface ReviewableUnavailability extends Unavailability {
     teacher: { id: number; name: string; email: string };
