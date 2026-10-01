@@ -102,5 +102,5 @@ return [
     'conflict_soft' => 'This slot breaks :count scheduling rule(s). Confirm with a justification to save it anyway.',
     'conflict_capacity' => 'Room :name seats :capacity but the groups total :headcount students.',
     'conflict_unavailability' => ':name declared an unavailability during this session: :reason',
-    'account_has_scheduling_history' => 'This account has taught sessions or overridden scheduling conflicts, so it is kept for the timetable and its audit trail. Ask an administrator to deactivate it instead.',
+    'account_has_scheduling_history' => 'This account has taught sessions or overridden scheduling conflicts, so it is kept for the timetable and its audit trail and cannot be deleted. Contact an administrator if it should no longer be used.',
 ];

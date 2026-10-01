@@ -3,8 +3,6 @@
 namespace App\Http\Requests\Settings;
 
 use App\Concerns\PasswordValidationRules;
-use App\Models\ConflictOverride;
-use App\Models\CourseSession;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -27,7 +25,7 @@ class ProfileDeleteRequest extends FormRequest
 
     /**
      * Accounts that taught a session or overrode a scheduling conflict anchor the timetable
-     * and its audit trail, so they cannot be deleted (deactivation is the way out).
+     * and its audit trail, so they cannot be deleted.
      *
      * @return array<int, callable(Validator): void>
      */
@@ -41,10 +39,7 @@ class ProfileDeleteRequest extends FormRequest
                     return;
                 }
 
-                $anchored = CourseSession::query()->where('teacher_id', $user->id)->exists()
-                    || ConflictOverride::query()->where('user_id', $user->id)->exists();
-
-                if ($anchored) {
+                if ($user->hasSchedulingHistory()) {
                     $validator->errors()->add('account', __('messages.account_has_scheduling_history'));
                 }
             },
