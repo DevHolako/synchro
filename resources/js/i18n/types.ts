@@ -375,6 +375,24 @@ export interface Translations {
         hint_phone: string;
         hint_group_code: string;
         hint_student_number: string;
+        history_title: string;
+        history_desc: string;
+        history_empty: string;
+        col_file: string;
+        col_type: string;
+        col_result: string;
+        col_uploaded_by: string;
+        col_date: string;
+        status_pending: string;
+        status_processing: string;
+        status_succeeded: string;
+        status_failed: string;
+        result_imported: string;
+        result_errors: string;
+        view_errors: string;
+        hide_errors: string;
+        toast_finished_success: string;
+        toast_finished_failed: string;
     };
     toasts: {
         room_created: string;

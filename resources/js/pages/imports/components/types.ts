@@ -17,20 +17,25 @@ export interface ImportRowError {
     message: string;
 }
 
-export type ImportReport =
-    | {
-          status: 'succeeded';
-          type: ImportTypeKey;
-          file: string;
-          imported: number;
-      }
-    | {
-          status: 'failed';
-          type: ImportTypeKey;
-          file: string;
-          total_errors: number;
-          errors: ImportRowError[];
-      };
+export type ImportStatus = 'pending' | 'processing' | 'succeeded' | 'failed';
+
+export interface SpreadsheetImport {
+    id: number;
+    type: ImportTypeKey;
+    status: ImportStatus;
+    original_filename: string;
+    imported_count: number;
+    error_count: number;
+    errors: ImportRowError[] | null;
+    created_at: string;
+    finished_at: string | null;
+    user: { id: number; name: string } | null;
+}
+
+export const ACTIVE_IMPORT_STATUSES: readonly ImportStatus[] = [
+    'pending',
+    'processing',
+];
 
 export const ACCOUNT_IMPORT_TYPES: readonly ImportTypeKey[] = [
     'teachers',

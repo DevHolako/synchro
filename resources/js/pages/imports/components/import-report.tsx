@@ -1,9 +1,9 @@
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { ImportErrorsTable } from './import-errors-table';
-import type { ImportReport as ImportReportData } from './types';
+import type { SpreadsheetImport } from './types';
 
-export function ImportReport({ report }: { report: ImportReportData }) {
+export function ImportReport({ report }: { report: SpreadsheetImport }) {
     const { t } = useTranslation();
 
     if (report.status === 'succeeded') {
@@ -16,14 +16,16 @@ export function ImportReport({ report }: { report: ImportReportData }) {
                     </h2>
                     <p className="text-sm text-emerald-800 dark:text-emerald-400">
                         {t('imports.report_success_desc', {
-                            count: report.imported,
-                            file: report.file,
+                            count: report.imported_count,
+                            file: report.original_filename,
                         })}
                     </p>
                 </div>
             </div>
         );
     }
+
+    const errors = report.errors ?? [];
 
     return (
         <div className="flex flex-col gap-3 rounded-lg border border-rose-500/30 bg-rose-50/60 p-4 dark:bg-rose-950/20">
@@ -35,21 +37,21 @@ export function ImportReport({ report }: { report: ImportReportData }) {
                     </h2>
                     <p className="text-sm text-rose-800 dark:text-rose-400">
                         {t('imports.report_failed_desc', {
-                            total: report.total_errors,
-                            file: report.file,
+                            total: report.error_count,
+                            file: report.original_filename,
                         })}
                     </p>
-                    {report.total_errors > report.errors.length && (
+                    {report.error_count > errors.length && (
                         <p className="text-xs text-rose-700 dark:text-rose-400">
                             {t('imports.report_truncated', {
-                                shown: report.errors.length,
-                                total: report.total_errors,
+                                shown: errors.length,
+                                total: report.error_count,
                             })}
                         </p>
                     )}
                 </div>
             </div>
-            <ImportErrorsTable errors={report.errors} />
+            <ImportErrorsTable errors={errors} />
         </div>
     );
 }
