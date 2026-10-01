@@ -7,11 +7,12 @@
 - **Framework & Core Stack:**
   - **Backend:** Laravel 13.34.0, PHP 8.5, Laravel Fortify (public self-registration disabled), Laravel Wayfinder.
   - **Frontend:** Inertia.js (React 19 SPA), Tailwind CSS v4, Lucide React icons.
+  - **Queues & Infrastructure:** Redis queues supervised by Laravel Horizon; production ships as a Docker Compose stack (Nginx, PHP-FPM, Horizon, scheduler, MySQL 8.0, Redis) — see ADR 0012.
   - **Testing & Tooling:** Pest 5.2.1, Vite Plus (`vp`), Laravel Pint.
-- **Current Test Status:** 130 tests registered (125 passed, 5 skipped: 3 Fortify 2FA stubs + 2 legacy registration tests skipped because registration is disabled), 611 assertions, 100% green.
+- **Current Test Status:** 140 tests registered (135 passed, 5 skipped: 3 Fortify 2FA stubs + 2 legacy registration tests skipped because registration is disabled), 660 assertions, 100% green.
 - **Code Quality & Linting:**
   - TypeScript: `npx tsc --noEmit` clean (0 errors).
-  - Frontend Lint: `npx vp check resources/js` passing (100 files clean, 0 errors, 0 warnings).
+  - Frontend Lint: `npx vp check resources/js` passing (104 files clean, 0 errors, 0 warnings).
   - Code Style: Laravel Pint formatted (`vendor/bin/pint --dirty --format agent`).
   - Production Asset Compilation: `npm run build` succeeds cleanly.
 
@@ -86,9 +87,17 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 5. **Ticket 05: Bulk Spreadsheet Importer for Referentials and Users** ([`05-bulk-csv-excel-importer.md`](file:///home/holako/github/synchro/docs/specs/01-core-foundation-and-referentials/tickets/05-bulk-csv-excel-importer.md))
    - Implemented: `ImportType` enum (`rooms`, `modules`, `teachers`, `students`) defining columns, required columns, template example rows, the policy ability, and the row importer; `SpreadsheetReader` (first sheet of `.csv`/`.xlsx` via `openspout/openspout`, auto-detects `,`/`;`/tab and Windows-1252, keeps real row numbers, max 2000 rows).
    - Actions: `ImportReferentialsAction` validates every row first (rules, in-file duplicates, reference resolution) and only then writes all rows in one transaction; any failure rolls everything back. Row importers (`app/Actions/Imports/Importers/`) delegate to `CreateRoomAction`, `CreateModuleAction`, and `ProvisionUserAction`.
-   - Invitations: `ProvisionUserAction` issues invitations via `DB::afterCommit`, and `UserInvitationNotification` is queued (`ShouldQueue`), so a rolled-back import sends no emails. A queue worker must run for invitation emails to go out.
+   - Queued processing: `QueueSpreadsheetImportAction` stores the upload and creates a `SpreadsheetImport` record (`pending`), then `ProcessSpreadsheetImportJob` (queue `imports`, 1 try, 600s timeout) calls `RunSpreadsheetImportAction`, which claims the record (`pending` → `processing`, so redelivery is a no-op), runs `ImportReferentialsAction`, stores the outcome and row errors, and deletes the file. `failed()` records crashes/timeouts.
+   - Invitations: `ProvisionUserAction` issues invitations via `DB::afterCommit`, and `UserInvitationNotification` is queued on `notifications`, so a rolled-back import sends no emails.
    - Permissions: new `ImportReferentials` (`import:referentials`) held by Administrator and Coordinator; each type additionally requires its create ability (coordinators can import rooms/modules, not accounts).
-   - UI: `resources/js/pages/imports/` wizard (type picker, column guide with CSV template download, drag-and-drop zone, row-level error report).
+   - UI: `resources/js/pages/imports/` wizard (type picker, column guide with CSV template download, drag-and-drop zone) plus a recent-imports history that polls (`usePoll`) while an import is queued/processing and shows row-level errors.
+
+### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
+- **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
+- **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `queue:prune-failed --hours=168` and `model:prune` daily (`SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days).
+- **Docker:** `Dockerfile` (targets `app` and `web`), `compose.yaml`, `docker/` (Nginx, PHP ini, FPM pool, entrypoint), `.env.docker.example`. The `app` service runs migrations (`RUN_MIGRATIONS=true`); `app`, `horizon`, and `scheduler` share one image and the `storage` volume. Proxies on private networks are trusted so signed URLs keep the `https` scheme.
+- **Local dev:** `composer dev` runs Horizon instead of `queue:listen`; `.env` needs `QUEUE_CONNECTION=redis` and a running Redis.
+- **Tickets 01–03** have no queued work (synchronous CRUD); Ticket 04 invitation emails and Ticket 05 imports are queued.
 
 ---
 
@@ -102,7 +111,7 @@ Part 01 is complete. The frontier moves to Part 02 (Availability & Conflict Engi
 - **Known follow-ups from Part 01:**
   - Temporary passwords do not yet force a password change at next login.
   - The welcome/login Fortify pages still contain pre-existing hardcoded English strings.
-  - Imports run synchronously in the request (bounded at 2000 rows / 5 MB); only invitation emails are queued.
+  - The Docker image and compose stack have not yet been built or run (Docker was unavailable in the authoring environment), and migrations have not been run against MySQL 8.0.
 
 ---
 

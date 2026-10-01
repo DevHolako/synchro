@@ -243,4 +243,15 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
   2. `resources/js/i18n/fr.ts` (French dictionary - default).
   3. `resources/js/i18n/en.ts` (English dictionary - 100% parity).
 
+=== synchro-custom/queues rules ===
+
+# Queues, Jobs & Docker Deployment (MUST-FOLLOW RULE, ADR 0012)
+
+- **Queue anything slow or external**: emails/notifications, spreadsheet imports, PDFs, SMS/WhatsApp, and third-party calls run as queued jobs on Redis, supervised by Horizon.
+- **Thin jobs**: `app/Jobs/` classes only call Single-Action classes in `app/Actions/`.
+- **Named queues**: `notifications`, `imports`, `default`, each served by a supervisor in `config/horizon.php`. Timeout chain: job `$timeout` < supervisor `timeout` < `REDIS_QUEUE_RETRY_AFTER`.
+- **After commit & idempotent**: dispatch side effects after the transaction commits; jobs must tolerate duplicate delivery.
+- **Horizon dashboard** is gated by `Permission::MonitorQueues`.
+- **Production** ships as the `compose.yaml` stack (`web`, `app`, `horizon`, `scheduler`, `mysql`, `redis`).
+
 </laravel-boost-guidelines>

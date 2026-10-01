@@ -97,8 +97,12 @@ A structured institutional grouping/bundle of permissions assigned to users (`Ad
 _Avoid_: Rank, clearance, user type
 
 **Invitation Token**:
-A secure, time-limited signed link sent via email upon CSV/Excel batch import for initial user password creation.
+A secure, single-use signed link, valid for 72 hours, emailed when an account is provisioned (individually or by Spreadsheet Import) so the user can set their initial password.
 _Avoid_: Reset token, signup code
+
+**Spreadsheet Import**:
+An uploaded CSV/XLSX file of Rooms, Modules, Teachers, or Students processed in the background on the `imports` queue. It is all-or-nothing: every row is validated first, and if any row is invalid nothing is saved and the problems are reported with their exact row numbers. Its status moves from `pending` to `processing` to `succeeded` or `failed`.
+_Avoid_: Upload, batch, sync
 
 ### Conflict Engine
 

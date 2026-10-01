@@ -66,7 +66,22 @@ Synchro is the timetable scheduling and examination logistics platform for ISGA,
 
 ---
 
-## 🧪 6. Testing & Verification Workflow
+## ⏱️ 6. Queues, Jobs & Deployment (ADR 0012)
+
+- **Queue anything slow or external**: emails/notifications, spreadsheet imports, PDF generation, SMS/WhatsApp, and any third-party call MUST run as queued jobs (Redis + Horizon), never inline in a web request.
+- **Jobs are thin**: classes in `app/Jobs/` only call Single-Action classes (`app/Actions/`); business logic never lives in a job.
+- **Named queues**: `notifications` (mail/alerts), `imports` (long, single-attempt), `default`. Every queue must be served by a supervisor in `config/horizon.php`.
+- **Timeout chain**: job `$timeout` < supervisor `timeout` < `REDIS_QUEUE_RETRY_AFTER` (`config/queue.php`).
+- **After commit**: side effects that must not escape a rolled-back transaction (emails, external calls) are dispatched with `DB::afterCommit` or `->afterCommit()`.
+- **Idempotency**: jobs must be safe to deliver twice (e.g. claim a `pending` record with a conditional update before processing).
+- **Notifications** implement `ShouldQueue` and route channels to queues via `viaQueues()`.
+- **Horizon dashboard** (`/horizon`) is gated by `Permission::MonitorQueues`, never by role.
+- **Production** is the Docker Compose stack in `compose.yaml` (`web`, `app`, `horizon`, `scheduler`, `mysql`, `redis`); production env template: `.env.docker.example`. Locally, `composer dev` starts Horizon (Redis must be running).
+- **Tests** run with `QUEUE_CONNECTION=sync`; assert dispatching with `Queue::fake()` and test job behaviour by calling `handle()` / the action directly.
+
+---
+
+## 🧪 7. Testing & Verification Workflow
 
 - **Pest Tests**: Run targeted tests with `php artisan test --compact --filter=TestName`.
 - **PHP Code Formatter**: Run `vendor/bin/pint --dirty --format agent` before finalizing changes.
@@ -76,7 +91,7 @@ Synchro is the timetable scheduling and examination logistics platform for ISGA,
 
 ---
 
-## 📦 7. Git Commit Standards
+## 📦 8. Git Commit Standards
 
 - Follow Conventional Commits: `<type>(<scope>): <subject>` (`feat`, `fix`, `test`, `docs`, `refactor`, `chore`).
 - Do not use `Co-Authored-By:` tags.
