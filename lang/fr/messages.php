@@ -33,4 +33,18 @@ return [
     'module_created' => 'Module :name créé avec succès.',
     'module_updated' => 'Module :name mis à jour avec succès.',
     'module_status_updated' => 'Module :name :status avec succès.',
+
+    'user_provisioned' => 'Compte de :name créé. Une invitation a été envoyée à :email.',
+    'invitation_resent' => 'Une nouvelle invitation a été envoyée à :email.',
+    'invitation_activated' => 'Bienvenue :name, votre compte est maintenant actif.',
+    'invitation_invalid' => 'Ce lien d\'invitation est invalide, a expiré ou a déjà été utilisé.',
+    'invitation_account_already_active' => 'Ce compte est déjà actif ; aucune invitation n\'est nécessaire.',
+    'temporary_password_issued' => 'Mot de passe temporaire généré pour :name.',
+
+    'invitation_mail_subject' => 'Activez votre compte :app',
+    'invitation_mail_greeting' => 'Bonjour :name,',
+    'invitation_mail_intro' => 'Un administrateur a créé votre compte :app. Cliquez sur le bouton ci-dessous pour définir votre mot de passe et activer votre compte.',
+    'invitation_mail_action' => 'Activer mon compte',
+    'invitation_mail_expiry' => 'Ce lien personnel expire dans :hours heures et ne peut être utilisé qu\'une seule fois.',
+    'invitation_mail_ignore' => 'Si vous n\'attendiez pas cette invitation, vous pouvez ignorer cet e-mail.',
 ];

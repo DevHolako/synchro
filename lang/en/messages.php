@@ -33,4 +33,18 @@ return [
     'module_created' => 'Module :name created successfully.',
     'module_updated' => 'Module :name updated successfully.',
     'module_status_updated' => 'Module :name :status successfully.',
+
+    'user_provisioned' => 'Account for :name created. An invitation was sent to :email.',
+    'invitation_resent' => 'A new invitation was sent to :email.',
+    'invitation_activated' => 'Welcome :name, your account is now active.',
+    'invitation_invalid' => 'This invitation link is invalid, has expired, or has already been used.',
+    'invitation_account_already_active' => 'This account is already active; no invitation is needed.',
+    'temporary_password_issued' => 'Temporary password generated for :name.',
+
+    'invitation_mail_subject' => 'Activate your :app account',
+    'invitation_mail_greeting' => 'Hello :name,',
+    'invitation_mail_intro' => 'An administrator has created your :app account. Click the button below to set your password and activate your account.',
+    'invitation_mail_action' => 'Activate my account',
+    'invitation_mail_expiry' => 'This personal link expires in :hours hours and can only be used once.',
+    'invitation_mail_ignore' => 'If you were not expecting this invitation, you can ignore this email.',
 ];

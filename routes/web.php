@@ -10,6 +10,8 @@ use App\Http\Controllers\Web\Campuses\CampusUpdateController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
 use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
+use App\Http\Controllers\Web\Invitations\InvitationActivateController;
+use App\Http\Controllers\Web\Invitations\InvitationShowController;
 use App\Http\Controllers\Web\Modules\ModuleIndexController;
 use App\Http\Controllers\Web\Modules\ModuleStoreController;
 use App\Http\Controllers\Web\Modules\ModuleToggleActiveController;
@@ -24,9 +26,19 @@ use App\Http\Controllers\Web\Rooms\RoomUpdateController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupStoreController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupToggleActiveController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupUpdateController;
+use App\Http\Controllers\Web\Users\UserIndexController;
+use App\Http\Controllers\Web\Users\UserResendInvitationController;
+use App\Http\Controllers\Web\Users\UserStoreController;
+use App\Http\Controllers\Web\Users\UserTemporaryPasswordController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+// Invitation Token activation (ADR 0007): signed, single-use, 72-hour links.
+Route::get('invitations/{token}', InvitationShowController::class)->name('invitations.show');
+Route::post('invitations/{token}', InvitationActivateController::class)
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('invitations.activate');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
@@ -65,6 +77,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('modules', ModuleStoreController::class)->name('modules.store');
     Route::put('modules/{module}', ModuleUpdateController::class)->name('modules.update');
     Route::patch('modules/{module}/toggle-active', ModuleToggleActiveController::class)->name('modules.toggle-active');
+
+    // User Provisioning & Invitation Tokens
+    Route::get('users', UserIndexController::class)->name('users.index');
+    Route::post('users', UserStoreController::class)->name('users.store');
+    Route::post('users/{user}/resend-invitation', UserResendInvitationController::class)->name('users.resend-invitation');
+    Route::post('users/{user}/temporary-password', UserTemporaryPasswordController::class)->name('users.temporary-password');
 });
 
 require __DIR__.'/settings.php';

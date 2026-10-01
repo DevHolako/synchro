@@ -142,8 +142,9 @@ return [
     |
     */
 
+    // Public self-registration is intentionally disabled (ADR 0007): accounts are
+    // provisioned by authorized staff and activated through Invitation Tokens.
     'features' => [
-        Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
     ],
