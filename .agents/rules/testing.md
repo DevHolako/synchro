@@ -1,29 +1,32 @@
 ---
 title: Pest & Automated Testing Guidelines
 globs: 'tests/**'
+# `paths` scopes this rule for Claude Code; `globs` for Antigravity.
+paths:
+  - "tests/**"
 ---
 
 # Pest & Automated Testing Guidelines
 
-Testing in We Creatif is powered by Pest PHP for backend tests and Jest/TypeScript/ESLint for frontend tests.
+Testing in Synchro uses Pest for backend tests; the frontend is verified with TypeScript and `vp check` (format + lint).
 
 ## 1. Test Architecture & Pest
 
 - Use Pest for all PHP tests. Create new tests via `php artisan make:test --pest {Name}`.
-- Do not prefix directory names in `{Name}` (e.g. use `QualityAuditTest`, not `Feature/QualityAuditTest`).
+- Do not prefix directory names in `{Name}` (e.g. use `ImportQueueTest`, not `Feature/ImportQueueTest`).
 - Default to Feature tests (`tests/Feature/`) to test realistic HTTP and domain integration flows.
 - Never delete existing test files or assertions without explicit approval.
 
 ## 2. Test Isolation & Factories
 
-- Always use Eloquent Model Factories (`User::factory()`, `Project::factory()`, etc.) instead of manual database seeding in tests.
-- Leverage custom factory states where available (`->admin()`, `->locked()`, `->withBrief()`).
+- Always use Eloquent Model Factories (`User::factory()`, `Room::factory()`, etc.) instead of manual database seeding in tests.
+- Leverage custom factory states where available (`->admin()`, `->coordinator()`, `->invited()`).
 - Use `fake()` for randomized mock data instead of hardcoded strings.
 
 ## 3. Running & Verifying Tests
 
-- **Frontend-only changes** (`resources/js/**`): Run `npm run test` — runs Prettier check, ESLint, and TypeScript type-check.
-- **Backend-only changes** (`app/**`, `routes/**`, `database/**`, `tests/**`): Run `composer run test` — runs Pint lint, PHPStan types, and Pest with `--tia` (test-it-all).
-- **Full-stack changes** (both frontend and backend): Run `composer run full-test` (it covers both layers).
-- **Targeted iteration**: Run `vendor/bin/pest tests/Feature/SpecificTest.php` or `vendor/bin/pest --filter=test_name` to iterate on a single test before running the full suite.
+- **Frontend changes** (`resources/js/**`): `npm run types:check` and `npx vp check resources/js`.
+- **Backend changes** (`app/**`, `routes/**`, `database/**`, `tests/**`): `composer test` — Pint check, PHPStan, and the full Pest suite.
+- **Full-stack changes**: `composer ci:check` covers both layers.
+- **Targeted iteration**: `php artisan test --compact --filter=TestName` (or a single file path) before running the full suite.
 - Ensure all tests pass without regressions before marking changes complete.

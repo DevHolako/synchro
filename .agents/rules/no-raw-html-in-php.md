@@ -1,6 +1,12 @@
-# Rule: No Raw HTML in PHP Classes
+---
+title: No Raw HTML in PHP Classes
+globs: 'app/**/*.php'
+# `paths` scopes this rule for Claude Code; `globs` for Antigravity.
+paths:
+  - "app/**/*.php"
+---
 
-**Glob**: `app/**/*.php`
+# Rule: No Raw HTML in PHP Classes
 
 ## Rule Statement
 Never embed raw HTML markup, inline HTML strings, or heredoc blocks (e.g. `<<<HTML`) directly inside PHP controllers, actions, services, or models.

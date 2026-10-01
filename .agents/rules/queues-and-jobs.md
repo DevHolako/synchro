@@ -1,6 +1,12 @@
 ---
 title: Queues, Jobs & Docker Deployment
 globs: 'app/**,config/**,routes/**,tests/**'
+# `paths` scopes this rule for Claude Code; `globs` for Antigravity.
+paths:
+  - "app/**"
+  - "config/**"
+  - "routes/**"
+  - "tests/**"
 ---
 
 # Queues, Jobs & Docker Deployment (ADR 0012)
@@ -24,7 +30,7 @@ Synchro processes slow or external work on Redis queues supervised by Laravel Ho
 ## 3. Operations
 
 - `/horizon` is gated by `Permission::MonitorQueues` (never by role).
-- The scheduler runs `horizon:snapshot`, `queue:prune-failed`, and `model:prune` (models use `MassPrunable`).
+- The scheduler runs `horizon:snapshot`, `imports:fail-stale` (fails imports that will never finish), `queue:prune-failed`, and `model:prune` (models use `MassPrunable`).
 - Production: `docker-compose.yml` — `app` (FrankenPHP/Caddy on `127.0.0.1:${APP_PORT}`), `horizon`, `scheduler`, and optional `mysql`/`redis`/`phpmyadmin` profiles; the host's nginx (Hestia templates in `docker/hestia/`) owns the domain and HTTPS. Env template `.env.docker.example`. Locally, `composer dev` starts Horizon against a local Redis.
 
 ## 4. Testing

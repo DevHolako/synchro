@@ -1,6 +1,9 @@
 ---
 title: Frontend React, Inertia v3 & TypeScript Standards
 globs: "resources/js/**"
+# `paths` scopes this rule for Claude Code; `globs` for Antigravity.
+paths:
+  - "resources/js/**"
 ---
 
 # Frontend React, Inertia v3 & TypeScript Standards
@@ -21,11 +24,11 @@ The frontend is an Inertia.js v3 SPA built with React 19, TypeScript, and Tailwi
 - Use Wayfinder's `.url()`, `.get()`, or `.post()` methods for type-safe route binding.
 
 ## 3. TypeScript & Lint Hygiene
-- Strict zero-warning policy: code must pass `npm run test` (`format:check`, `lint:check`, `types:check`).
+- Strict zero-warning policy: code must pass `npx vp check resources/js` (format + lint) and `npm run types:check`.
 - **Unused Variables**: Do not leave unused variables or destructured parameters (e.g. `locale` from `useTranslation()`).
 - **Import Ordering**: Enforce `import-x/order` (built-in packages $\rightarrow$ external modules $\rightarrow$ internal aliases `@/...` $\rightarrow$ relative imports).
 - **Code Style**: Blank lines are required before control flow statements (`if`, `return`, `switch`).
-- **Format**: Run `npx prettier --write <file>` if any format check fails.
+- **Format**: Run `npx vp check --fix <path>` if a format check fails.
 
 ## 4. Localization Synchronization
 - UI text must be consumed via `const { t } = useTranslation()`.

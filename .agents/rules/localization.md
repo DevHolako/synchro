@@ -9,19 +9,14 @@ Synchro is a bilingual platform supporting both English (`en`) and French (`fr`)
 
 ## 1. Never Hardcode User-Facing Text
 
-- **Backend PHP**: Never hardcode user-facing strings in controllers, middleware, requests, actions, services, schemas, or prompt templates.
+- **Backend PHP**: Never hardcode user-facing strings in controllers, middleware, requests, actions, jobs, or services.
 - **Frontend React**: Never hardcode raw user-facing strings in React components, modals, buttons, table headers, tooltips, or toast notifications.
 
 ## 2. Backend Translation Standards
 
-- **File Organization**: Group translation strings in `lang/en/` and `lang/fr/` under domain files:
-    - `messages.php`: Flash messages, controller feedback, redirects, and access-control errors.
-    - `audit.php`: Activity and audit log event descriptions, field diff labels, and actor descriptions.
-    - `quality.php`: Audit rule descriptions, warnings, remediation steps, and report titles.
-    - `schemas.php`: Industry brief templates, sitemap presets, section names, and field placeholders.
-    - `ai.php`: System prompts, step instructions, and agent prompt templates.
+- **File Organization**: Translation strings live in `lang/en/` and `lang/fr/`. `messages.php` holds flash messages, controller feedback, redirects, validation and import errors, and access-control errors. Add a new domain file only when a feature outgrows it, and create it in both languages.
 - **Helper Usage**: Always use Laravel's `__('filename.key', [...])` helper with named replacement tokens. Never use string concatenation for translated messages.
-- **Database Consistency**: Persist database attributes, status codes, and enum values in clean English/code identifiers. Translate dynamically at the presentation layer or event resolution layer (e.g. `ActivityLog::resolveEventDescription()`).
+- **Database Consistency**: Persist database attributes, status codes, and enum values in clean English/code identifiers. Translate them at the presentation layer.
 
 ## 3. Frontend Translation Standards (`resources/js/i18n/`)
 
@@ -31,18 +26,15 @@ Synchro is a bilingual platform supporting both English (`en`) and French (`fr`)
     3. `resources/js/i18n/fr.ts` (French dictionary).
 - **Component Consumption**:
     - Always use `const { t } = useTranslation();` from `@/i18n/LanguageContext`.
-    - Do NOT destructure unused values (such as `locale`) unless they are actively used in JSX or logic, to prevent `@typescript-eslint/no-unused-vars` lint errors.
+    - Do NOT destructure unused values (such as `locale`) unless they are actively used in JSX or logic, to prevent unused-variable lint errors.
     - Pass parameterized tokens via objects: `t('namespace.key', { count: 5 })`.
-    - Never add a fallback after `t()` (`t('key') || 'Text'`, `t('key') ?? ''`). Keys are validated to exist in both dictionaries, so fallbacks are dead code that hide hardcoded strings.
-- **ESLint Enforcement (`local/translations`)**: A single rule in `eslint/rules/translations.js` enforces:
-    - Every static `t()` key exists in both `en.ts` and `fr.ts`.
-    - No `||` / `??` fallback after `t()` (autofixable with `eslint --fix`).
-    - No hardcoded text in JSX children, user-facing attributes (`title`, `placeholder`, `alt`, `label`, `description`, `aria-*`), or `toast()` messages. Content inside `<style>`, `<script>`, `<code>`, `<pre>`, `<kbd>` is exempt, as is text without letters.
+    - Never add a fallback after `t()` (`t('key') || 'Text'`, `t('key') ?? ''`). The `types.ts` contract makes every key exist in both dictionaries, so fallbacks are dead code that hide hardcoded strings.
+    - No hardcoded text in JSX children, user-facing attributes (`title`, `placeholder`, `alt`, `label`, `description`, `aria-*`), or `toast()` messages.
     - No locale ternaries (`locale === 'fr' ? 'Bonjour' : 'Hello'`).
 
 ## 4. Verification Workflow
 
 Whenever translations, components, or backend classes are modified:
 
-- **Frontend-only** (`resources/js/**`): Run `npm run test` (Prettier + ESLint + TypeScript).
-- **Backend or full-stack**: Run `composer run test` (Pint + PHPStan + Pest --tia).
+- **Frontend** (`resources/js/**`): `npm run types:check` (TypeScript) and `npx vp check resources/js` (format + lint).
+- **Backend**: targeted Pest tests (`php artisan test --compact --filter=...`); `composer test` runs Pint, PHPStan, and the full suite.

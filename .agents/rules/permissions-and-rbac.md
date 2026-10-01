@@ -1,6 +1,10 @@
 ---
 title: Permission-Based Authorization & RBAC Architecture
 globs: "app/**,tests/**"
+# `paths` scopes this rule for Claude Code; `globs` for Antigravity.
+paths:
+  - "app/**"
+  - "tests/**"
 ---
 
 # Permission-Based Authorization & RBAC Architecture
