@@ -82,11 +82,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->status === AccountStatus::Active;
     }
 
-    public function canManageReferentials(): bool
-    {
-        return $this->hasPermission(Permission::ManageReferentials);
-    }
-
     /**
      * @return HasMany<Module, $this>
      */
