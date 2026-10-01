@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -30,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @property-read User $teacher
  * @property-read Room $room
  * @property-read Collection<int, StudentGroup> $studentGroups
+ * @property-read Collection<int, ConflictOverride> $conflictOverrides
  */
 #[Fillable(['module_id', 'teacher_id', 'room_id', 'starts_at', 'ends_at'])]
 class CourseSession extends Model
@@ -78,6 +80,16 @@ class CourseSession extends Model
     public function studentGroups(): BelongsToMany
     {
         return $this->belongsToMany(StudentGroup::class);
+    }
+
+    /**
+     * The soft conflicts knowingly overridden when this session was saved (read-only audit).
+     *
+     * @return MorphMany<ConflictOverride, $this>
+     */
+    public function conflictOverrides(): MorphMany
+    {
+        return $this->morphMany(ConflictOverride::class, 'schedulable');
     }
 
     /**

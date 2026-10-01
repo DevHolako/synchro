@@ -54,6 +54,7 @@ enum Permission: string
 
     // Planning & Scheduling permissions
     case ViewSchedules = 'view:schedules';
+    case BrowseSchedules = 'browse:schedules';
     case ManageSchedules = 'manage:schedules';
     case OverrideSoftConflicts = 'override:soft-conflicts';
 
