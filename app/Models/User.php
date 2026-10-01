@@ -63,7 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasPermission(Permission|string $permission): bool
     {
-        return $this->role?->hasPermission($permission) ?? false;
+        return $this->role->hasPermission($permission);
     }
 
     /**

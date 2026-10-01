@@ -21,8 +21,8 @@ class CreateProgramAction
      */
     public function execute(array $data): Program
     {
-        $name = trim($data['name'] ?? '');
-        $code = trim($data['code'] ?? '');
+        $name = trim($data['name']);
+        $code = trim($data['code']);
 
         if ($name === '') {
             throw new InvalidArgumentException('Program name cannot be empty.');

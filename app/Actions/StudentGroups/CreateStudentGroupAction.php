@@ -22,9 +22,9 @@ class CreateStudentGroupAction
      */
     public function execute(array $data): StudentGroup
     {
-        $name = trim($data['name'] ?? '');
-        $academicYear = trim($data['academic_year'] ?? '');
-        $headcount = (int) ($data['expected_headcount'] ?? 0);
+        $name = trim($data['name']);
+        $academicYear = trim($data['academic_year']);
+        $headcount = (int) $data['expected_headcount'];
 
         if ($name === '') {
             throw new InvalidArgumentException('Student group name cannot be empty.');

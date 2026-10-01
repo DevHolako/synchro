@@ -102,6 +102,12 @@ class UserFactory extends Factory
 
     /**
      * Indicate that the model has two-factor authentication configured.
+     *
+     * Two-factor authentication is disabled (no two-factor columns exist), so this
+     * leaves the user unchanged; the only test using it skips itself.
      */
-    public function withTwoFactor(): static {}
+    public function withTwoFactor(): static
+    {
+        return $this;
+    }
 }

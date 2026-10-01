@@ -25,9 +25,9 @@ class CreateModuleAction
      */
     public function execute(array $data): Module
     {
-        $name = trim($data['name'] ?? '');
-        $code = trim($data['code'] ?? '');
-        $totalHours = (int) ($data['total_hours'] ?? 0);
+        $name = trim($data['name']);
+        $code = trim($data['code']);
+        $totalHours = (int) $data['total_hours'];
         $lectureHours = (int) ($data['lecture_hours'] ?? 0);
         $tpHours = (int) ($data['tp_hours'] ?? 0);
         $colorCode = trim($data['color_code'] ?? '#3B82F6');

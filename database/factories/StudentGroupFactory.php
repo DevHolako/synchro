@@ -31,7 +31,7 @@ class StudentGroupFactory extends Factory
     public function withCampus(?Campus $campus = null): static
     {
         return $this->state(fn (array $attributes) => [
-            'campus_id' => $campus?->id ?? Campus::factory(),
+            'campus_id' => $campus->id ?? Campus::factory(),
         ]);
     }
 

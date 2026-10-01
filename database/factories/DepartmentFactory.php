@@ -16,7 +16,7 @@ class DepartmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Département '.fake()->unique()->words(2, true),
+            'name' => 'Département '.implode(' ', (array) fake()->unique()->words(2)),
             'code' => 'DEP-'.strtoupper(fake()->unique()->lexify('???')),
             'description' => fake()->sentence(),
             'is_active' => true,

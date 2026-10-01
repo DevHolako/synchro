@@ -17,8 +17,8 @@ class CreateDepartmentAction
      */
     public function execute(array $data): Department
     {
-        $name = trim($data['name'] ?? '');
-        $code = trim($data['code'] ?? '');
+        $name = trim($data['name']);
+        $code = trim($data['code']);
 
         if ($name === '') {
             throw new InvalidArgumentException('Department name cannot be empty.');

@@ -26,7 +26,7 @@ class ModuleFactory extends Factory
         return [
             'program_id' => Program::factory(),
             'teacher_id' => null,
-            'name' => 'Module '.fake()->unique()->words(2, true),
+            'name' => 'Module '.implode(' ', (array) fake()->unique()->words(2)),
             'code' => 'MOD-'.strtoupper(fake()->unique()->bothify('??###')),
             'total_hours' => $total,
             'lecture_hours' => $lecture,
@@ -40,7 +40,7 @@ class ModuleFactory extends Factory
     public function withTeacher(?User $teacher = null): static
     {
         return $this->state(fn (array $attributes) => [
-            'teacher_id' => $teacher?->id ?? User::factory()->teacher(),
+            'teacher_id' => $teacher->id ?? User::factory()->teacher(),
         ]);
     }
 

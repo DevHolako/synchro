@@ -19,7 +19,7 @@ class ProgramFactory extends Factory
     {
         return [
             'department_id' => Department::factory(),
-            'name' => 'Programme '.fake()->unique()->words(2, true),
+            'name' => 'Programme '.implode(' ', (array) fake()->unique()->words(2)),
             'code' => 'PRG-'.strtoupper(fake()->unique()->bothify('??##')),
             'program_modality' => fake()->randomElement(ProgramModality::cases()),
             'description' => fake()->sentence(),
