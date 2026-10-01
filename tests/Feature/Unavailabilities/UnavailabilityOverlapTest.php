@@ -135,3 +135,13 @@ test('editing into an overlap with another request is rejected', function () {
 
     expect($unavailability->refresh()->end_time)->toBe('12:00');
 });
+
+test('declarations overlap on a shared boundary day whatever type the dates were assigned with', function () {
+    TeacherUnavailability::factory()->for($this->teacher, 'teacher')->recurring(5, '10:00', '12:00')
+        ->create(['start_date' => Carbon::parse('2026-10-05'), 'end_date' => Carbon::parse('2026-10-16')]);
+
+    submitUnavailability($this->teacher, [
+        'type' => 'recurring_weekly', 'day_of_week' => 5, 'start_time' => '10:00', 'end_time' => '12:00',
+        'start_date' => '2026-10-16',
+    ])->assertSessionHasErrors('start_date');
+});

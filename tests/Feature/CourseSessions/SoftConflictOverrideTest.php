@@ -4,6 +4,7 @@ use App\Actions\CourseSessions\CreateCourseSessionAction;
 use App\Enums\ConflictType;
 use App\Enums\Permission;
 use App\Enums\UserRole;
+use App\Http\Requests\CourseSessions\StoreCourseSessionRequest;
 use App\Models\ConflictOverride;
 use App\Models\CourseSession;
 use App\Models\Module;
@@ -17,6 +18,7 @@ use App\Services\Scheduling\SessionSlot;
 use App\Services\Scheduling\SoftConflictOverride;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -234,3 +236,87 @@ test('the check endpoint reports soft conflicts too', function () {
         ->assertJsonPath('has_soft_conflicts', true)
         ->assertJsonPath('soft_conflicts.0.type', 'capacity');
 });
+
+test('unavailability dates are inclusive whatever type they were assigned with', function () {
+    // Carbon dates (as the factory and future writers use) and strings must store alike.
+    TeacherUnavailability::factory()->for($this->teacher, 'teacher')->recurring(5, '18:00', '22:00')
+        ->create(['start_date' => CarbonImmutable::parse('2026-10-16'), 'end_date' => CarbonImmutable::parse('2026-10-30')]);
+    TeacherUnavailability::factory()->for($this->teacher, 'teacher')->adHoc('2026-11-02', '2026-11-04')->create();
+
+    $onFirstDay = $this->detector->checkConflicts(softSlot([$this->groupA->id], '2026-10-16 18:00', '2026-10-16 19:00'));
+    $onLastDay = $this->detector->checkConflicts(softSlot([$this->groupA->id], '2026-10-30 18:00', '2026-10-30 19:00'));
+    $onAdHocLastDay = $this->detector->checkConflicts(softSlot([$this->groupA->id], '2026-11-04 08:00', '2026-11-04 09:00'));
+
+    expect($onFirstDay->hasSoftConflicts())->toBeTrue()
+        ->and($onLastDay->hasSoftConflicts())->toBeTrue()
+        ->and($onAdHocLastDay->hasSoftConflicts())->toBeTrue();
+});
+
+test('a justification sent without force_override is ignored', function () {
+    $this->actingAs($this->coordinator)
+        ->post(route('course-sessions.store'), softPayload([
+            'student_group_ids' => [$this->groupA->id],
+            'justification' => 'short',
+        ]))
+        ->assertSessionHasNoErrors();
+
+    expect(CourseSession::count())->toBe(1)
+        ->and(ConflictOverride::count())->toBe(0);
+});
+
+test('the request refuses force_override from a scheduler without the override permission', function () {
+    $scheduler = Mockery::mock(User::factory()->coordinator()->create())->makePartial();
+    $scheduler->shouldReceive('hasPermission')->andReturnUsing(
+        fn (Permission|string $permission) => $permission !== Permission::OverrideSoftConflicts,
+    );
+
+    $request = fn (array $input) => StoreCourseSessionRequest::create(route('course-sessions.store'), 'POST', $input)
+        ->setUserResolver(fn () => $scheduler);
+
+    expect($request(['force_override' => true])->authorize())->toBeFalse()
+        ->and($request(['force_override' => false])->authorize())->toBeTrue()
+        ->and($request([])->authorize())->toBeTrue();
+});
+
+test('inertia requests get conflicts in the errors bag, not json', function () {
+    CourseSession::factory()->between('2026-10-12 10:00', '2026-10-12 12:00')->create(['room_id' => $this->room->id]);
+    $inertia = ['X-Inertia' => 'true', 'Accept' => 'application/json', 'X-Requested-With' => 'XMLHttpRequest'];
+
+    $this->actingAs($this->coordinator)
+        ->from('/dashboard')
+        ->withHeaders($inertia)
+        ->post(route('course-sessions.store'), softPayload())
+        ->assertRedirect('/dashboard')
+        ->assertSessionHasErrors(['conflicts', 'soft_conflicts']);
+
+    $this->actingAs($this->coordinator)
+        ->from('/dashboard')
+        ->withHeaders($inertia)
+        ->post(route('course-sessions.store'), softPayload(['starts_at' => '2026-10-12 14:00', 'ends_at' => '2026-10-12 16:00']))
+        ->assertRedirect('/dashboard')
+        ->assertSessionHasErrors('soft_conflicts')
+        ->assertSessionDoesntHaveErrors('conflicts');
+});
+
+test('audit records cannot be changed by bulk queries and keep their author', function () {
+    $this->actingAs($this->coordinator)->post(route('course-sessions.store'), softPayload(['force_override' => true, 'justification' => 'Exam week, no other room.']));
+
+    expect(fn () => ConflictOverride::query()->update(['justification' => 'Rewritten.']))->toThrow(LogicException::class)
+        ->and(fn () => ConflictOverride::query()->delete())->toThrow(LogicException::class)
+        ->and(fn () => $this->coordinator->delete())->toThrow(QueryException::class);
+
+    expect(ConflictOverride::sole()->user_id)->toBe($this->coordinator->id);
+});
+
+test('accounts anchoring the timetable or its audit cannot delete themselves', function (string $who) {
+    $this->actingAs($this->coordinator)->post(route('course-sessions.store'), softPayload(['force_override' => true, 'justification' => 'Exam week, no other room.']));
+    $user = $who === 'teacher' ? $this->teacher : $this->coordinator;
+
+    $this->actingAs($user)
+        ->from(route('profile.edit'))
+        ->delete(route('profile.destroy'), ['password' => 'password'])
+        ->assertRedirect(route('profile.edit'))
+        ->assertSessionHasErrors('account');
+
+    expect($user->fresh())->not->toBeNull();
+})->with(['teacher', 'coordinator']);
