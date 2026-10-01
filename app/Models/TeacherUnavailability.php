@@ -89,7 +89,7 @@ class TeacherUnavailability extends Model
      */
     public function scopeActive(Builder $query): void
     {
-        $query->whereIn('status', UnavailabilityStatus::active());
+        $query->whereIn($query->qualifyColumn('status'), UnavailabilityStatus::active());
     }
 
     /**
@@ -138,7 +138,7 @@ class TeacherUnavailability extends Model
         $column = fn (string $name): string => $query->qualifyColumn($name);
         $day = $start->toDateString();
 
-        $query->whereIn($column('status'), UnavailabilityStatus::active())
+        $query->active()
             ->where($column('start_date'), '<=', $day)
             ->where(fn (Builder $query) => $query->whereNull($column('end_date'))->orWhere($column('end_date'), '>=', $day))
             ->where(fn (Builder $query) => $query
@@ -151,6 +151,35 @@ class TeacherUnavailability extends Model
                 ->orWhere(fn (Builder $query) => $query
                     ->where($column('start_time'), '<', $end->format('H:i:s'))
                     ->where($column('end_time'), '>', $start->format('H:i:s'))));
+    }
+
+    /**
+     * Dates are always stored as Y-m-d, whatever was assigned (string or Carbon), so SQL
+     * comparisons against date strings agree on SQLite as well as MySQL.
+     *
+     * @return Attribute<Carbon|null, mixed>
+     */
+    protected function startDate(): Attribute
+    {
+        return $this->dateAttribute();
+    }
+
+    /**
+     * @return Attribute<Carbon|null, mixed>
+     */
+    protected function endDate(): Attribute
+    {
+        return $this->dateAttribute();
+    }
+
+    /**
+     * @return Attribute<Carbon|null, mixed>
+     */
+    private function dateAttribute(): Attribute
+    {
+        return Attribute::make(
+            set: fn (mixed $value) => $value === null || $value === '' ? null : Carbon::parse($value)->toDateString(),
+        );
     }
 
     /**
