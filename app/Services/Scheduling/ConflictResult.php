@@ -27,6 +27,26 @@ final readonly class ConflictResult
     }
 
     /**
+     * Translated, human-readable descriptions of the hard conflicts.
+     *
+     * @return list<string>
+     */
+    public function hardConflictMessages(): array
+    {
+        return array_map(fn (Conflict $conflict): string => $conflict->message(), $this->hardConflicts);
+    }
+
+    /**
+     * Translated, human-readable descriptions of the soft conflicts.
+     *
+     * @return list<string>
+     */
+    public function softConflictMessages(): array
+    {
+        return array_map(fn (Conflict $conflict): string => $conflict->message(), $this->softConflicts);
+    }
+
+    /**
      * @return array{has_hard_conflicts: bool, hard_conflicts: list<array<string, mixed>>, has_soft_conflicts: bool, soft_conflicts: list<array<string, mixed>>}
      */
     public function toArray(): array

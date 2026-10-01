@@ -21,4 +21,19 @@ final readonly class SessionSlot
         public CarbonImmutable $endsAt,
         public ?int $ignoreSessionId = null,
     ) {}
+
+    /**
+     * @param  array{teacher_id: int, room_id: int, student_group_ids: list<int>, starts_at: string, ends_at: string}  $data
+     */
+    public static function fromPayload(array $data, ?int $ignoreSessionId = null): self
+    {
+        return new self(
+            teacherId: $data['teacher_id'],
+            roomId: $data['room_id'],
+            groupIds: $data['student_group_ids'],
+            startsAt: CarbonImmutable::parse($data['starts_at']),
+            endsAt: CarbonImmutable::parse($data['ends_at']),
+            ignoreSessionId: $ignoreSessionId,
+        );
+    }
 }

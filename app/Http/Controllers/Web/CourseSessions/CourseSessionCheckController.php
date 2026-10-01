@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Web\CourseSessions;
 
-use App\Actions\CourseSessions\CreateCourseSessionAction;
+use App\Actions\CourseSessions\CheckSessionConflictsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CourseSessions\CheckCourseSessionRequest;
-use App\Services\Scheduling\ConflictDetectorService;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -13,10 +12,8 @@ use Illuminate\Http\JsonResponse;
  */
 class CourseSessionCheckController extends Controller
 {
-    public function __invoke(CheckCourseSessionRequest $request, ConflictDetectorService $detector): JsonResponse
+    public function __invoke(CheckCourseSessionRequest $request, CheckSessionConflictsAction $action): JsonResponse
     {
-        $slot = CreateCourseSessionAction::slot($request->payload(), $request->ignoreSessionId());
-
-        return new JsonResponse($detector->checkConflicts($slot)->toArray());
+        return new JsonResponse($action->execute($request->payload(), $request->ignoreSessionId())->toArray());
     }
 }
