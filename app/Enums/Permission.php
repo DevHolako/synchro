@@ -65,5 +65,7 @@ enum Permission: string
     case LockGrades = 'lock:grades';
 
     // User management permissions
+    case ViewUsers = 'view:users';
+    case ProvisionUsers = 'provision:users';
     case ManageUsers = 'manage:users';
 }

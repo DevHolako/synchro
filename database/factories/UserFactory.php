@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AccountStatus;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -29,6 +30,8 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'role' => UserRole::Student,
+            'status' => AccountStatus::Active,
+            'activated_at' => now(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
@@ -72,6 +75,18 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => UserRole::Student,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has been provisioned but has not yet accepted their invitation.
+     */
+    public function invited(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => AccountStatus::Invited,
+            'activated_at' => null,
+            'email_verified_at' => null,
         ]);
     }
 

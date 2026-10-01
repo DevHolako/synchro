@@ -94,6 +94,18 @@ enum UserRole: string
     }
 
     /**
+     * Get the profile relation on User that holds this role's domain profile, if any.
+     */
+    public function profileRelation(): ?string
+    {
+        return match ($this) {
+            self::Teacher => 'teacherProfile',
+            self::Student => 'studentProfile',
+            self::Administrator, self::Coordinator => null,
+        };
+    }
+
+    /**
      * Check if this role includes a specific permission.
      */
     public function hasPermission(Permission|string $permission): bool
