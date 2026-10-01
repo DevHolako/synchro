@@ -60,6 +60,10 @@ enum Permission: string
     case ViewExams = 'view:exams';
     case ManageExams = 'manage:exams';
 
+    // Teacher unavailability permissions
+    case DeclareUnavailability = 'declare:unavailability';
+    case ReviewUnavailability = 'review:unavailability';
+
     // Grade deliberation permissions
     case EnterGrades = 'enter:grades';
     case LockGrades = 'lock:grades';

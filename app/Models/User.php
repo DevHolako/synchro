@@ -10,6 +10,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -35,6 +36,7 @@ use Illuminate\Support\Carbon;
  * @property-read TeacherProfile|null $teacherProfile
  * @property-read StudentProfile|null $studentProfile
  * @property-read InvitationToken|null $latestInvitation
+ * @property-read Collection<int, TeacherUnavailability> $unavailabilities
  */
 #[Fillable(['name', 'email', 'password', 'role', 'status', 'activated_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
@@ -88,6 +90,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function taughtModules(): HasMany
     {
         return $this->hasMany(Module::class, 'teacher_id');
+    }
+
+    /**
+     * @return HasMany<TeacherUnavailability, $this>
+     */
+    public function unavailabilities(): HasMany
+    {
+        return $this->hasMany(TeacherUnavailability::class, 'teacher_id');
     }
 
     /**

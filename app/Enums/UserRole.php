@@ -70,6 +70,7 @@ enum UserRole: string
                 Permission::ManageSchedules,
                 Permission::ViewExams,
                 Permission::ManageExams,
+                Permission::ReviewUnavailability,
                 Permission::ImportReferentials,
             ],
 
@@ -84,6 +85,7 @@ enum UserRole: string
                 Permission::ViewModules,
                 Permission::ViewSchedules,
                 Permission::ViewExams,
+                Permission::DeclareUnavailability,
                 Permission::EnterGrades,
             ],
 
