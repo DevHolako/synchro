@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -32,9 +33,11 @@ use Illuminate\Support\Carbon;
 class InvitationToken extends Model
 {
     /** @use HasFactory<InvitationTokenFactory> */
-    use HasFactory;
+    use HasFactory, MassPrunable;
 
     public const int LIFETIME_HOURS = 72;
+
+    public const int RETENTION_DAYS = 30;
 
     /**
      * @return array<string, string>
@@ -74,6 +77,21 @@ class InvitationToken extends Model
         return $this->consumed_at === null
             && $this->revoked_at === null
             && $this->expires_at->isFuture();
+    }
+
+    /**
+     * Tokens that can no longer be used and have aged past the retention window.
+     *
+     * @return Builder<static>
+     */
+    public function prunable(): Builder
+    {
+        $cutoff = now()->subDays(self::RETENTION_DAYS);
+
+        return static::query()->where(fn (Builder $query) => $query
+            ->where('consumed_at', '<', $cutoff)
+            ->orWhere('revoked_at', '<', $cutoff)
+            ->orWhere('expires_at', '<', $cutoff));
     }
 
     /**

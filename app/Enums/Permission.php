@@ -67,6 +67,9 @@ enum Permission: string
     // Bulk spreadsheet import permissions
     case ImportReferentials = 'import:referentials';
 
+    // Infrastructure monitoring permissions (Horizon queue dashboard)
+    case MonitorQueues = 'monitor:queues';
+
     // User management permissions
     case ViewUsers = 'view:users';
     case ProvisionUsers = 'provision:users';
