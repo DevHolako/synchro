@@ -128,3 +128,13 @@ test('the teacher page lists only the teacher own current and upcoming unavailab
             ->where('unavailabilities.0.id', $past->id)
             ->where('unavailabilities.0.start_date', '2026-09-01'));
 });
+
+test('an unavailability ending today is still current', function () {
+    $endingToday = TeacherUnavailability::factory()->for($this->teacher, 'teacher')->adHoc('2026-10-05', '2026-10-05')->create();
+
+    $this->actingAs($this->teacher)->get(route('unavailabilities.index'))
+        ->assertInertia(fn (Assert $page) => $page->has('unavailabilities', 1)->where('unavailabilities.0.id', $endingToday->id));
+
+    $this->actingAs($this->teacher)->get(route('unavailabilities.index', ['period' => 'past']))
+        ->assertInertia(fn (Assert $page) => $page->has('unavailabilities', 0));
+});
