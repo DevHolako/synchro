@@ -1,76 +1,130 @@
 # syntax=docker/dockerfile:1
+#
+# Synchro production image (ADR 0012). FrankenPHP (Caddy with PHP built in) serves
+# the app; the same image runs the horizon and scheduler services.
 
-# Synchro production image (ADR 0012). One PHP image runs the `app` (php-fpm),
-# `horizon`, and `scheduler` services; the `web` target serves static assets
-# and proxies PHP requests to `app`.
+############################################
+# 1. Base PHP + FrankenPHP stage
+############################################
+FROM dunglas/frankenphp:1-php8.5 AS base
 
-ARG PHP_VERSION=8.5
+# Required PHP extensions: MySQL, Redis (queues/cache/sessions), Horizon (pcntl/posix),
+# and zip for reading .xlsx spreadsheet imports.
+RUN install-php-extensions \
+    pdo_mysql \
+    redis \
+    pcntl \
+    posix \
+    bcmath \
+    intl \
+    opcache \
+    zip
 
-# ---------------------------------------------------------------------------
-# base: PHP runtime + extensions shared by every PHP service
-# ---------------------------------------------------------------------------
-FROM php:${PHP_VERSION}-fpm-alpine AS base
+# The host's web server owns the domain and HTTPS, so Caddy listens on plain HTTP.
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    SERVER_NAME=":80" \
+    CADDY_GLOBAL_OPTIONS="auto_https off"
 
-COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions pdo_mysql redis pcntl zip intl bcmath opcache \
-    && apk add --no-cache fcgi
+WORKDIR /app
 
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+COPY docker/Caddyfile /etc/caddy/Caddyfile
 
-WORKDIR /var/www/html
+############################################
+# 2. Composer dependencies builder stage
+############################################
+FROM composer:2 AS composer-builder
 
-# ---------------------------------------------------------------------------
-# vendor: production Composer dependencies
-# ---------------------------------------------------------------------------
-FROM base AS vendor
+WORKDIR /app
 
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --no-plugins \
+    --no-scripts \
+    --prefer-dist \
+    --optimize-autoloader \
+    --ignore-platform-reqs
 
+############################################
+# 3. Frontend builder stage (Inertia React + Wayfinder)
+############################################
+FROM node:22-alpine AS frontend-builder
+
+RUN apk add --no-cache \
+    php \
+    php-cli \
+    php-phar \
+    php-mbstring \
+    php-openssl \
+    php-tokenizer \
+    php-xml \
+    php-dom \
+    php-curl \
+    php-fileinfo \
+    php-ctype \
+    php-json \
+    php-session \
+    php-pdo \
+    php-pdo_mysql \
+    php-pcntl \
+    php-posix
+
+WORKDIR /app
+
+# Vite bakes this into the bundle, so it comes from the server's .env at build time
+ARG VITE_APP_NAME
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Include composer vendor dependencies so php artisan wayfinder:generate succeeds
+COPY --from=composer-builder /app/vendor /app/vendor
 COPY . .
-RUN composer dump-autoload --optimize --classmap-authoritative --no-dev \
-    && php artisan package:discover --ansi
+RUN npm run build
 
-# ---------------------------------------------------------------------------
-# assets: Vite build (the Wayfinder plugin needs PHP + vendor to generate routes)
-# ---------------------------------------------------------------------------
-FROM vendor AS assets
-
-RUN apk add --no-cache nodejs npm \
-    && npm ci --no-audit --no-fund \
-    && npm run build \
-    && rm -rf node_modules
-
-# ---------------------------------------------------------------------------
-# app: php-fpm image used by app, horizon, and scheduler services
-# ---------------------------------------------------------------------------
-FROM base AS app
+############################################
+# 4. Production stage
+############################################
+FROM base AS production
 
 ENV APP_ENV=production \
-    APP_DEBUG=false \
-    LOG_CHANNEL=stderr
+    APP_DEBUG=false
 
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-COPY docker/php/synchro.ini "$PHP_INI_DIR/conf.d/zz-synchro.ini"
-COPY docker/php/www.conf /usr/local/etc/php-fpm.d/zz-synchro.conf
-COPY docker/entrypoint.sh /usr/local/bin/synchro-entrypoint
+# Use PHP's recommended production settings (errors hidden, OPcache tuned)
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-COPY --from=assets --chown=www-data:www-data /var/www/html /var/www/html
+# The production default is 128M: a queued import holding a large spreadsheet kills its worker
+RUN echo 'memory_limit=-1' > "$PHP_INI_DIR/conf.d/99-memory.ini"
 
-RUN chmod +x /usr/local/bin/synchro-entrypoint \
-    && rm -f public/hot public/fonts-manifest.dev.json \
-    && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs storage/app/private \
-    && chown -R www-data:www-data storage bootstrap/cache
+# Spreadsheet imports accept files up to 5 MB (ImportSpreadsheetRequest::MAX_KILOBYTES)
+RUN printf 'upload_max_filesize=10M\npost_max_size=12M\n' > "$PHP_INI_DIR/conf.d/99-uploads.ini"
 
-USER www-data
+# Copy application source
+COPY . /app
 
-ENTRYPOINT ["synchro-entrypoint"]
-CMD ["php-fpm"]
+# Copy production PHP dependencies
+COPY --from=composer-builder /app/vendor /app/vendor
 
-# ---------------------------------------------------------------------------
-# web: Nginx serving /public and proxying PHP to the app service
-# ---------------------------------------------------------------------------
-FROM nginx:1.29-alpine AS web
+# Copy compiled frontend assets
+COPY --from=frontend-builder /app/public/build /app/public/build
 
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=app /var/www/html/public /var/www/html/public
+# Copy entrypoint script
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Run composer autoloader dump and package discovery
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN composer dump-autoload --optimize --no-dev --ignore-platform-reqs && rm /usr/bin/composer
+
+# Set permissions for storage and bootstrap/cache
+RUN rm -f public/hot public/fonts-manifest.dev.json \
+    && chown -R www-data:www-data /app/storage /app/bootstrap/cache \
+    && chmod -R 775 /app/storage \
+    # Writable by anyone: the containers may run as the host's user (APP_USER), who caches config here
+    && chmod -R 777 /app/bootstrap/cache
+
+EXPOSE 80
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

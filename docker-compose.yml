@@ -1,0 +1,142 @@
+# Synchro stack for any single server (ADR 0012).
+#
+# The host owns the domain and HTTPS: point its nginx at 127.0.0.1:${APP_PORT}
+# (Hestia templates for this live in docker/hestia/).
+#
+# Everything is configured from the .env next to this file (template: .env.docker.example):
+#   COMPOSE_PROFILES=mysql,redis,phpmyadmin   bundled services to run (drop any you replace)
+#   DB_HOST=mysql    | or an external host, or DB_URL=mysql://user:pass@host:3306/db
+#                      a database on this server itself, through its socket:
+#                      DB_SOCKET_DIR=/run/mysqld, DB_SOCKET=/run/mysqld/mysqld.sock, DB_HOST=localhost
+#                      The host's mysql.service needs RuntimeDirectoryPreserve=yes: without it systemd
+#                      replaces that folder on every MySQL restart and the containers lose the socket.
+#   REDIS_HOST=redis | or an external host, or REDIS_URL=redis://user:pass@host:6379
+#   APP_STORAGE=/home/<user>/synchro-storage   host folder for uploads and logs, so the
+#                      host's backups include it (default: a named Docker volume)
+#   APP_USER=<uid>:<gid>   who the containers run as (default: root). With APP_STORAGE, use the
+#                      folder's owner (`id -u`:`id -g`), or every file PHP writes there is root's.
+#
+# Deploy by hand: docker compose up -d --build
+
+x-build: &build
+  context: .
+  target: production
+  args:
+    VITE_APP_NAME: ${APP_NAME:-Synchro}
+
+x-laravel: &laravel
+  build: *build
+  image: synchro:latest
+  restart: unless-stopped
+  # Forwards stop signals to PHP, so containers stop at once instead of after the grace period.
+  init: true
+  user: ${APP_USER:-root}
+  env_file: .env
+  environment:
+    # Caddy and Tinker keep their state under these; the default folders are root's.
+    XDG_CONFIG_HOME: /tmp
+    XDG_DATA_HOME: /tmp
+  volumes:
+    # Shared by app, horizon, and scheduler: workers read spreadsheets uploaded through app.
+    - ${APP_STORAGE:-storage}:/app/storage
+    # The host's MySQL socket folder, when the database runs on this server outside Docker
+    - ${DB_SOCKET_DIR:-mysqld_socket}:/run/mysqld
+  depends_on:
+    mysql:
+      condition: service_healthy
+      required: false
+    redis:
+      condition: service_healthy
+      required: false
+
+services:
+  app:
+    <<: *laravel
+    # Migrate on boot so the schema never lags the code.
+    command: sh -c "php artisan migrate --force && exec frankenphp run --config /etc/caddy/Caddyfile"
+    ports:
+      - '127.0.0.1:${APP_PORT:-8000}:80'
+    healthcheck:
+      test: ['CMD', 'php', '-r', 'exit(@fsockopen("127.0.0.1", 80) ? 0 : 1);']
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 60s
+
+  horizon:
+    <<: *laravel
+    command: php artisan horizon
+    # Stopping Horizon lets running jobs finish (imports have tries=1, a killed job is lost).
+    # Their timeout is 600s, so give them a little longer than that before Docker kills them.
+    stop_grace_period: 660s
+    healthcheck:
+      test: ['CMD', 'php', 'artisan', 'horizon:status']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  scheduler:
+    <<: *laravel
+    command: php artisan schedule:work
+    healthcheck:
+      test: ['CMD-SHELL', 'grep -q schedule:work /proc/1/cmdline']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  mysql:
+    # MySQL 8.0, as specified in the cahier des charges
+    image: mysql:8.0
+    profiles: [mysql]
+    restart: unless-stopped
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-synchro}
+      MYSQL_USER: ${DB_USERNAME:-synchro}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?}
+      # Not `:?`: compose checks every service, even outside COMPOSE_PROFILES. Without it,
+      # the mysql image refuses to start and says the root password is missing.
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u"$$MYSQL_USER" -p"$$MYSQL_PASSWORD" --silent']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    profiles: [redis]
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    profiles: [phpmyadmin]
+    restart: unless-stopped
+    environment:
+      PMA_HOST: ${DB_HOST:-mysql}
+      PMA_PORT: ${DB_PORT:-3306}
+      UPLOAD_LIMIT: 256M
+    ports:
+      - '127.0.0.1:${PHPMYADMIN_PORT:-8081}:80'
+    depends_on:
+      mysql:
+        condition: service_healthy
+        required: false
+
+volumes:
+  storage:
+  mysqld_socket:
+  mysql_data:
+  redis_data:
