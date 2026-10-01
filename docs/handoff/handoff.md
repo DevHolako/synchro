@@ -115,6 +115,14 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - Permission: `OverrideSoftConflicts` (`override:soft-conflicts`, Coordinator); checked in the form requests (403) and again in `GuardSessionConflictsAction`.
    - Fix found while testing: date columns are stored as `Y-m-d`, so comparisons now bind date strings (an unavailability ending today showed as past on SQLite).
 
+### Completed Tickets in Part 03 (Interactive Course Planning)
+1. **Ticket 01: FullCalendar Multi-View Timetables** ([`01-fullcalendar-multi-view-timetables.md`](file:///home/holako/github/synchro/docs/specs/03-interactive-course-planning/tickets/01-fullcalendar-multi-view-timetables.md), design decisions recorded in the ticket)
+   - Implemented: `GET /timetable` (`TimetableIndexController`, `TimetableRequest`), `TimetablePerspective` (`mine`, `campus`, `group`, `teacher`, `room`), `TimetableView` (FullCalendar view names; each derives its own date range, at most the 42-day month grid), `TimetableScope` (resolves "mine" to the student's group or the user's own teaching), `TimetableSessionResource` (offset-less wall-clock times, overrides included), `CourseSession::conflictOverrides()`.
+   - Actions: `ListTimetableSessionsAction` (eager-loaded; the query count stays flat), `CalculateSyllabusProgressAction` (planned minutes per module for one group; shared sessions count in full per group; summed in PHP for SQLite/MySQL portability), `ListTimetableFilterOptionsAction`.
+   - Permission: `BrowseSchedules` (`browse:schedules`, Coordinator) for the four perspectives; holders of only `ViewSchedules` (Teacher, Student) get their own timetable, and any other perspective is a 403. Mirrored in `resources/js/lib/permissions.ts`.
+   - UI: `resources/js/pages/timetable/` (FullCalendar 6.1, MIT plugins only: day/week/month/list). The calendar runs in `timeZone: 'UTC'` with the browser's wall clock as `now`; it remounts when the subject or view changes outside it, and a `ResizeObserver` keeps it sized when the sidebar collapses. Theme variables in `resources/css/app.css`. Sidebar link gated by `ViewSchedules`.
+   - Deviation: no Premium resource views; the Global Campus view is a list.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -126,7 +134,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is in progress: Ticket 01 is done; Ticket 02 (batch scheduling wizard) is next.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
@@ -144,6 +152,10 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete.
   - `conflict_overrides.user_id` is now required and restricts deletion; `ConflictOverride` uses an append-only builder, so bulk updates, increments, upserts and deletes throw too. Accounts that taught a session or overrode a conflict (`User::hasSchedulingHistory()`) cannot delete themselves (translated `account` error instead of a 500).
   - A `justification` without `force_override` is ignored. New tests: the override 403 at the request, the `X-Inertia` rendering path, inclusive first/last days.
   - `CheckSessionConflictsAction` (ADR 0009), `SessionSlot::fromPayload()`, a shared `SaveCourseSessionAction` for create/update, a `ConflictException` base for the 422/409 rendering, and the shared unavailability components moved to `resources/js/components/unavailabilities/`.
+- **Deferred from Part 03 / Ticket 01 (decisions owed later):**
+  - Sessions are not typed lecture/TP, so the syllabus widget compares against `total_hours` only. Typing them touches the conflict engine, the session requests and the batch wizard.
+  - A "rooms × hours" board for the Global Campus view: either a custom component or FullCalendar's Premium resource views (paid licence). Build it only if coordinators ask.
+  - The calendar's 08:00–22:00 grid is a fifth copy of the grid constants (see the Part 02 item below).
 - **Deferred findings from the Part 02 review (not blocking):**
   - The 08:00–22:00 quarter-hour grid lives in four places (session request, unavailability request regex, dialog inputs, messages); `resources/js/lib/permissions.ts` mirrors `App\Enums\Permission` by hand.
   - "Is a teacher" is decided by role (`Rule::exists(...)->where('role')`, `User::teachers()`) while declaring is gated by `DeclareUnavailability`; settle when roles are revisited (Part 06).
