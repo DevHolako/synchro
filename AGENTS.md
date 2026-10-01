@@ -252,6 +252,6 @@ Use Wayfinder to generate TypeScript functions for Laravel routes. Import from `
 - **Named queues**: `notifications`, `imports`, `default`, each served by a supervisor in `config/horizon.php`. Timeout chain: job `$timeout` < supervisor `timeout` < `REDIS_QUEUE_RETRY_AFTER`.
 - **After commit & idempotent**: dispatch side effects after the transaction commits; jobs must tolerate duplicate delivery.
 - **Horizon dashboard** is gated by `Permission::MonitorQueues`.
-- **Production** ships as the `compose.yaml` stack (`web`, `app`, `horizon`, `scheduler`, `mysql`, `redis`).
+- **Production** ships as the `docker-compose.yml` stack: `app` (FrankenPHP/Caddy, bound to `127.0.0.1:${APP_PORT}` behind the host's nginx), `horizon`, `scheduler`, and optional `mysql`/`redis`/`phpmyadmin` profiles.
 
 </laravel-boost-guidelines>

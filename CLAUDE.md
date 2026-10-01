@@ -76,7 +76,7 @@ Synchro is the timetable scheduling and examination logistics platform for ISGA,
 - **Idempotency**: jobs must be safe to deliver twice (e.g. claim a `pending` record with a conditional update before processing).
 - **Notifications** implement `ShouldQueue` and route channels to queues via `viaQueues()`.
 - **Horizon dashboard** (`/horizon`) is gated by `Permission::MonitorQueues`, never by role.
-- **Production** is the Docker Compose stack in `compose.yaml` (`web`, `app`, `horizon`, `scheduler`, `mysql`, `redis`); production env template: `.env.docker.example`. Locally, `composer dev` starts Horizon (Redis must be running).
+- **Production** is the Docker Compose stack in `docker-compose.yml`: `app` (FrankenPHP, i.e. Caddy with PHP built in, bound to `127.0.0.1:${APP_PORT}`), `horizon`, `scheduler`, plus the optional `mysql` (8.0), `redis`, and `phpmyadmin` services selected with `COMPOSE_PROFILES`. The host's nginx (Hestia templates in `docker/hestia/`) owns the domain and HTTPS. Production env template: `.env.docker.example`. Locally, `composer dev` starts Horizon (Redis must be running).
 - **Tests** run with `QUEUE_CONNECTION=sync`; assert dispatching with `Queue::fake()` and test job behaviour by calling `handle()` / the action directly.
 
 ---

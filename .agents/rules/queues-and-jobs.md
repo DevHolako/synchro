@@ -25,7 +25,7 @@ Synchro processes slow or external work on Redis queues supervised by Laravel Ho
 
 - `/horizon` is gated by `Permission::MonitorQueues` (never by role).
 - The scheduler runs `horizon:snapshot`, `queue:prune-failed`, and `model:prune` (models use `MassPrunable`).
-- Production: `compose.yaml` (`web`, `app`, `horizon`, `scheduler`, `mysql`, `redis`), env template `.env.docker.example`. Locally, `composer dev` starts Horizon against a local Redis.
+- Production: `docker-compose.yml` — `app` (FrankenPHP/Caddy on `127.0.0.1:${APP_PORT}`), `horizon`, `scheduler`, and optional `mysql`/`redis`/`phpmyadmin` profiles; the host's nginx (Hestia templates in `docker/hestia/`) owns the domain and HTTPS. Env template `.env.docker.example`. Locally, `composer dev` starts Horizon against a local Redis.
 
 ## 4. Testing
 

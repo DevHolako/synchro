@@ -7,7 +7,7 @@
 - **Framework & Core Stack:**
   - **Backend:** Laravel 13.34.0, PHP 8.5, Laravel Fortify (public self-registration disabled), Laravel Wayfinder.
   - **Frontend:** Inertia.js (React 19 SPA), Tailwind CSS v4, Lucide React icons.
-  - **Queues & Infrastructure:** Redis queues supervised by Laravel Horizon; production ships as a Docker Compose stack (Nginx, PHP-FPM, Horizon, scheduler, MySQL 8.0, Redis) — see ADR 0012.
+  - **Queues & Infrastructure:** Redis queues supervised by Laravel Horizon; production ships as a Docker Compose stack (FrankenPHP/Caddy app, Horizon, scheduler, MySQL 8.0, Redis) behind the host's nginx — see ADR 0012.
   - **Testing & Tooling:** Pest 5.2.1, Vite Plus (`vp`), Laravel Pint.
 - **Current Test Status:** 140 tests registered (135 passed, 5 skipped: 3 Fortify 2FA stubs + 2 legacy registration tests skipped because registration is disabled), 660 assertions, 100% green.
 - **Code Quality & Linting:**
@@ -95,7 +95,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `queue:prune-failed --hours=168` and `model:prune` daily (`SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days).
-- **Docker:** `Dockerfile` (targets `app` and `web`), `compose.yaml`, `docker/` (Nginx, PHP ini, FPM pool, entrypoint), `.env.docker.example`. The `app` service runs migrations (`RUN_MIGRATIONS=true`); `app`, `horizon`, and `scheduler` share one image and the `storage` volume. Proxies on private networks are trusted so signed URLs keep the `https` scheme.
+- **Docker** (modelled on the we-cretif setup): `Dockerfile` (FrankenPHP `dunglas/frankenphp:1-php8.5`, composer and node builder stages, target `production`), `docker-compose.yml`, `docker/Caddyfile`, `docker/entrypoint.sh`, `docker/hestia/synchro.{tpl,stpl}` (host nginx templates), `.env.docker.example`. `app` serves HTTP on `127.0.0.1:${APP_PORT:-8000}` (Caddy `auto_https off`) and migrates on boot; `app`, `horizon`, and `scheduler` share the `synchro:latest` image and the storage volume (`APP_STORAGE`). `mysql` (8.0), `redis`, and `phpmyadmin` are optional via `COMPOSE_PROFILES`; external servers or the host's MySQL socket (`DB_SOCKET_DIR`) work too. The host's nginx owns the domain and HTTPS; Laravel trusts private-range proxies so signed URLs keep `https`. CI/CD (deploy script, GitLab) is intentionally not included yet.
 - **Local dev:** `composer dev` runs Horizon instead of `queue:listen`; `.env` needs `QUEUE_CONNECTION=redis` and a running Redis.
 - **Tickets 01–03** have no queued work (synchronous CRUD); Ticket 04 invitation emails and Ticket 05 imports are queued.
 
