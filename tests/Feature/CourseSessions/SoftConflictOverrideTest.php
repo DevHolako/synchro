@@ -320,3 +320,13 @@ test('accounts anchoring the timetable or its audit cannot delete themselves', f
 
     expect($user->fresh())->not->toBeNull();
 })->with(['teacher', 'coordinator']);
+
+test('audit records refuse increments and upserts as well', function () {
+    $this->actingAs($this->coordinator)->post(route('course-sessions.store'), softPayload(['force_override' => true, 'justification' => 'Exam week, no other room.']));
+    $override = ConflictOverride::sole();
+
+    expect(fn () => ConflictOverride::query()->increment('schedulable_id'))->toThrow(LogicException::class)
+        ->and(fn () => ConflictOverride::query()->upsert([[...$override->getAttributes(), 'justification' => 'Rewritten.']], ['id']))->toThrow(LogicException::class);
+
+    expect($override->fresh()->justification)->toBe('Exam week, no other room.');
+});
