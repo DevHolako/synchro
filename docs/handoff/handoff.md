@@ -101,6 +101,14 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - UI: `resources/js/pages/unavailabilities/` (teacher: current/past, create/edit dialog, withdraw) and `resources/js/pages/unavailability-reviews/` (coordinator: status counts, filters, approve/reject dialog). Sidebar links are permission-gated; the review link shows the shared `pendingUnavailabilityCount` badge.
    - For Ticket 03: the soft-conflict detector should query `TeacherUnavailability::active()` for the session's teacher.
 
+2. **Ticket 02: Core Conflict Detector Service for Physical Clashes** ([`02-synchronous-conflict-detector-service.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/02-synchronous-conflict-detector-service.md), design decisions recorded in the ticket)
+   - Implemented: `CourseSession` (`course_sessions`: module, teacher, room, `starts_at`/`ends_at`) linked to one or more groups through `course_session_student_group`; `ConflictType` enum. Teachers, rooms and modules with sessions cannot be deleted.
+   - Engine (`app/Services/Scheduling/`): `ConflictDetectorService::checkConflicts(SessionSlot): ConflictResult`, fed by `OccupancySource` implementations (`CourseSessionOccupancy` now; exams join in Part 04). One indexed query per resource type (room, teacher, groups); half-open intervals; same-day lookups bounded on `starts_at`.
+   - Actions: `CreateCourseSessionAction`, `UpdateCourseSessionAction`, `DeleteCourseSessionAction`, `GuardSessionConflictsAction` (locks rooms → users → groups, then checks). `HardConflictException` renders 422: structured JSON for JSON callers, translated `conflicts` errors for Inertia.
+   - HTTP (no UI yet): `POST /course-sessions`, `PUT`/`DELETE /course-sessions/{session}`, `POST /course-sessions/check` (JSON, saves nothing). `CourseSessionPolicy` uses `ManageSchedules` / `ViewSchedules`.
+   - Validation: active module/room/groups, teacher role (defaults to the module's teacher), groups in the module's program, same day inside 08:00–22:00 on quarter hours; past dates allowed.
+   - Benchmark: `php artisan conflicts:benchmark --sessions=N` (rolled back). Local SQLite: 5,000 sessions → 2.4 ms average / 4.0 ms p95; 30,000 → 6.8 ms / 10.0 ms.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -112,11 +120,11 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is in progress: Ticket 01 is done.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is in progress: Tickets 01 and 02 are done.
 
-### **Part 02 / Ticket 02: Core Conflict Detector Service for Physical Clashes**
-- **File:** [`docs/specs/02-availability-and-conflict-engine/tickets/02-synchronous-conflict-detector-service.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/02-synchronous-conflict-detector-service.md)
-- Ticket 01 (Teacher Unavailability) is done; discuss the design before planning, per `.agents/rules/pre-plan-conversation-and-sparring.md`. Note that no course session or exam model exists yet, so the detector's inputs need settling first.
+### **Part 02 / Ticket 03: Soft Conflict Detection and Audit Trail Override**
+- **File:** [`docs/specs/02-availability-and-conflict-engine/tickets/03-soft-conflict-and-audit-override.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/03-soft-conflict-and-audit-override.md)
+- Tickets 01 and 02 are done. Soft conflicts plug into `ConflictResult::$softConflicts`: capacity overrun (sum of the session's group headcounts vs `course_capacity`) and teacher unavailability (`TeacherUnavailability::active()` matched against the session's weekday/date and times). Discuss the design first (override flag and justification shape, 409 vs 422, the audit table, how Inertia shows the warning).
 - **Code reviews:** the post-Part-01 work (`2b61777..265229c`) was reviewed and all 10 findings fixed (`dcb7957..a08b416`). The review of Part 01's own tickets (`523cfbe..2b61777`, judged against current code) ran on 2026-10-01. Fixed right away:
   - Partial updates skipped scoped-uniqueness and capacity checks (moving a room/building/program/group/module to another parent, or lowering only `course_capacity`), which ended in a 500 instead of a 422. Update requests now `mergeIfMissing` the stored values in `prepareForValidation()`.
   - Modules accepted any user as teacher on the web path; requests and actions now require a teacher.
