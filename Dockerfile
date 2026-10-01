@@ -100,8 +100,10 @@ RUN echo 'memory_limit=-1' > "$PHP_INI_DIR/conf.d/99-memory.ini"
 # Spreadsheet imports accept files up to 5 MB (ImportSpreadsheetRequest::MAX_KILOBYTES)
 RUN printf 'upload_max_filesize=10M\npost_max_size=12M\n' > "$PHP_INI_DIR/conf.d/99-uploads.ini"
 
-# Copy application source
+# Copy application source. Host bootstrap caches are excluded by .dockerignore; remove any
+# that slipped through so a dev config cache can't override the runtime env.
 COPY . /app
+RUN rm -f /app/bootstrap/cache/*.php
 
 # Copy production PHP dependencies
 COPY --from=composer-builder /app/vendor /app/vendor

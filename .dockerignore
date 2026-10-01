@@ -22,3 +22,6 @@ database/*.sqlite
 .claude
 .cursor
 .junie
+
+# Caches built on the developer machine list dev-only providers and local config
+bootstrap/cache/*.php
