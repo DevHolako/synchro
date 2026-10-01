@@ -7,6 +7,10 @@ use App\Http\Controllers\Web\Buildings\BuildingUpdateController;
 use App\Http\Controllers\Web\Campuses\CampusStoreController;
 use App\Http\Controllers\Web\Campuses\CampusToggleActiveController;
 use App\Http\Controllers\Web\Campuses\CampusUpdateController;
+use App\Http\Controllers\Web\CourseSessions\CourseSessionCheckController;
+use App\Http\Controllers\Web\CourseSessions\CourseSessionDestroyController;
+use App\Http\Controllers\Web\CourseSessions\CourseSessionStoreController;
+use App\Http\Controllers\Web\CourseSessions\CourseSessionUpdateController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
 use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
@@ -80,6 +84,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('student-groups', StudentGroupStoreController::class)->name('student-groups.store');
     Route::put('student-groups/{student_group}', StudentGroupUpdateController::class)->name('student-groups.update');
     Route::patch('student-groups/{student_group}/toggle-active', StudentGroupToggleActiveController::class)->name('student-groups.toggle-active');
+
+    // Course sessions and synchronous conflict detection (Part 02 / Ticket 02, ADR 0002)
+    Route::post('course-sessions/check', CourseSessionCheckController::class)->name('course-sessions.check');
+    Route::post('course-sessions', CourseSessionStoreController::class)->name('course-sessions.store');
+    Route::put('course-sessions/{session}', CourseSessionUpdateController::class)->name('course-sessions.update');
+    Route::delete('course-sessions/{session}', CourseSessionDestroyController::class)->name('course-sessions.destroy');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');
