@@ -4,7 +4,7 @@
             "command": "wsl.exe",
             "args": [
                 "/usr/bin/php8.5",
-                "/home/holako/github/synchro/app/artisan",
+                "/home/holako/github/synchro/artisan",
                 "boost:mcp"
             ]
         }
