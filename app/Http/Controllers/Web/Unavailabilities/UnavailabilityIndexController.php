@@ -20,14 +20,15 @@ class UnavailabilityIndexController extends Controller
         Gate::authorize('declare', TeacherUnavailability::class);
 
         $past = $request->string('period')->value() === 'past';
+        $today = today()->toDateString();
 
         $unavailabilities = $request->user()->unavailabilities()
             ->with('reviewer:id,name')
             ->when(
                 $past,
-                fn (Builder $query) => $query->where('end_date', '<', today()),
+                fn (Builder $query) => $query->where('end_date', '<', $today),
                 fn (Builder $query) => $query->where(
-                    fn (Builder $query) => $query->whereNull('end_date')->orWhere('end_date', '>=', today())
+                    fn (Builder $query) => $query->whereNull('end_date')->orWhere('end_date', '>=', $today)
                 ),
             )
             ->orderBy($past ? 'end_date' : 'start_date', $past ? 'desc' : 'asc')
