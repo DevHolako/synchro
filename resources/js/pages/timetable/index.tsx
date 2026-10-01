@@ -1,15 +1,19 @@
-import { Head, router, setLayoutProps } from '@inertiajs/react';
+import { Head, router, setLayoutProps, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { Permission } from '@/lib/permissions';
 import { dashboard } from '@/routes';
 import { index } from '@/routes/timetable';
 import { defaultView } from './components/calendar-utils';
+import { ScheduleSessionsDialog } from './components/schedule/schedule-sessions-dialog';
+import type { SchedulingOptions } from './components/schedule/types';
 import { SessionDetailsDialog } from './components/session-details-dialog';
 import { SyllabusProgressPanel } from './components/syllabus-progress-panel';
 import { TimetableCalendar } from './components/timetable-calendar';
 import { TimetableEmptyState } from './components/timetable-empty-state';
 import { TimetableFilterBar } from './components/timetable-filter-bar';
+import { TimetableHeader } from './components/timetable-header';
 import type {
     ScopePerspective,
     SyllabusProgress,
@@ -28,6 +32,9 @@ interface TimetableIndexProps {
     options: TimetableOptions | null;
     syllabus: SyllabusProgress[] | null;
     noGroup: boolean;
+    canSchedule: boolean;
+    /** Absent until the scheduling wizard first asks for it. */
+    schedulingOptions?: SchedulingOptions | null;
 }
 
 /** Moving to another period only needs that period's sessions. */
@@ -47,12 +54,16 @@ export default function TimetableIndex({
     options,
     syllabus,
     noGroup,
+    canSchedule,
+    schedulingOptions,
 }: TimetableIndexProps) {
     const { t } = useTranslation();
+    const { auth } = usePage().props;
     const isMobile = useIsMobile();
     const [selectedSession, setSelectedSession] =
         useState<TimetableSession | null>(null);
     const [activeModuleId, setActiveModuleId] = useState<number | null>(null);
+    const [scheduling, setScheduling] = useState(false);
 
     useEffect(() => {
         setLayoutProps({
@@ -85,6 +96,19 @@ export default function TimetableIndex({
         visit({ ...filters, id });
     };
 
+    const handleOpenScheduling = () => {
+        setScheduling(true);
+
+        if (schedulingOptions === undefined) {
+            router.reload({ only: ['schedulingOptions'] });
+        }
+    };
+
+    const handleScheduled = (firstDate: string) => {
+        setScheduling(false);
+        visit({ ...filters, date: firstDate });
+    };
+
     const handleToggleModule = useCallback(
         (moduleId: number) =>
             setActiveModuleId((current) =>
@@ -98,16 +122,11 @@ export default function TimetableIndex({
             <Head title={t('timetable.title')} />
 
             <div className="flex h-full w-full flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-                        {t('timetable.title')}
-                    </h1>
-                    <p className="max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
-                        {canBrowse
-                            ? t('timetable.description')
-                            : t('timetable.my_description')}
-                    </p>
-                </div>
+                <TimetableHeader
+                    canBrowse={canBrowse}
+                    canSchedule={canSchedule}
+                    onSchedule={handleOpenScheduling}
+                />
 
                 {canBrowse && options ? (
                     <TimetableFilterBar
@@ -155,6 +174,26 @@ export default function TimetableIndex({
                     </div>
                 )}
             </div>
+
+            {scheduling ? (
+                <ScheduleSessionsDialog
+                    options={schedulingOptions}
+                    prefill={{
+                        moduleId: activeModuleId,
+                        groupId:
+                            scope.perspective === 'group' ? scope.id : null,
+                        teacherId:
+                            scope.perspective === 'teacher' ? scope.id : null,
+                        roomId: scope.perspective === 'room' ? scope.id : null,
+                        date: filters.date,
+                    }}
+                    canOverride={auth.permissions.includes(
+                        Permission.OverrideSoftConflicts,
+                    )}
+                    onClose={() => setScheduling(false)}
+                    onScheduled={handleScheduled}
+                />
+            ) : null}
 
             <SessionDetailsDialog
                 session={selectedSession}

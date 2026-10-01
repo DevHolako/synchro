@@ -81,6 +81,17 @@ export function TimetableCalendar({
         return () => observer.disconnect();
     }, []);
 
+    // The calendar only reads its initial date; follow later changes made outside it,
+    // such as jumping to a batch of new sessions.
+    useEffect(() => {
+        const api = calendarRef.current?.getApi();
+
+        if (api && api.view.currentStart.toISOString().slice(0, 10) !== date) {
+            // FullCalendar re-renders synchronously; leave React's commit phase first.
+            queueMicrotask(() => api.gotoDate(date));
+        }
+    }, [date]);
+
     const events = useMemo(
         () =>
             sessions.map((session) =>

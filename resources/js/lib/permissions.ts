@@ -7,6 +7,8 @@ export const Permission = {
     ReviewUnavailability: 'review:unavailability',
     ViewSchedules: 'view:schedules',
     BrowseSchedules: 'browse:schedules',
+    ManageSchedules: 'manage:schedules',
+    OverrideSoftConflicts: 'override:soft-conflicts',
 } as const;
 
 export type PermissionValue = (typeof Permission)[keyof typeof Permission];
