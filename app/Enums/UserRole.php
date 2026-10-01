@@ -70,6 +70,7 @@ enum UserRole: string
                 Permission::ManageSchedules,
                 Permission::ViewExams,
                 Permission::ManageExams,
+                Permission::ImportReferentials,
             ],
 
             self::Teacher => [

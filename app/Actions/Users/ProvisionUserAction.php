@@ -47,7 +47,8 @@ class ProvisionUserAction
             return $user;
         });
 
-        $this->issueInvitation->execute($user, $invitedBy);
+        // Deferred so a surrounding transaction (e.g. a bulk import) that rolls back sends no invitations.
+        DB::afterCommit(fn () => $this->issueInvitation->execute($user, $invitedBy));
 
         return $user;
     }

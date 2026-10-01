@@ -64,6 +64,9 @@ enum Permission: string
     case EnterGrades = 'enter:grades';
     case LockGrades = 'lock:grades';
 
+    // Bulk spreadsheet import permissions
+    case ImportReferentials = 'import:referentials';
+
     // User management permissions
     case ViewUsers = 'view:users';
     case ProvisionUsers = 'provision:users';

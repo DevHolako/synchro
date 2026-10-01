@@ -10,6 +10,9 @@ use App\Http\Controllers\Web\Campuses\CampusUpdateController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
 use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
+use App\Http\Controllers\Web\Imports\ImportIndexController;
+use App\Http\Controllers\Web\Imports\ImportStoreController;
+use App\Http\Controllers\Web\Imports\ImportTemplateController;
 use App\Http\Controllers\Web\Invitations\InvitationActivateController;
 use App\Http\Controllers\Web\Invitations\InvitationShowController;
 use App\Http\Controllers\Web\Modules\ModuleIndexController;
@@ -77,6 +80,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('modules', ModuleStoreController::class)->name('modules.store');
     Route::put('modules/{module}', ModuleUpdateController::class)->name('modules.update');
     Route::patch('modules/{module}/toggle-active', ModuleToggleActiveController::class)->name('modules.toggle-active');
+
+    // Bulk Spreadsheet Imports (Rooms, Modules, Teachers, Students)
+    Route::get('imports', ImportIndexController::class)->name('imports.index');
+    Route::get('imports/{type}/template', ImportTemplateController::class)->name('imports.template');
+    Route::post('imports/{type}', ImportStoreController::class)->name('imports.store');
 
     // User Provisioning & Invitation Tokens
     Route::get('users', UserIndexController::class)->name('users.index');
