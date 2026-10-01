@@ -169,3 +169,63 @@ test('module creation succeeds with valid syllabus and hex color', function () {
     expect($module->teacher_id)->toBe($this->teacher->id);
     expect($module->color_code)->toBe('#8B5CF6');
 });
+
+test('module update over http rejects hours exceeding the stored total', function () {
+    $module = Module::factory()->create([
+        'program_id' => $this->program->id,
+        'total_hours' => 30,
+        'lecture_hours' => 15,
+        'tp_hours' => 15,
+    ]);
+
+    $response = $this->actingAs($this->coordinator)->put(route('modules.update', $module), [
+        'lecture_hours' => 20,
+    ]);
+
+    $response->assertSessionHasErrors(['lecture_hours']);
+    expect($module->refresh()->lecture_hours)->toBe(15);
+});
+
+test('module update rejects moving a module into a program that already has its code', function () {
+    $otherProgram = Program::factory()->create(['department_id' => $this->department->id]);
+    Module::factory()->create(['program_id' => $otherProgram->id, 'code' => 'MTH-101']);
+    $module = Module::factory()->create(['program_id' => $this->program->id, 'code' => 'MTH-101']);
+
+    $response = $this->actingAs($this->coordinator)->put(route('modules.update', $module), [
+        'program_id' => $otherProgram->id,
+    ]);
+
+    $response->assertSessionHasErrors(['code']);
+    expect($module->refresh()->program_id)->toBe($this->program->id);
+});
+
+test('modules only accept teachers as the assigned teacher', function (string $role) {
+    $notATeacher = User::factory()->{$role}()->create();
+    $module = Module::factory()->create(['program_id' => $this->program->id]);
+
+    $this->actingAs($this->coordinator)->post(route('modules.store'), [
+        'program_id' => $this->program->id,
+        'teacher_id' => $notATeacher->id,
+        'name' => 'Maths',
+        'code' => 'MTH-102',
+        'total_hours' => 30,
+        'lecture_hours' => 15,
+        'tp_hours' => 15,
+        'color_code' => '#3B82F6',
+    ])->assertSessionHasErrors(['teacher_id']);
+
+    $this->actingAs($this->coordinator)->put(route('modules.update', $module), [
+        'teacher_id' => $notATeacher->id,
+    ])->assertSessionHasErrors(['teacher_id']);
+
+    expect(fn () => app(CreateModuleAction::class)->execute([
+        'program_id' => $this->program->id,
+        'teacher_id' => $notATeacher->id,
+        'name' => 'Maths',
+        'code' => 'MTH-103',
+        'total_hours' => 30,
+        'lecture_hours' => 15,
+        'tp_hours' => 15,
+        'color_code' => '#3B82F6',
+    ]))->toThrow(InvalidArgumentException::class);
+})->with(['student', 'coordinator']);

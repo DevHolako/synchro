@@ -117,3 +117,44 @@ test('identical room name is allowed in different buildings', function () {
     $response->assertSessionHasNoErrors();
     expect(Room::where('name', 'Salle 101')->count())->toBe(2);
 });
+
+test('room update rejects lowering course capacity below the stored exam capacity', function () {
+    $room = Room::factory()->create([
+        'building_id' => $this->building->id,
+        'course_capacity' => 40,
+        'exam_capacity' => 30,
+    ]);
+
+    $response = $this->actingAs($this->coordinator)->put(route('rooms.update', $room), [
+        'course_capacity' => 20,
+    ]);
+
+    $response->assertSessionHasErrors(['exam_capacity']);
+    expect($room->refresh()->course_capacity)->toBe(40);
+});
+
+test('room update rejects moving a room into a building that already has its name', function () {
+    $otherBuilding = Building::factory()->create(['campus_id' => $this->campus->id]);
+    Room::factory()->create(['building_id' => $otherBuilding->id, 'name' => 'Salle 101']);
+    $room = Room::factory()->create(['building_id' => $this->building->id, 'name' => 'Salle 101']);
+
+    $response = $this->actingAs($this->coordinator)->put(route('rooms.update', $room), [
+        'building_id' => $otherBuilding->id,
+    ]);
+
+    $response->assertSessionHasErrors(['name']);
+    expect($room->refresh()->building_id)->toBe($this->building->id);
+});
+
+test('building update rejects moving a building into a campus that already has its name', function () {
+    $otherCampus = Campus::factory()->create();
+    Building::factory()->create(['campus_id' => $otherCampus->id, 'name' => 'Bâtiment A']);
+    $building = Building::factory()->create(['campus_id' => $this->campus->id, 'name' => 'Bâtiment A']);
+
+    $response = $this->actingAs($this->coordinator)->put(route('buildings.update', $building), [
+        'campus_id' => $otherCampus->id,
+    ]);
+
+    $response->assertSessionHasErrors(['name']);
+    expect($building->refresh()->campus_id)->toBe($this->campus->id);
+});

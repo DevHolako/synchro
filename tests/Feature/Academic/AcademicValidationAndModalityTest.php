@@ -193,3 +193,29 @@ test('academic structure index endpoint filters by program_modality correctly', 
         ->has('programs', 2) // $this->program + $progInitial
     );
 });
+
+test('program update rejects moving a program into a department that already has its code', function () {
+    $otherDepartment = Department::factory()->create();
+    Program::factory()->create(['department_id' => $otherDepartment->id, 'code' => 'ISI']);
+    $program = Program::factory()->create(['department_id' => $this->department->id, 'code' => 'ISI']);
+
+    $response = $this->actingAs($this->coordinator)->put(route('programs.update', $program), [
+        'department_id' => $otherDepartment->id,
+    ]);
+
+    $response->assertSessionHasErrors(['code']);
+    expect($program->refresh()->department_id)->toBe($this->department->id);
+});
+
+test('student group update rejects moving a group into a program and year that already has its name', function () {
+    $otherProgram = Program::factory()->create(['department_id' => $this->department->id]);
+    StudentGroup::factory()->create(['program_id' => $otherProgram->id, 'name' => '1CI-A', 'academic_year' => '2026-2027']);
+    $group = StudentGroup::factory()->create(['program_id' => $this->program->id, 'name' => '1CI-A', 'academic_year' => '2026-2027']);
+
+    $response = $this->actingAs($this->coordinator)->put(route('student-groups.update', $group), [
+        'program_id' => $otherProgram->id,
+    ]);
+
+    $response->assertSessionHasErrors(['name']);
+    expect($group->refresh()->program_id)->toBe($this->program->id);
+});
