@@ -29,6 +29,12 @@ use App\Http\Controllers\Web\Rooms\RoomUpdateController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupStoreController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupToggleActiveController;
 use App\Http\Controllers\Web\StudentGroups\StudentGroupUpdateController;
+use App\Http\Controllers\Web\Unavailabilities\UnavailabilityDestroyController;
+use App\Http\Controllers\Web\Unavailabilities\UnavailabilityIndexController;
+use App\Http\Controllers\Web\Unavailabilities\UnavailabilityReviewController;
+use App\Http\Controllers\Web\Unavailabilities\UnavailabilityReviewIndexController;
+use App\Http\Controllers\Web\Unavailabilities\UnavailabilityStoreController;
+use App\Http\Controllers\Web\Unavailabilities\UnavailabilityUpdateController;
 use App\Http\Controllers\Web\Users\UserIndexController;
 use App\Http\Controllers\Web\Users\UserResendInvitationController;
 use App\Http\Controllers\Web\Users\UserStoreController;
@@ -74,6 +80,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('student-groups', StudentGroupStoreController::class)->name('student-groups.store');
     Route::put('student-groups/{student_group}', StudentGroupUpdateController::class)->name('student-groups.update');
     Route::patch('student-groups/{student_group}/toggle-active', StudentGroupToggleActiveController::class)->name('student-groups.toggle-active');
+
+    // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
+    Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');
+    Route::post('unavailabilities', UnavailabilityStoreController::class)->name('unavailabilities.store');
+    Route::put('unavailabilities/{unavailability}', UnavailabilityUpdateController::class)->name('unavailabilities.update');
+    Route::delete('unavailabilities/{unavailability}', UnavailabilityDestroyController::class)->name('unavailabilities.destroy');
+    Route::get('unavailability-reviews', UnavailabilityReviewIndexController::class)->name('unavailability-reviews.index');
+    Route::patch('unavailability-reviews/{unavailability}', UnavailabilityReviewController::class)->name('unavailability-reviews.update');
 
     // Modules Catalog & Syllabus
     Route::get('modules', ModuleIndexController::class)->name('modules.index');

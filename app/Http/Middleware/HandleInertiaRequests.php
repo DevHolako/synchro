@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Permission;
+use App\Enums\UnavailabilityStatus;
+use App\Models\TeacherUnavailability;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -42,6 +45,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
                 'permissions' => $request->user()?->permissionValues() ?? [],
             ],
+            'pendingUnavailabilityCount' => fn () => $request->user()?->hasPermission(Permission::ReviewUnavailability)
+                ? TeacherUnavailability::query()->where('status', UnavailabilityStatus::Pending)->count()
+                : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'flash' => [
                 'toast' => $request->session()->get('toast'),
