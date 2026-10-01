@@ -12,3 +12,5 @@
 - [ ] Full rollback if any single slot encounters an un-bypassed conflict
 - [ ] Dynamic update of the syllabus hours depletion meter upon successful creation
 - [ ] Automated tests asserting atomic batch creation and rollback on collision
+
+**Note (2026-10-01):** the `CourseSession` model (sessions linked to several groups), `CreateCourseSessionAction` and the hard-conflict detector already exist from Part 02 / Ticket 02; the wizard should call them rather than create its own model.
