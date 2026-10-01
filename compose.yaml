@@ -1,0 +1,107 @@
+# Synchro production stack (ADR 0012).
+#
+#   cp .env.docker.example .env      # then fill in secrets
+#   docker compose up -d --build
+#
+# Services: web (Nginx) -> app (PHP-FPM) | horizon (queue workers) |
+#           scheduler (cron) | mysql (MySQL 8.0) | redis (queues, cache, sessions)
+
+x-php: &php
+  image: synchro-app:${SYNCHRO_VERSION:-latest}
+  build:
+    context: .
+    target: app
+  env_file: .env
+  restart: unless-stopped
+  volumes:
+    # Shared so the horizon workers can read spreadsheets uploaded through app.
+    - storage:/var/www/html/storage
+  depends_on:
+    mysql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  app:
+    <<: *php
+    environment:
+      RUN_MIGRATIONS: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | grep -q pong"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  horizon:
+    <<: *php
+    command: ["php", "artisan", "horizon"]
+    # Let in-flight imports finish (job timeout 600s) before the container is killed.
+    stop_signal: SIGTERM
+    stop_grace_period: 11m
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "artisan", "horizon:status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  scheduler:
+    <<: *php
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      app:
+        condition: service_healthy
+
+  web:
+    image: synchro-web:${SYNCHRO_VERSION:-latest}
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    depends_on:
+      app:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+volumes:
+  storage:
+  mysql-data:
+  redis-data:

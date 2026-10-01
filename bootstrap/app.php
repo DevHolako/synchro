@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        // In Docker, requests reach PHP through the `web` (Nginx) container on a private
+        // network. Trusting private ranges keeps the forwarded https scheme, which signed
+        // invitation URLs depend on.
+        $middleware->trustProxies(at: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']);
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,
