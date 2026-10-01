@@ -9,7 +9,7 @@
   - **Frontend:** Inertia.js (React 19 SPA), Tailwind CSS v4, Lucide React icons.
   - **Queues & Infrastructure:** Redis queues supervised by Laravel Horizon; production ships as a Docker Compose stack (FrankenPHP/Caddy app, Horizon, scheduler, MySQL 8.0, Redis) behind the host's nginx — see ADR 0012.
   - **Testing & Tooling:** Pest 5.2.1, Vite Plus (`vp`), Laravel Pint.
-- **Current Test Status:** 140 tests registered (135 passed, 5 skipped: 3 Fortify 2FA stubs + 2 legacy registration tests skipped because registration is disabled), 660 assertions, 100% green.
+- **Current Test Status:** `composer test` green on 2026-10-01: Pint, PHPStan level 7 (0 errors), and Pest with 211 tests (206 passed, 5 skipped: 3 Fortify 2FA stubs + 2 legacy registration tests skipped because registration is disabled), 991 assertions.
 - **Code Quality & Linting:**
   - TypeScript: `npx tsc --noEmit` clean (0 errors).
   - Frontend Lint: `npx vp check resources/js` passing (104 files clean, 0 errors, 0 warnings).
@@ -85,7 +85,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - UI: `resources/js/pages/users/` (directory, invite dialog, resend, one-time temporary password dialog), `auth/accept-invitation.tsx`, `auth/invitation-invalid.tsx`. `auth.permissions` is now a shared Inertia prop (used to show the sidebar "Users" link).
 
 5. **Ticket 05: Bulk Spreadsheet Importer for Referentials and Users** ([`05-bulk-csv-excel-importer.md`](file:///home/holako/github/synchro/docs/specs/01-core-foundation-and-referentials/tickets/05-bulk-csv-excel-importer.md))
-   - Implemented: `ImportType` enum (`rooms`, `modules`, `teachers`, `students`) defining columns, required columns, template example rows, the policy ability, and the row importer; `SpreadsheetReader` (first sheet of `.csv`/`.xlsx` via `openspout/openspout`, auto-detects `,`/`;`/tab and Windows-1252, keeps real row numbers, max 2000 rows).
+   - Implemented: `ImportType` enum (`rooms`, `modules`, `teachers`, `students`) defining columns, required columns, template example rows, and the policy ability; `ImportReferentialsAction` maps each type to its row importer (generic `RowImporter<TPayload>`, so each payload is typed for its action); `SpreadsheetReader` (first sheet of `.csv`/`.xlsx` via `openspout/openspout`, auto-detects `,`/`;`/tab and Windows-1252, keeps real row numbers, max 2000 rows).
    - Actions: `ImportReferentialsAction` validates every row first (rules, in-file duplicates, reference resolution) and only then writes all rows in one transaction; any failure rolls everything back. Row importers (`app/Actions/Imports/Importers/`) delegate to `CreateRoomAction`, `CreateModuleAction`, and `ProvisionUserAction`.
    - Queued processing: `QueueSpreadsheetImportAction` stores the upload and creates a `SpreadsheetImport` record (`pending`), then `ProcessSpreadsheetImportJob` (queue `imports`, 1 try, 600s timeout) calls `RunSpreadsheetImportAction`, which claims the record (`pending` → `processing`, so redelivery is a no-op), runs `ImportReferentialsAction`, stores the outcome and row errors, and deletes the file. `failed()` records crashes/timeouts.
    - Invitations: `ProvisionUserAction` issues invitations via `DB::afterCommit`, and `UserInvitationNotification` is queued on `notifications`, so a rolled-back import sends no emails.
@@ -131,7 +131,7 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is in progress: Ti
   - Primitive obsession: modality `in_array` in `AcademicStructureIndexController`, `role === 'teacher'` in `provision-user-dialog.tsx`; the room filters are 8 states passed as 18 props.
   - Starter-kit footer links in the sidebar; duplicated language-switcher buttons.
   - No `lang/fr/validation.php`, so Laravel's built-in validation messages still display in English.
-  - `phpstan analyse` (level 7, part of `composer test`) reports 32 pre-existing errors: store controllers passing `validated()` (`array<string, mixed>`) to actions with array-shape params, redundant `??` in Create actions, row importers, `User::hasPermission()`, `config/horizon.php`, two factories. The unavailability code avoids the pattern with a typed `StoreUnavailabilityRequest::payload()`.
+  - Backend messages (flash toasts, validation errors) follow `APP_LOCALE`, not the UI language switcher, which is client-side only (`localStorage`). `.env.example` ships `APP_LOCALE=en`, so a local install shows English toasts in the French UI; `.env.docker.example` uses `fr`.
   - Spec gaps to decide later: a `suspended` account status, a room board-type field, and the `/api/v1` controllers of ADR 0009 (planned with Part 06). Coordinators keep import access for rooms and modules (deliberate).
 
 ---
