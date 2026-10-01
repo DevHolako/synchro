@@ -92,6 +92,15 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - Permissions: new `ImportReferentials` (`import:referentials`) held by Administrator and Coordinator; each type additionally requires its create ability (coordinators can import rooms/modules, not accounts).
    - UI: `resources/js/pages/imports/` wizard (type picker, column guide with CSV template download, drag-and-drop zone) plus a recent-imports history that polls (`usePoll`) while an import is queued/processing and shows row-level errors.
 
+### Completed Tickets in Part 02 (Availability & Conflict Engine)
+1. **Ticket 01: Teacher Unavailability Declaration and Approval Workflow** ([`01-teacher-unavailability-declaration.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/01-teacher-unavailability-declaration.md), design decisions recorded in the ticket)
+   - Implemented: `TeacherUnavailability` (`teacher_unavailabilities`), `UnavailabilityType` (`recurring_weekly`, `ad_hoc_date`), `UnavailabilityStatus` (`pending`, `approved`, `rejected`; `active()` = pending + approved).
+   - Permissions: `DeclareUnavailability` (Teacher) and `ReviewUnavailability` (Coordinator); `TeacherUnavailabilityPolicy` adds ownership for edit/delete.
+   - Business Rules: same-type overlap rejection against the teacher's active requests (`TeacherUnavailability::scopeOverlapping()`, half-open times, inclusive dates, open-ended recurring periods) under a lock on the teacher's `users` row; edit only while pending, delete in any status; decisions are final (conditional update on `pending`), rejection needs a note; start dates today or later; quarter-hour times inside 08:00–22:00.
+   - Actions: `DeclareUnavailabilityAction`, `UpdateUnavailabilityAction`, `DeleteUnavailabilityAction`, `ReviewUnavailabilityAction`, `GuardUnavailabilityOverlapAction`.
+   - UI: `resources/js/pages/unavailabilities/` (teacher: current/past, create/edit dialog, withdraw) and `resources/js/pages/unavailability-reviews/` (coordinator: status counts, filters, approve/reject dialog). Sidebar links are permission-gated; the review link shows the shared `pendingUnavailabilityCount` badge.
+   - For Ticket 03: the soft-conflict detector should query `TeacherUnavailability::active()` for the session's teacher.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -103,21 +112,33 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. The frontier moves to Part 02 (Availability & Conflict Engine).
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is in progress: Ticket 01 is done.
 
-### **Part 02 / Ticket 01: Teacher Unavailability Declaration and Approval Workflow**
-- **File:** [`docs/specs/02-availability-and-conflict-engine/tickets/01-teacher-unavailability-declaration.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/01-teacher-unavailability-declaration.md)
-- **Pending before starting:** the user plans a `/code-review` pass over all of Part 01.
+### **Part 02 / Ticket 02: Core Conflict Detector Service for Physical Clashes**
+- **File:** [`docs/specs/02-availability-and-conflict-engine/tickets/02-synchronous-conflict-detector-service.md`](file:///home/holako/github/synchro/docs/specs/02-availability-and-conflict-engine/tickets/02-synchronous-conflict-detector-service.md)
+- Ticket 01 (Teacher Unavailability) is done; discuss the design before planning, per `.agents/rules/pre-plan-conversation-and-sparring.md`. Note that no course session or exam model exists yet, so the detector's inputs need settling first.
+- **Code reviews:** the post-Part-01 work (`2b61777..265229c`) was reviewed and all 10 findings fixed (`dcb7957..a08b416`). The review of Part 01's own tickets (`523cfbe..2b61777`, judged against current code) ran on 2026-10-01. Fixed right away:
+  - Partial updates skipped scoped-uniqueness and capacity checks (moving a room/building/program/group/module to another parent, or lowering only `course_capacity`), which ended in a 500 instead of a 422. Update requests now `mergeIfMissing` the stored values in `prepareForValidation()`.
+  - Modules accepted any user as teacher on the web path; requests and actions now require a teacher.
+  - Hardcoded English 403 and validation messages, hardcoded URLs instead of Wayfinder, double success toasts (server flash + client toast), untranslated breadcrumbs, raw permission strings in the sidebar, unused `User::canManageReferentials()`.
 - **Known follow-ups from Part 01:**
   - Temporary passwords do not yet force a password change at next login.
   - The welcome/login Fortify pages still contain pre-existing hardcoded English strings.
   - The Docker image and compose stack have not yet been built or run (Docker was unavailable in the authoring environment), and migrations have not been run against MySQL 8.0.
+- **Deferred findings from the Part 01 review (not blocking):**
+  - `academic-structure/index.tsx` (246 lines) and `rooms/index.tsx` (230 lines) exceed the page ceiling; row memoization is defeated by inline callbacks and object props, and rows live in `*-table.tsx` instead of `*-row.tsx`.
+  - Duplicated code: three near-identical toggle handlers on the academic page, room capacity checks repeated in the Create/Update actions (untranslated `InvalidArgumentException`s), the `name LIKE / code LIKE` search in 4 index controllers. `RoomIndexController` and `AcademicStructureIndexController` build filters and stats inline.
+  - Primitive obsession: modality `in_array` in `AcademicStructureIndexController`, `role === 'teacher'` in `provision-user-dialog.tsx`; the room filters are 8 states passed as 18 props.
+  - Starter-kit footer links in the sidebar; duplicated language-switcher buttons.
+  - No `lang/fr/validation.php`, so Laravel's built-in validation messages still display in English.
+  - `phpstan analyse` (level 7, part of `composer test`) reports 32 pre-existing errors: store controllers passing `validated()` (`array<string, mixed>`) to actions with array-shape params, redundant `??` in Create actions, row importers, `User::hasPermission()`, `config/horizon.php`, two factories. The unavailability code avoids the pattern with a typed `StoreUnavailabilityRequest::payload()`.
+  - Spec gaps to decide later: a `suspended` account status, a room board-type field, and the `/api/v1` controllers of ADR 0009 (planned with Part 06). Coordinators keep import access for rooms and modules (deliberate).
 
 ---
 
 ## 5. Verification Commands & Quality Checklist
 
-Before committing changes, execute the following pipeline:
+Policy: `.agents/rules/mandatory-verification-tests.md`. Steps 1, 3 and 4 plus *targeted* Pest tests (`--filter`) run before finishing any change; the full suite (step 2 unfiltered, or `composer test` / `composer ci:check`) and the build (step 5) run only when the user asks.
 
 ```bash
 # 1. Format PHP code to project standard
