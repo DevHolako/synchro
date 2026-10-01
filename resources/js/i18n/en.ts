@@ -48,7 +48,7 @@ export const en: Translations = {
         users: 'Users & Access',
         imports: 'Bulk Import',
         unavailabilities: 'My unavailability',
-        unavailability_reviews: 'Teacher unavailability',
+        unavailability_reviews: 'Unavailability',
         platform: 'Platform',
         navigation_menu: 'Navigation menu',
     },
