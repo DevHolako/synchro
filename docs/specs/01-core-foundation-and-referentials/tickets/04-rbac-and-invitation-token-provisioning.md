@@ -4,12 +4,12 @@
 
 **Blocked by:** 02: Academic Hierarchy: Departments, Programs with Modality, and Student Groups
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Role-Based Access Control setup defining permissions as gates of check and roles (`Administrator`, `Coordinator`, `Teacher`, `Student`) as permission bundles
-- [ ] TeacherProfile and StudentProfile models linked to User
-- [ ] Public registration route disabled; only authenticated administrators can provision users
-- [ ] InvitationToken model and signed URL generation with 72-hour expiration window
-- [ ] Initial password creation screen verifying token signature before account activation
-- [ ] Resend invitation token and manual temporary password reset actions for administrators
-- [ ] Automated tests asserting unauthorized access prevention, token expiration, and successful account activation
+- [x] Role-Based Access Control setup defining permissions as gates of check and roles (`Administrator`, `Coordinator`, `Teacher`, `Student`) as permission bundles
+- [x] TeacherProfile and StudentProfile models linked to User
+- [x] Public registration route disabled; only authenticated administrators can provision users
+- [x] InvitationToken model and signed URL generation with 72-hour expiration window
+- [x] Initial password creation screen verifying token signature before account activation
+- [x] Resend invitation token and manual temporary password reset actions for administrators
+- [x] Automated tests asserting unauthorized access prevention, token expiration, and successful account activation

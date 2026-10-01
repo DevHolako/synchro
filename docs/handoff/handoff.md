@@ -8,10 +8,10 @@
   - **Backend:** Laravel 13.34.0, PHP 8.5, Laravel Fortify (public self-registration disabled), Laravel Wayfinder.
   - **Frontend:** Inertia.js (React 19 SPA), Tailwind CSS v4, Lucide React icons.
   - **Testing & Tooling:** Pest 5.2.1, Vite Plus (`vp`), Laravel Pint.
-- **Current Test Status:** 87 tests registered (84 passed, 3 skipped Fortify 2FA stubs), 377 assertions, 100% green.
+- **Current Test Status:** 112 tests registered (107 passed, 5 skipped: 3 Fortify 2FA stubs + 2 legacy registration tests skipped because registration is disabled), 515 assertions, 100% green.
 - **Code Quality & Linting:**
   - TypeScript: `npx tsc --noEmit` clean (0 errors).
-  - Frontend Lint: `npx vp check resources/js` passing (83 files clean, 0 errors, 0 warnings).
+  - Frontend Lint: `npx vp check resources/js` passing (93 files clean, 0 errors, 0 warnings).
   - Code Style: Laravel Pint formatted (`vendor/bin/pint --dirty --format agent`).
   - Production Asset Compilation: `npm run build` succeeds cleanly.
 
@@ -75,35 +75,24 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - Business Rule: `lecture_hours + tp_hours <= total_hours` and teacher assignment validation.
    - Actions: `CreateModuleAction`, `UpdateModuleAction`, `ToggleModuleActiveAction`.
    - UI: `resources/js/pages/modules/` fully modularized and translated with hex color badge indicators.
+4. **Ticket 04: User Roles and Expiring Invitation Token Provisioning** ([`04-rbac-and-invitation-token-provisioning.md`](file:///home/holako/github/synchro/docs/specs/01-core-foundation-and-referentials/tickets/04-rbac-and-invitation-token-provisioning.md))
+   - Implemented: `TeacherProfile`, `StudentProfile`, `InvitationToken` (SHA-256 hash stored, plain token only in the signed URL), `AccountStatus` enum (`invited`, `active`) with `users.status` / `users.activated_at`.
+   - Permissions: added `ViewUsers` (`view:users`) and `ProvisionUsers` (`provision:users`) next to `ManageUsers`; `UserPolicy` gates on them. Only the Administrator bundle holds them today.
+   - Business Rules: public Fortify registration disabled; only `active` accounts can log in (`Fortify::authenticateUsing`); tokens are single-use, valid 72 hours (`InvitationToken::LIFETIME_HOURS`), and revoked on resend/activation/temporary password.
+   - Actions: `ProvisionUserAction`, `IssueInvitationAction`, `ResendInvitationAction`, `FindPendingInvitationAction`, `ActivateUserInvitationAction`, `IssueTemporaryPasswordAction`.
+   - Role profiles: `UserRole::profileRelation()` maps a role to its profile relation, so actions never branch on role values.
+   - UI: `resources/js/pages/users/` (directory, invite dialog, resend, one-time temporary password dialog), `auth/accept-invitation.tsx`, `auth/invitation-invalid.tsx`. `auth.permissions` is now a shared Inertia prop (used to show the sidebar "Users" link).
 
 ---
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-### **Ticket 04: User Roles and Expiring Invitation Token Provisioning**
-- **File:** [`docs/specs/01-core-foundation-and-referentials/tickets/04-rbac-and-invitation-token-provisioning.md`](file:///home/holako/github/synchro/docs/specs/01-core-foundation-and-referentials/tickets/04-rbac-and-invitation-token-provisioning.md)
-- **Status:** `ready-for-agent`
-- **Objective:** Build secure administrator-driven user onboarding without public self-registration (ADR 0007 & ADR 0011).
-- **Core Requirements to Deliver:**
-  1. **RBAC & Profiles:**
-     - `TeacherProfile` and `StudentProfile` models linked to `User`.
-     - Seeders / factories for roles and permission bundles.
-  2. **Admin Provisioning & Invitation Flow:**
-     - Ensure public Fortify registration route is disabled. Only users with `Permission::ManageUsers` or `Permission::ProvisionUsers` can create/invite users.
-     - `InvitationToken` model with cryptographically secure token and 72-hour signed URL expiration.
-     - Mailable or notification dispatched to the invited user with the signed activation link.
-  3. **Activation & Password Setup:**
-     - Inertia React page for setting the initial password, verifying token validity and signature prior to activation.
-     - Action `ActivateUserInvitationAction` handling password setting, token consumption, and marking user active.
-     - Resend invitation token action (`ResendInvitationAction`) and temporary reset action for administrators.
-  4. **Pest Feature Tests:**
-     - Assert unauthorized users cannot access provisioning.
-     - Assert expired tokens (> 72 hours) are rejected.
-     - Assert invalid or tampered tokens return 403/invalid response.
-     - Assert valid tokens successfully activate account, transition state, and log the user in.
-  5. **Frontend & Localization:**
-     - Modular React views under `resources/js/pages/users/` or `resources/js/pages/auth/invitation.tsx`.
-     - 100% translation coverage in `fr.ts` (default) and `en.ts` with zero hardcoded strings.
+### **Ticket 05: Bulk Spreadsheet Importer for Referentials and Users**
+- **File:** [`docs/specs/01-core-foundation-and-referentials/tickets/05-bulk-csv-excel-importer.md`](file:///home/holako/github/synchro/docs/specs/01-core-foundation-and-referentials/tickets/05-bulk-csv-excel-importer.md)
+- **Reuse:** user rows in an import should call `ProvisionUserAction` (one invitation per imported user) rather than re-implementing account creation.
+- **Known follow-ups from Ticket 04:**
+  - Temporary passwords do not yet force a password change at next login.
+  - The welcome/login Fortify pages still contain pre-existing hardcoded English strings.
 
 ---
 
