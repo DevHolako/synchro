@@ -113,7 +113,7 @@ test('a session being edited does not conflict with itself', function () {
     expect($result->hasHardConflicts())->toBeFalse();
 });
 
-test('a check runs exactly one query per resource type', function () {
+test('a check runs one query per resource type and per soft rule', function () {
     $slot = slotAt('2026-10-12 11:00', '2026-10-12 13:00', ['room' => $this->room->id]);
 
     DB::flushQueryLog();
@@ -122,7 +122,7 @@ test('a check runs exactly one query per resource type', function () {
     $queries = DB::getQueryLog();
     DB::disableQueryLog();
 
-    expect($queries)->toHaveCount(3);
+    expect($queries)->toHaveCount(5);
 });
 
 test('the overlap lookups are backed by composite indexes', function () {

@@ -16,8 +16,8 @@ beforeEach(function () {
     $this->teacher = User::factory()->teacher()->create(['name' => 'Pr. Alaoui']);
     $this->program = Program::factory()->create();
     $this->module = Module::factory()->create(['program_id' => $this->program->id, 'teacher_id' => $this->teacher->id]);
-    $this->room = Room::factory()->create(['name' => 'Amphi A']);
-    $this->group = StudentGroup::factory()->create(['program_id' => $this->program->id, 'name' => '1CI-A']);
+    $this->room = Room::factory()->create(['name' => 'Amphi A', 'course_capacity' => 200, 'exam_capacity' => 100]);
+    $this->group = StudentGroup::factory()->create(['program_id' => $this->program->id, 'name' => '1CI-A', 'expected_headcount' => 30]);
 });
 
 function sessionPayload(array $overrides = []): array
@@ -33,7 +33,7 @@ function sessionPayload(array $overrides = []): array
 }
 
 test('coordinators schedule a session for several groups, defaulting to the module teacher', function () {
-    $second = StudentGroup::factory()->create(['program_id' => $this->program->id]);
+    $second = StudentGroup::factory()->create(['program_id' => $this->program->id, 'expected_headcount' => 30]);
 
     $this->actingAs($this->coordinator)
         ->post(route('course-sessions.store'), sessionPayload(['student_group_ids' => [$this->group->id, $second->id]]))
