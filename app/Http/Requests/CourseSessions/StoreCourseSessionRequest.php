@@ -40,10 +40,15 @@ class StoreCourseSessionRequest extends FormRequest
     }
 
     /**
-     * The teacher defaults to the module's assigned teacher.
+     * The teacher defaults to the module's assigned teacher; a justification only counts
+     * alongside `force_override`.
      */
     protected function prepareForValidation(): void
     {
+        if (! $this->boolean('force_override')) {
+            $this->merge(['justification' => null]);
+        }
+
         if (! $this->filled('teacher_id') && $this->filled('module_id')) {
             $this->merge(['teacher_id' => Module::query()->whereKey($this->integer('module_id'))->value('teacher_id')]);
         }
