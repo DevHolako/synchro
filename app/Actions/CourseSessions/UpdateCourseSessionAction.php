@@ -9,12 +9,7 @@ use App\Services\Scheduling\SoftConflictOverride;
 
 class UpdateCourseSessionAction
 {
-    use PersistsCourseSessions;
-
-    public function __construct(
-        private GuardSessionConflictsAction $guardConflicts,
-        private RecordConflictOverridesAction $recordOverrides,
-    ) {}
+    public function __construct(private SaveCourseSessionAction $save) {}
 
     /**
      * Move or re-staff a session, refusing any hard conflict with other sessions and any soft
@@ -34,6 +29,6 @@ class UpdateCourseSessionAction
      */
     public function execute(CourseSession $session, array $data, ?SoftConflictOverride $override = null): CourseSession
     {
-        return $this->persist($session, $data, $override);
+        return $this->save->execute($session, $data, $override);
     }
 }

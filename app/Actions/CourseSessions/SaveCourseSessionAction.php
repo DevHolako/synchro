@@ -10,12 +10,16 @@ use App\Services\Scheduling\SoftConflictOverride;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The shared write path of creating and editing a session: guard, save, link groups, audit overrides.
- *
- * Expects the using action to inject `$guardConflicts` and `$recordOverrides`.
+ * The write path shared by scheduling and editing a session: guard, save, link groups,
+ * and audit any overridden soft conflicts, all in one transaction.
  */
-trait PersistsCourseSessions
+class SaveCourseSessionAction
 {
+    public function __construct(
+        private GuardSessionConflictsAction $guardConflicts,
+        private RecordConflictOverridesAction $recordOverrides,
+    ) {}
+
     /**
      * @param array{
      *     module_id: int,
@@ -29,7 +33,7 @@ trait PersistsCourseSessions
      * @throws HardConflictException
      * @throws SoftConflictException
      */
-    private function persist(CourseSession $session, array $data, ?SoftConflictOverride $override): CourseSession
+    public function execute(CourseSession $session, array $data, ?SoftConflictOverride $override = null): CourseSession
     {
         return DB::transaction(function () use ($session, $data, $override): CourseSession {
             $slot = SessionSlot::fromPayload($data, $session->exists ? $session->id : null);

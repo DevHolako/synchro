@@ -33,7 +33,7 @@ final readonly class ConflictResult
      */
     public function hardConflictMessages(): array
     {
-        return array_map(fn (Conflict $conflict): string => $conflict->message(), $this->hardConflicts);
+        return self::messages($this->hardConflicts);
     }
 
     /**
@@ -43,7 +43,16 @@ final readonly class ConflictResult
      */
     public function softConflictMessages(): array
     {
-        return array_map(fn (Conflict $conflict): string => $conflict->message(), $this->softConflicts);
+        return self::messages($this->softConflicts);
+    }
+
+    /**
+     * @param  list<Conflict>  $conflicts
+     * @return list<string>
+     */
+    private static function messages(array $conflicts): array
+    {
+        return array_map(fn (Conflict $conflict): string => $conflict->message(), $conflicts);
     }
 
     /**

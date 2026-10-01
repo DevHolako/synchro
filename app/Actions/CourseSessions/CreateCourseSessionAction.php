@@ -9,12 +9,7 @@ use App\Services\Scheduling\SoftConflictOverride;
 
 class CreateCourseSessionAction
 {
-    use PersistsCourseSessions;
-
-    public function __construct(
-        private GuardSessionConflictsAction $guardConflicts,
-        private RecordConflictOverridesAction $recordOverrides,
-    ) {}
+    public function __construct(private SaveCourseSessionAction $save) {}
 
     /**
      * Schedule a session, refusing any hard conflict and any soft conflict not overridden.
@@ -33,6 +28,6 @@ class CreateCourseSessionAction
      */
     public function execute(array $data, ?SoftConflictOverride $override = null): CourseSession
     {
-        return $this->persist(new CourseSession, $data, $override);
+        return $this->save->execute(new CourseSession, $data, $override);
     }
 }
