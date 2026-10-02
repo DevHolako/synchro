@@ -52,3 +52,17 @@ A structured two-step Grade Entry and Deliberation module. Instructors enter mar
 ## Further Notes
 
 - In compliance with academic regulations, once a PV is locked, any subsequent modification requires a formal presidential grade appeal action logged in the audit trail.
+
+## Part-wide decisions (2026-10-02, design round before ticket 01)
+
+- **Working mode**: a full design round for tickets 01 and 02; for tickets 03–04, defaults are posted and confirmed with "go".
+- **What a grade hangs on**: one grade sheet per exam. `exam_grades` rows are unique on (exam, student), and the sheet's roster is the exam's candidates. There's no foreign key to `exam_candidates`, which are rebuilt by every new room split. The CC grade sits on the same row and is entered in the same grid. A module with two exams in one period gets two sheets and two PVs.
+- **Absence**: the exam grade counts as 0 and the CC share is kept, so one formula covers everyone. `is_absent` is prefilled from the door check-in (no check-in means absent), the teacher can override it, and an absence needs a remark.
+- **Who enters and who locks**: grades are entered by holders of `EnterGrades` who are the module's `teacher_id`. `LockGrades` joins the Coordinator bundle. Coordinators don't type grades: they can send a submitted sheet back to draft.
+- **Student photo**: still deferred (as in Part 04). The grid shows initials, the official name and the matricule.
+- **PV**: stored on the private `local` disk, unencrypted, like convocations. "Signed" means a signature block (coordinator's official name and lock time) plus the PV's SHA-256 saved on the deliberation for tamper evidence. No e-signature.
+- **Immutability**: locked grades and deliberations use the append-only `ImmutableBuilder` pattern, and edits answer 403. The presidential grade appeal flow is out of scope (deferred).
+- **Retakes**: the rattrapage grade replaces the exam grade, CC carries over, the final is recomputed, and the student keeps the higher of the two finals.
+- **Rounding**: final = (CC × w + exam × (100 − w)) / 100, rounded half-up to 2 decimals. One PHP calculator computes it on integer hundredths. The grid mirrors it in TypeScript for the live display, but the server's value is stored, recomputed on every save.
+- **Pass mark**: final ≥ 10/20, one constant, no eliminatory mark.
+- **Weights**: one stored column, CC 0–99, default 0, editable at any time (see ticket 01).

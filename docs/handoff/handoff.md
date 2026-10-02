@@ -174,6 +174,15 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - HTTP: `POST /exams/{exam}/emergency-reschedule`; scanning a superseded convocation renders `convocations/superseded`.
    - **Run `php artisan migrate`** locally: one column and two tables.
 
+### Completed Tickets in Part 05 (Grade Entry & Deliberations)
+Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/github/synchro/docs/specs/05-grade-entry-and-deliberations/spec.md).
+
+1. **Ticket 01: Module Grade Weighting** ([`01-module-grade-weighting-configuration.md`](file:///home/holako/github/synchro/docs/specs/05-grade-entry-and-deliberations/tickets/01-module-grade-weighting-configuration.md), design decisions recorded in the ticket)
+   - Implemented: `modules.continuous_assessment_weight` (whole percent, default 0 = 100% exam), the derived `Module::exam_weight`, `Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT` (99: the exam always counts).
+   - Validation in the module requests and actions; optional `continuous_assessment_weight` column in the modules import.
+   - UI: `module-grading-section.tsx` in the module dialog, the weighting under the syllabus hours in the table, the limit from the `limits` prop.
+   - **Run `php artisan migrate`** locally: one new column.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
