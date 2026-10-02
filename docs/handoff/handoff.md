@@ -190,6 +190,14 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
    - UI: `resources/js/pages/grades/` (grid, live stats, client mirror `final-grade.ts`), "Saisir les notes" link on the exams list.
    - **Run `php artisan migrate`** locally: two new tables.
 
+3. **Ticket 03: Deliberation, Lock and PV** ([`03-coordinator-deliberation-and-official-pv-lock.md`](file:///home/holako/github/synchro/docs/specs/05-grade-entry-and-deliberations/tickets/03-coordinator-deliberation-and-official-pv-lock.md), defaults recorded in the ticket)
+   - Permissions: `LockGrades` added to the Coordinator bundle; new `ViewOwnGrades` (Student).
+   - Implemented: lock, send-back and PV columns on `exam_deliberations`; immutability guards on `ExamDeliberation` and `ExamGrade`.
+   - Actions: `LockDeliberationAction`, `ReturnGradeSheetAction`, `LockSubmittedGradeSheetAction`, `CalculateDeliberationStatsAction`, `ListGradeLinesAction`, `RenderDeliberationPvPdfAction`, `StoreDeliberationPvAction`, `ListDeliberationsAction`, `ListOwnGradesAction`; `GenerateDeliberationPvJob` (`default`).
+   - HTTP: `GET /deliberations`, `POST /exams/{exam}/grades/return`, `POST /exams/{exam}/deliberation/lock`, `GET /exams/{exam}/pv`, `GET /my-grades`; `ExamPolicy::lockGrades`/`downloadPv`.
+   - UI: `resources/js/pages/deliberations/`, `resources/js/pages/my-grades/`, the deliberation panel and send-back banner on the grid, sidebar entries.
+   - **Run `php artisan migrate`** locally: new columns.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
