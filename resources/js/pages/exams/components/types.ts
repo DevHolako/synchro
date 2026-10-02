@@ -70,7 +70,14 @@ export interface Exam {
     } | null;
     /** The door lists and attendance sheets; null when the viewer may not download them. */
     roster: 'ready' | 'pending' | null;
+    /** The grade sheet; null when the viewer may not open it. Status is null until first opened. */
+    grades: {
+        status: GradeSheetStatus | null;
+        can_enter: boolean;
+    } | null;
 }
+
+export type GradeSheetStatus = 'draft' | 'submitted' | 'locked';
 
 export type InvigilatorRole = 'principal' | 'adjoint';
 

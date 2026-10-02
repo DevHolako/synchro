@@ -820,4 +820,38 @@ export interface Translations {
         counter_closed: string;
         open_room_list: string;
     };
+    grades: {
+        title: string;
+        enter: string;
+        view: string;
+        status_draft: string;
+        status_submitted: string;
+        status_locked: string;
+        weights: string;
+        col_student: string;
+        col_cc: string;
+        col_exam: string;
+        col_absent: string;
+        col_remarks: string;
+        col_final: string;
+        absent_short: string;
+        remarks_placeholder: string;
+        remarks_required: string;
+        invalid: string;
+        stats_complete: string;
+        stats_absent: string;
+        stats_average: string;
+        stats_passing: string;
+        save_draft: string;
+        unsaved: string;
+        submit: string;
+        submit_title: string;
+        submit_desc: string;
+        submit_blocked_unsaved: string;
+        submit_blocked_incomplete: string;
+        submitted_on: string;
+        read_only: string;
+        leave_confirm: string;
+        empty: string;
+    };
 }
