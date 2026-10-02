@@ -98,22 +98,22 @@ test('each student shows how often they missed this module', function () {
         ->assertJsonPath('students.1.module_absence_rate', 0);
 });
 
-test('a mark sent without a status is removed', function () {
+test('a mark sent without a status is removed with its remark, and other marks are left alone', function () {
     $route = route('course-sessions.attendance.update', $this->session);
     $this->actingAs($this->teacher)->putJson($route, markPayload([
         [$this->students[0], AttendanceStatus::Present],
-        [$this->students[1], AttendanceStatus::Absent],
+        [$this->students[1], AttendanceStatus::Absent, 'Sick.'],
     ]));
 
     $this->actingAs($this->teacher)
-        ->putJson($route, ['marks' => [['student_id' => $this->students[1]->id, 'status' => null, 'remarks' => null]]])
+        ->putJson($route, ['marks' => [['student_id' => $this->students[1]->id, 'status' => null, 'remarks' => 'Sick.']]])
         ->assertNoContent();
 
     expect(SessionAttendance::query()->pluck('student_id')->all())->toBe([$this->students[0]->id]);
 });
 
 test('the register opens by the school clock, not the server clock', function () {
-    // 09:30 UTC is 11:30 in Paris (summer time): the 10:00 session has started there.
+    // 08:30 UTC is 10:30 in Paris (summer time): the 10:00 session has started there.
     config(['app.schedule_timezone' => 'Europe/Paris']);
     $this->travelTo('2026-10-12 08:30');
 

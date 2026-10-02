@@ -138,3 +138,17 @@ test('an unavailability ending today is still current', function () {
     $this->actingAs($this->teacher)->get(route('unavailabilities.index', ['period' => 'past']))
         ->assertInertia(fn (Assert $page) => $page->has('unavailabilities', 0));
 });
+
+test('"today" for a start date is the school day, not the server day', function () {
+    // 20:00 UTC on 2026-10-07 is already 2026-10-08 in Auckland (UTC+13).
+    config(['app.schedule_timezone' => 'Pacific/Auckland']);
+    $this->travelTo('2026-10-07 20:00');
+
+    $this->actingAs($this->teacher)
+        ->post(route('unavailabilities.store'), adHocPayload(['start_date' => '2026-10-07', 'end_date' => '2026-10-09']))
+        ->assertSessionHasErrors('start_date');
+
+    $this->actingAs($this->teacher)
+        ->post(route('unavailabilities.store'), adHocPayload(['start_date' => '2026-10-08', 'end_date' => '2026-10-09']))
+        ->assertSessionHasNoErrors();
+});

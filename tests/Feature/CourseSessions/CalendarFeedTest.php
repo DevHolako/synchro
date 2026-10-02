@@ -1,7 +1,6 @@
 <?php
 
 use App\Actions\CalendarFeeds\IssueCalendarFeedTokenAction;
-use App\Actions\CourseSessions\SaveCourseSessionAction;
 use App\Models\CourseSession;
 use App\Models\Module;
 use App\Models\Program;
@@ -139,20 +138,26 @@ test('changing only a session groups still raises its sequence', function () {
 
     $this->travel(5)->minutes();
     $this->session->room->update(['course_capacity' => 500, 'exam_capacity' => 100]);
-    app(SaveCourseSessionAction::class)->execute($this->session, [
-        'module_id' => $this->session->module_id,
-        'teacher_id' => $this->session->teacher_id,
-        'room_id' => $this->session->room_id,
-        'student_group_ids' => [$this->group->id, StudentGroup::factory()->create(['program_id' => $this->group->program_id])->id],
-        'starts_at' => '2026-10-12 10:00',
-        'ends_at' => '2026-10-12 12:00',
-    ]);
+    $this->module->update(['is_active' => true]);
+
+    // The same times, room and teacher: only the groups change, through the real update route.
+    $this->actingAs(User::factory()->coordinator()->create())
+        ->put(route('course-sessions.update', $this->session), [
+            'module_id' => $this->session->module_id,
+            'teacher_id' => $this->session->teacher_id,
+            'room_id' => $this->session->room_id,
+            'student_group_ids' => [$this->group->id, StudentGroup::factory()->create(['program_id' => $this->group->program_id])->id],
+            'starts_at' => '2026-10-12 10:00',
+            'ends_at' => '2026-10-12 12:00',
+        ])
+        ->assertSessionHasNoErrors();
 
     expect($sequenceOf($this->get($url)->getContent()))->toBeGreaterThan($before);
 });
 
 test('an account that may no longer read timetables gets nothing', function () {
     $url = feedUrl($this->teacher);
+    // Every role holds ViewSchedules today, so the loss of the right is simulated at the gate.
     Gate::before(fn (User $user, string $ability) => $ability === 'viewAny' ? false : null);
 
     $this->get($url)->assertNotFound();
