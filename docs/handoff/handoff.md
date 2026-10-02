@@ -164,6 +164,11 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - Tests fake the `local` disk: publishing runs the jobs on the sync queue.
    - **Run `php artisan migrate`** locally: one new column.
 
+4. **Ticket 04: Mobile QR Check-in** ([`04-mobile-qr-scan-digital-checkin.md`](file:///home/holako/github/synchro/docs/specs/04-examination-logistics-and-convocations/tickets/04-mobile-qr-scan-digital-checkin.md), design decisions recorded in the ticket)
+   - Implemented: `exam_candidates.checked_in_at`/`checked_in_by`, `Exam::isCheckInOpen()` (60 minutes before the start until the end) and `invigilatedRoomId()`, `CheckInCandidateAction` (window, room rule, conditional update), `UndoCheckInAction`, `ShowCheckInAction`, `ShowRoomCheckInAction`, `ExamPolicy::checkIn`/`checkInRoom`.
+   - HTTP: the signed `/verify/convocation/{uuid}` page is now the check-in screen; `POST`/`DELETE /exam-candidates/{candidate}/check-in`; `GET /exams/{exam}/rooms/{assignment}/check-in` (room list, `usePoll` every 10 s).
+   - **Run `php artisan migrate`** locally: two new columns.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -175,7 +180,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is in progress: tickets 01–03 are done, ticket 04 (mobile QR check-in) is next.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is in progress: tickets 01–04 are done, ticket 05 (emergency reschedule) is next.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
