@@ -40,3 +40,26 @@ export interface GradeDraft {
     absent: boolean;
     remarks: string;
 }
+
+export interface DeliberationStats {
+    graded: number;
+    average: string | null;
+    median: string | null;
+    pass_rate: string | null;
+    passing: number;
+    failing: number;
+    absent: number;
+}
+
+/** The coordinator's side of the sheet: figures, send-back, lock and PV. */
+export interface Deliberation {
+    stats: DeliberationStats;
+    returned_at: string | null;
+    return_reason: string | null;
+    locked_at: string | null;
+    locked_by: string | null;
+    /** Null when the sheet is not locked or the viewer may not download it. */
+    pv: 'ready' | 'pending' | null;
+    /** The sheet is submitted and the viewer may lock it or send it back. */
+    can_decide: boolean;
+}

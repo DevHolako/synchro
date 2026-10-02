@@ -2,13 +2,16 @@ import { Head } from '@inertiajs/react';
 import { useCallback, useMemo, useState } from 'react';
 import { useExamsBreadcrumbs } from '@/hooks/use-exams-breadcrumbs';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { DeliberationPanel } from './components/deliberation-panel';
 import { isComplete } from './components/final-grade';
+import { GradeReturnBanner } from './components/grade-return-banner';
 import { GradeSheetActions } from './components/grade-sheet-actions';
 import { GradeSheetHeader } from './components/grade-sheet-header';
 import { GradeSheetStats } from './components/grade-sheet-stats';
 import { GradeSubmitDialog } from './components/grade-submit-dialog';
 import { GradeTable } from './components/grade-table';
 import type {
+    Deliberation,
     GradeRow,
     GradeSheet,
     GradeSheetExam,
@@ -22,6 +25,7 @@ interface GradesShowProps {
     sheet: GradeSheet;
     can_edit: boolean;
     rows: GradeRow[];
+    deliberation: Deliberation;
 }
 
 /** An exam's grading grid: the module teacher's draft, read-only once submitted or for others. */
@@ -31,6 +35,7 @@ export default function GradesShow({
     sheet,
     can_edit: editable,
     rows,
+    deliberation,
 }: GradesShowProps) {
     const { t } = useTranslation();
     const [confirming, setConfirming] = useState(false);
@@ -61,10 +66,25 @@ export default function GradesShow({
                     sheet={sheet}
                     editable={editable}
                 />
-                <GradeSheetStats
-                    drafts={grid.drafts}
-                    continuousAssessmentWeight={weight}
-                />
+                {sheet.status === 'draft' &&
+                deliberation.returned_at &&
+                deliberation.return_reason ? (
+                    <GradeReturnBanner
+                        returnedAt={deliberation.returned_at}
+                        reason={deliberation.return_reason}
+                    />
+                ) : null}
+                {editable ? (
+                    <GradeSheetStats
+                        drafts={grid.drafts}
+                        continuousAssessmentWeight={weight}
+                    />
+                ) : (
+                    <DeliberationPanel
+                        examId={exam.id}
+                        deliberation={deliberation}
+                    />
+                )}
                 <GradeTable
                     drafts={grid.drafts}
                     continuousAssessmentWeight={weight}

@@ -12,6 +12,8 @@ export const Permission = {
     RecordAttendance: 'record:attendance',
     ViewExams: 'view:exams',
     ManageExams: 'manage:exams',
+    LockGrades: 'lock:grades',
+    ViewOwnGrades: 'view:own-grades',
 } as const;
 
 export type PermissionValue = (typeof Permission)[keyof typeof Permission];

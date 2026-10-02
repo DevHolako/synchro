@@ -53,6 +53,8 @@ export interface Translations {
         exams: string;
         platform: string;
         navigation_menu: string;
+        deliberations: string;
+        my_grades: string;
     };
     rooms: {
         title: string;
@@ -853,5 +855,56 @@ export interface Translations {
         read_only: string;
         leave_confirm: string;
         empty: string;
+        return_banner: string;
+        panel_title: string;
+        panel_average: string;
+        panel_median: string;
+        panel_pass_rate: string;
+        panel_counts: string;
+        locked_on: string;
+        download_pv: string;
+        pv_pending: string;
+        lock: string;
+        lock_title: string;
+        lock_desc: string;
+        return: string;
+        return_title: string;
+        return_desc: string;
+        return_reason: string;
+        return_reason_placeholder: string;
+    };
+    deliberations: {
+        title: string;
+        description: string;
+        period: string;
+        no_period: string;
+        all_statuses: string;
+        status_not_started: string;
+        status_draft: string;
+        status_submitted: string;
+        status_locked: string;
+        col_exam: string;
+        col_teacher: string;
+        col_status: string;
+        col_lines: string;
+        col_average: string;
+        col_pass_rate: string;
+        open: string;
+        empty: string;
+    };
+    my_grades: {
+        title: string;
+        description: string;
+        empty: string;
+        col_module: string;
+        col_period: string;
+        col_cc: string;
+        col_exam: string;
+        col_final: string;
+        col_result: string;
+        absent: string;
+        passed: string;
+        retake: string;
+        weighting: string;
     };
 }

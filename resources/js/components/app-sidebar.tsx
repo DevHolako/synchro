@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
+    Award,
     BookOpen,
     CalendarClock,
     CalendarDays,
@@ -8,6 +9,7 @@ import {
     FileSpreadsheet,
     Building2,
     FolderGit2,
+    Gavel,
     GraduationCap,
     LayoutGrid,
     UsersRound,
@@ -30,9 +32,11 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { Permission } from '@/lib/permissions';
 import { dashboard } from '@/routes';
 import { index as academicStructureIndex } from '@/routes/academic-structure';
+import { index as deliberationsIndex } from '@/routes/deliberations';
 import { index as examsIndex } from '@/routes/exams';
 import { index as importsIndex } from '@/routes/imports';
 import { index as modulesIndex } from '@/routes/modules';
+import { index as myGradesIndex } from '@/routes/my-grades';
 import { index as roomsIndex } from '@/routes/rooms';
 import { index as timetableIndex } from '@/routes/timetable';
 import { index as unavailabilityReviewsIndex } from '@/routes/unavailability-reviews';
@@ -65,6 +69,10 @@ export function AppSidebar() {
     );
     const canViewExams = EXAM_PERMISSIONS.some((permission) =>
         auth.permissions.includes(permission),
+    );
+    const canDeliberate = auth.permissions.includes(Permission.LockGrades);
+    const canViewOwnGrades = auth.permissions.includes(
+        Permission.ViewOwnGrades,
     );
 
     const mainNavItems: NavItem[] = [
@@ -103,6 +111,24 @@ export function AppSidebar() {
                       title: t('nav.exams'),
                       href: examsIndex(),
                       icon: ClipboardList,
+                  },
+              ]
+            : []),
+        ...(canDeliberate
+            ? [
+                  {
+                      title: t('nav.deliberations'),
+                      href: deliberationsIndex(),
+                      icon: Gavel,
+                  },
+              ]
+            : []),
+        ...(canViewOwnGrades
+            ? [
+                  {
+                      title: t('nav.my_grades'),
+                      href: myGradesIndex(),
+                      icon: Award,
                   },
               ]
             : []),
