@@ -57,6 +57,7 @@ enum Permission: string
     case BrowseSchedules = 'browse:schedules';
     case ManageSchedules = 'manage:schedules';
     case OverrideSoftConflicts = 'override:soft-conflicts';
+    case RecordAttendance = 'record:attendance';
 
     // Examination logistics permissions
     case ViewExams = 'view:exams';

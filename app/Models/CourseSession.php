@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
@@ -32,6 +33,7 @@ use Illuminate\Support\Carbon;
  * @property-read Room $room
  * @property-read Collection<int, StudentGroup> $studentGroups
  * @property-read Collection<int, ConflictOverride> $conflictOverrides
+ * @property-read Collection<int, SessionAttendance> $attendances
  */
 #[Fillable(['module_id', 'teacher_id', 'room_id', 'starts_at', 'ends_at'])]
 class CourseSession extends Model
@@ -90,6 +92,14 @@ class CourseSession extends Model
     public function conflictOverrides(): MorphMany
     {
         return $this->morphMany(ConflictOverride::class, 'schedulable');
+    }
+
+    /**
+     * @return HasMany<SessionAttendance, $this>
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(SessionAttendance::class);
     }
 
     /**
