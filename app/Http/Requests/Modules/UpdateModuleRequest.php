@@ -67,6 +67,16 @@ class UpdateModuleRequest extends FormRequest
         ];
     }
 
+    /**
+     * Custom validation messages.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return $this->continuousAssessmentWeightMessages();
+    }
+
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {

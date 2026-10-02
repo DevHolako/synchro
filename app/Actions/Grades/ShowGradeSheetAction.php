@@ -42,11 +42,8 @@ class ShowGradeSheetAction
      */
     public function execute(Exam $exam, ExamDeliberation $sheet, User $viewer): array
     {
-        $exam->loadMissing(['module', 'examPeriod']);
-        $sheet->loadMissing([
-            'submitter:id,name', 'submitter.studentProfile:id,user_id,last_name,first_name',
-            'locker:id,name', 'locker.studentProfile:id,user_id,last_name,first_name',
-        ]);
+        $exam->setRelation('deliberation', $sheet)->loadMissing(['module', 'examPeriod']);
+        $sheet->loadMissing(['submitter:id,name', 'locker:id,name']);
         $lines = $this->listLines->execute($exam);
         $locked = $sheet->status === GradeSheetStatus::Locked;
         $weight = $locked ? (int) $sheet->continuous_assessment_weight : $exam->module->continuous_assessment_weight;
@@ -67,16 +64,16 @@ class ShowGradeSheetAction
             'sheet' => [
                 'status' => $sheet->status->value,
                 'submitted_at' => $this->wallClock($sheet->submitted_at),
-                'submitted_by' => $sheet->submitter?->officialName(),
+                'submitted_by' => $sheet->submitter?->name,
             ],
-            'can_edit' => $sheet->status === GradeSheetStatus::Draft && $viewer->can('enterGrades', $exam),
+            'can_edit' => $viewer->can('editGrades', $exam),
             'rows' => $lines,
             'deliberation' => [
                 'stats' => $this->stats->execute($lines),
                 'returned_at' => $this->wallClock($sheet->returned_at),
                 'return_reason' => $sheet->return_reason,
                 'locked_at' => $this->wallClock($sheet->locked_at),
-                'locked_by' => $sheet->locker?->officialName(),
+                'locked_by' => $sheet->locker?->name,
                 'pv' => $locked && $viewer->can('downloadPv', $exam)
                     ? (Storage::disk('local')->exists($sheet->pvPath()) ? 'ready' : 'pending')
                     : null,

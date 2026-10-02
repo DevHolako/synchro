@@ -24,27 +24,39 @@ class RenderDeliberationPvPdfAction
      */
     public function execute(ExamDeliberation $deliberation): string
     {
-        $deliberation->loadMissing(['exam.module.teacher:id,name', 'exam.examPeriod', 'submitter:id,name', 'submitter.studentProfile:id,user_id,last_name,first_name', 'locker:id,name', 'locker.studentProfile:id,user_id,last_name,first_name']);
+        return Pdf::loadView('pdf.deliberation-pv', $this->viewData($deliberation))
+            ->setPaper('a4')
+            ->setOption('isFontSubsettingEnabled', true)
+            ->output();
+    }
+
+    /**
+     * What the PV view prints.
+     *
+     * @return array<string, mixed>
+     */
+    public function viewData(ExamDeliberation $deliberation): array
+    {
+        $deliberation->loadMissing(['exam.module.teacher:id,name', 'exam.examPeriod', 'submitter:id,name', 'locker:id,name']);
         $exam = $deliberation->exam;
         $lines = $this->listLines->execute($exam);
         $timezone = (string) config('app.schedule_timezone');
-        $weight = (int) $deliberation->continuous_assessment_weight;
 
-        return Pdf::loadView('pdf.deliberation-pv', [
+        return [
             'exam' => $exam,
             'retake' => $exam->isRetake(),
             'day' => $exam->starts_at->settings(['locale' => 'fr'])->isoFormat('dddd D MMMM YYYY'),
-            'weight' => $weight,
+            'weight' => (int) $deliberation->continuous_assessment_weight,
             'lines' => array_map(fn (array $line): array => [
                 ...$line,
                 'passed' => GradeScale::passes($line['final_grade']),
             ], $lines),
             'stats' => $this->stats->execute($lines),
-            'submittedBy' => $deliberation->submitter?->officialName(),
+            'submittedBy' => $deliberation->submitter?->name,
             'submittedAt' => $deliberation->submitted_at?->copy()->setTimezone($timezone)->format('d/m/Y H:i'),
-            'lockedBy' => $deliberation->locker?->officialName(),
+            'lockedBy' => $deliberation->locker?->name,
             'lockedAt' => $deliberation->locked_at?->copy()->setTimezone($timezone)->format('d/m/Y H:i'),
             'generatedAt' => SchoolClock::now()->format('d/m/Y H:i'),
-        ])->setPaper('a4')->setOption('isFontSubsettingEnabled', true)->output();
+        ];
     }
 }

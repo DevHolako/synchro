@@ -103,6 +103,17 @@ class ExamPolicy
     }
 
     /**
+     * Determine whether the user can still change the sheet's grades: they may enter grades and
+     * the sheet is not opened yet or still a draft.
+     */
+    public function editGrades(User $user, Exam $exam): bool
+    {
+        $status = $exam->deliberation?->status;
+
+        return ($status === null || $status === GradeSheetStatus::Draft) && $this->enterGrades($user, $exam);
+    }
+
+    /**
      * Determine whether the user can decide on a submitted grade sheet: lock its deliberation or
      * send it back to the teacher.
      */

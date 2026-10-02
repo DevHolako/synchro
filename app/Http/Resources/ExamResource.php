@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\GradeSheetStatus;
 use App\Enums\InvigilatorRole;
 use App\Models\Exam;
 use App\Models\ExamCandidate;
@@ -125,15 +124,14 @@ class ExamResource extends JsonResource
         }
 
         $status = $exam->deliberation?->status;
-        $canEnter = $viewer->can('enterGrades', $exam);
 
-        if ($status === null && ! $canEnter) {
+        if ($status === null && ! $viewer->can('enterGrades', $exam)) {
             return null;
         }
 
         return [
             'status' => $status?->value,
-            'can_edit' => $canEnter && ($status === null || $status === GradeSheetStatus::Draft),
+            'can_edit' => $viewer->can('editGrades', $exam),
         ];
     }
 

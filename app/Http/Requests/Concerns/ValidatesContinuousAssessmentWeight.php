@@ -21,7 +21,7 @@ trait ValidatesContinuousAssessmentWeight
     /**
      * @return array<string, string>
      */
-    public function messages(): array
+    protected function continuousAssessmentWeightMessages(): array
     {
         $outOfRange = Module::continuousAssessmentWeightError();
 
