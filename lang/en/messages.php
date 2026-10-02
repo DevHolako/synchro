@@ -162,4 +162,9 @@ return [
     'conflict_forced_single_room' => 'Room :name seats :capacity for exams; all :headcount candidates are placed in it.',
     'calendar_feed_exam_room' => ':room · seat :seat',
     'exam_document_pending' => 'The document is being prepared: try again in a few minutes.',
+    'exam_check_in_closed' => 'Check-in is open from an hour before a published exam starts until it ends.',
+    'exam_check_in_wrong_room' => 'This candidate is expected in :room.',
+    'exam_already_checked_in' => 'This candidate is already marked present.',
+    'exam_checked_in' => ':name is marked present.',
+    'exam_check_in_undone' => ':name\'s check-in is cancelled.',
 ];

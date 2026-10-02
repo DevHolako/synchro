@@ -23,6 +23,8 @@ use App\Http\Controllers\Web\CourseSessions\CourseSessionUpdateController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
 use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
+use App\Http\Controllers\Web\Exams\CandidateCheckInDestroyController;
+use App\Http\Controllers\Web\Exams\CandidateCheckInStoreController;
 use App\Http\Controllers\Web\Exams\ExamAllocationShowController;
 use App\Http\Controllers\Web\Exams\ExamCheckController;
 use App\Http\Controllers\Web\Exams\ExamConvocationDownloadController;
@@ -35,6 +37,7 @@ use App\Http\Controllers\Web\Exams\ExamPeriodPublishController;
 use App\Http\Controllers\Web\Exams\ExamPeriodStoreController;
 use App\Http\Controllers\Web\Exams\ExamPeriodUpdateController;
 use App\Http\Controllers\Web\Exams\ExamPublishController;
+use App\Http\Controllers\Web\Exams\ExamRoomCheckInController;
 use App\Http\Controllers\Web\Exams\ExamRoomsUpdateController;
 use App\Http\Controllers\Web\Exams\ExamRosterDownloadController;
 use App\Http\Controllers\Web\Exams\ExamScheduleController;
@@ -165,6 +168,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Convocations and room sheets as PDFs, and the convocation QR link (Part 04 / Ticket 03, ADR 0008)
     Route::get('exams/{exam}/convocation', ExamConvocationDownloadController::class)->name('exams.convocation');
     Route::get('exams/{exam}/roster', ExamRosterDownloadController::class)->name('exams.roster');
+
+    // Door check-in from a scanned convocation or a room's list (Part 04 / Ticket 04, ADR 0008)
+    Route::get('exams/{exam}/rooms/{assignment}/check-in', ExamRoomCheckInController::class)->name('exams.rooms.check-in');
+    Route::post('exam-candidates/{candidate}/check-in', CandidateCheckInStoreController::class)->name('exam-candidates.check-in.store');
+    Route::delete('exam-candidates/{candidate}/check-in', CandidateCheckInDestroyController::class)->name('exam-candidates.check-in.destroy');
     Route::get('verify/convocation/{uuid}', ConvocationVerifyController::class)
         ->whereUuid('uuid')
         ->middleware('signed')

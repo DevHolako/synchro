@@ -162,4 +162,9 @@ return [
     'conflict_forced_single_room' => 'La salle :name compte :capacity places d\'examen ; les :headcount candidats y sont tous placés.',
     'calendar_feed_exam_room' => ':room · place :seat',
     'exam_document_pending' => 'Le document est en cours de préparation : réessayez dans quelques minutes.',
+    'exam_check_in_closed' => 'Le pointage est ouvert d\'une heure avant le début jusqu\'à la fin de l\'examen publié.',
+    'exam_check_in_wrong_room' => 'Ce candidat est attendu en :room.',
+    'exam_already_checked_in' => 'Ce candidat est déjà marqué présent.',
+    'exam_checked_in' => ':name est marqué présent.',
+    'exam_check_in_undone' => 'La présence de :name est annulée.',
 ];

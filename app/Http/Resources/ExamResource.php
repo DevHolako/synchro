@@ -91,11 +91,12 @@ class ExamResource extends JsonResource
     }
 
     /**
-     * @return array{room: string, role: string}|null
+     * @return array{assignment_id: int, room: string, role: string}|null
      */
     private function invigilation(?ExamInvigilator $invigilator): ?array
     {
         return $invigilator === null ? null : [
+            'assignment_id' => $invigilator->exam_room_assignment_id,
             'room' => $invigilator->roomAssignment->room->name,
             'role' => $invigilator->role->value,
         ];

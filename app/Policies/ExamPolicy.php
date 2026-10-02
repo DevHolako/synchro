@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Enums\ExamState;
 use App\Enums\Permission;
 use App\Models\Exam;
+use App\Models\ExamRoomAssignment;
 use App\Models\User;
 
 class ExamPolicy
@@ -55,12 +56,22 @@ class ExamPolicy
     }
 
     /**
-     * Determine whether the user can check a convocation of this exam at the door: exam managers
-     * and the exam's invigilators.
+     * Determine whether the user can check candidates in at the door: exam managers and the
+     * exam's invigilators (which room they may check in is the check-in action's rule).
      */
-    public function verifyConvocation(User $user, Exam $exam): bool
+    public function checkIn(User $user, Exam $exam): bool
     {
         return $user->hasPermission(Permission::ManageExams) || $this->invigilates($user, $exam);
+    }
+
+    /**
+     * Determine whether the user can open a room's check-in list: exam managers, and the
+     * invigilators of that room.
+     */
+    public function checkInRoom(User $user, Exam $exam, ExamRoomAssignment $room): bool
+    {
+        return $room->exam_id === $exam->id
+            && ($user->hasPermission(Permission::ManageExams) || $exam->invigilatedRoomId($user) === $room->id);
     }
 
     /**
