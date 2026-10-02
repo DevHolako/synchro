@@ -268,12 +268,20 @@ class Exam extends Model
     }
 
     /**
-     * Whether the exam's grade sheet can be opened: the exam is over, and it belongs to a normal
-     * session (retake sheets come with spec 05 / ticket 04).
+     * Whether the exam's grade sheet can be opened: the exam is over.
      */
     public function isGradable(): bool
     {
-        return $this->state->isFinished() && $this->examPeriod->session_type === ExamSessionType::Normal;
+        return $this->state->isFinished();
+    }
+
+    /**
+     * Whether the exam belongs to a retake session (rattrapage): only the students who failed the
+     * module sit it, and they keep their continuous assessment and their better final.
+     */
+    public function isRetake(): bool
+    {
+        return $this->examPeriod->session_type === ExamSessionType::Rattrapage;
     }
 
     /**

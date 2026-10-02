@@ -20,6 +20,7 @@ use LogicException;
  * @property string|null $continuous_assessment_grade
  * @property string|null $exam_grade
  * @property string|null $final_grade
+ * @property string|null $previous_final_grade On a retake line, the normal session's locked final.
  * @property bool $is_absent
  * @property string|null $remarks
  * @property Carbon|null $created_at
@@ -27,7 +28,7 @@ use LogicException;
  * @property-read Exam $exam
  * @property-read User $student
  */
-#[Fillable(['exam_id', 'student_id', 'continuous_assessment_grade', 'exam_grade', 'final_grade', 'is_absent', 'remarks'])]
+#[Fillable(['exam_id', 'student_id', 'continuous_assessment_grade', 'exam_grade', 'final_grade', 'previous_final_grade', 'is_absent', 'remarks'])]
 class ExamGrade extends Model
 {
     /** The lowest passing final grade, out of 20 (spec 05: below it, the student sits the retake). */
@@ -57,6 +58,7 @@ class ExamGrade extends Model
             'continuous_assessment_grade' => 'decimal:2',
             'exam_grade' => 'decimal:2',
             'final_grade' => 'decimal:2',
+            'previous_final_grade' => 'decimal:2',
             'is_absent' => 'boolean',
         ];
     }
