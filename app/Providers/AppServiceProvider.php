@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Enums\Permission;
 use App\Models\CourseSession;
+use App\Models\Exam;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -40,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::morphMap([
             'course_session' => CourseSession::class,
+            'exam' => Exam::class,
         ]);
     }
 

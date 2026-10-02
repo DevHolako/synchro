@@ -138,14 +138,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Whether the account anchors the timetable or its audit trail: it taught a course
-     * session, overrode a scheduling conflict, or appears on an attendance register.
+     * session, overrode a scheduling conflict, appears on an attendance register, or published an exam.
      * Such accounts must not be deleted.
      */
     public function hasSchedulingHistory(): bool
     {
         return CourseSession::query()->where('teacher_id', $this->id)->exists()
             || ConflictOverride::query()->where('user_id', $this->id)->exists()
-            || SessionAttendance::query()->where('student_id', $this->id)->orWhere('recorded_by', $this->id)->exists();
+            || SessionAttendance::query()->where('student_id', $this->id)->orWhere('recorded_by', $this->id)->exists()
+            || Exam::query()->where('published_by', $this->id)->exists();
     }
 
     /**

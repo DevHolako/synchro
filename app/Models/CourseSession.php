@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\OverlapsInTime;
 use App\Support\SchoolClock;
-use Carbon\CarbonInterface;
 use Database\Factories\CourseSessionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,6 +40,8 @@ class CourseSession extends Model
 {
     /** @use HasFactory<CourseSessionFactory> */
     use HasFactory;
+
+    use OverlapsInTime;
 
     /**
      * @return array<string, string>
@@ -118,20 +119,5 @@ class CourseSession extends Model
     public function durationInMinutes(): int
     {
         return (int) $this->starts_at->diffInMinutes($this->ends_at);
-    }
-
-    /**
-     * Sessions overlapping the half-open interval [start, end): touching edges do not overlap.
-     *
-     * Sessions never cross midnight, so only sessions starting the same day can overlap;
-     * bounding `starts_at` on both sides keeps the lookup a narrow index range scan.
-     *
-     * @param  Builder<CourseSession>  $query
-     */
-    public function scopeOverlapping(Builder $query, CarbonInterface $start, CarbonInterface $end): void
-    {
-        $query->where($query->qualifyColumn('starts_at'), '>=', $start->copy()->startOfDay())
-            ->where($query->qualifyColumn('starts_at'), '<', $end)
-            ->where($query->qualifyColumn('ends_at'), '>', $start);
     }
 }
