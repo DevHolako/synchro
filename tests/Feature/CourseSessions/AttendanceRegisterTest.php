@@ -27,13 +27,10 @@ beforeEach(function () {
 
 function attendanceSession(string $startsAt, string $endsAt): CourseSession
 {
-    $session = CourseSession::factory()->between($startsAt, $endsAt)->create([
+    return CourseSession::factory()->between($startsAt, $endsAt)->forGroups(test()->group)->create([
         'module_id' => test()->module->id,
         'teacher_id' => test()->teacher->id,
     ]);
-    $session->studentGroups()->attach(test()->group->id);
-
-    return $session;
 }
 
 /**
@@ -64,9 +61,7 @@ test('marking everyone present saves one mark per student', function () {
         ->putJson(route('course-sessions.attendance.update', $this->session), markPayload(
             $this->students->map(fn (User $student) => [$student, AttendanceStatus::Present])->all(),
         ))
-        ->assertOk()
-        ->assertJsonPath('message', 'Attendance saved.')
-        ->assertJsonPath('students.2.status', 'present');
+        ->assertNoContent();
 
     expect(SessionAttendance::count())->toBe(3)
         ->and(SessionAttendance::query()->pluck('recorded_by')->unique()->all())->toBe([$this->teacher->id]);
@@ -78,7 +73,7 @@ test('saving again replaces the marks instead of duplicating them', function () 
 
     $this->actingAs($this->coordinator)
         ->putJson($route, markPayload([[$this->students[0], AttendanceStatus::Late, 'Arrived at 10:20.']]))
-        ->assertOk();
+        ->assertNoContent();
 
     $mark = SessionAttendance::query()->sole();
 
@@ -98,7 +93,33 @@ test('each student shows how often they missed this module', function () {
         ->getJson(route('course-sessions.attendance.show', $this->session))
         ->assertJsonPath('students.0.status', 'late')
         ->assertJsonPath('students.0.module_absences', 1)
-        ->assertJsonPath('students.0.module_recorded', 2);
+        ->assertJsonPath('students.0.module_recorded', 2)
+        ->assertJsonPath('students.0.module_absence_rate', 50)
+        ->assertJsonPath('students.1.module_absence_rate', 0);
+});
+
+test('a mark sent without a status is removed', function () {
+    $route = route('course-sessions.attendance.update', $this->session);
+    $this->actingAs($this->teacher)->putJson($route, markPayload([
+        [$this->students[0], AttendanceStatus::Present],
+        [$this->students[1], AttendanceStatus::Absent],
+    ]));
+
+    $this->actingAs($this->teacher)
+        ->putJson($route, ['marks' => [['student_id' => $this->students[1]->id, 'status' => null, 'remarks' => null]]])
+        ->assertNoContent();
+
+    expect(SessionAttendance::query()->pluck('student_id')->all())->toBe([$this->students[0]->id]);
+});
+
+test('the register opens by the school clock, not the server clock', function () {
+    // 09:30 UTC is 11:30 in Paris (summer time): the 10:00 session has started there.
+    config(['app.schedule_timezone' => 'Europe/Paris']);
+    $this->travelTo('2026-10-12 08:30');
+
+    $this->actingAs($this->teacher)
+        ->putJson(route('course-sessions.attendance.update', $this->session), markPayload([[$this->students[0], AttendanceStatus::Present]]))
+        ->assertNoContent();
 });
 
 test('attendance opens only once the session has started', function () {

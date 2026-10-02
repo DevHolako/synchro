@@ -34,11 +34,7 @@ function reschedule(array $input, ?User $user = null)
 }
 
 test('a drop moves the session and keeps its module, teacher, room and groups', function () {
-    reschedule(['starts_at' => '2026-10-14 14:00', 'ends_at' => '2026-10-14 16:30'])
-        ->assertOk()
-        ->assertJsonPath('session.id', $this->session->id)
-        ->assertJsonPath('session.start', '2026-10-14T14:00:00')
-        ->assertJsonPath('session.end', '2026-10-14T16:30:00');
+    reschedule(['starts_at' => '2026-10-14 14:00', 'ends_at' => '2026-10-14 16:30'])->assertNoContent();
 
     $session = $this->session->fresh();
 
@@ -70,7 +66,7 @@ test('a soft conflict is a 409 without an override, and saves with an audited ov
 
     expect($this->session->fresh()->starts_at->format('Y-m-d H:i'))->toBe('2026-10-12 10:00');
 
-    reschedule([...$times, 'force_override' => true, 'justification' => 'Only room free that afternoon.'])->assertOk();
+    reschedule([...$times, 'force_override' => true, 'justification' => 'Only room free that afternoon.'])->assertNoContent();
 
     expect($this->session->fresh()->starts_at->format('Y-m-d H:i'))->toBe('2026-10-14 14:00')
         ->and(ConflictOverride::query()->sole()->schedulable_id)->toBe($this->session->id);
@@ -79,7 +75,7 @@ test('a soft conflict is a 409 without an override, and saves with an audited ov
 test('a session of a since-deactivated room can still be moved', function () {
     $this->room->update(['is_active' => false]);
 
-    reschedule(['starts_at' => '2026-10-15 08:00', 'ends_at' => '2026-10-15 10:00'])->assertOk();
+    reschedule(['starts_at' => '2026-10-15 08:00', 'ends_at' => '2026-10-15 10:00'])->assertNoContent();
 });
 
 test('invalid moves are rejected', function (array $input, string $field) {
@@ -105,6 +101,20 @@ test('a session that has started cannot be moved or deleted', function () {
         ->assertJsonValidationErrors('session');
 
     expect(CourseSession::query()->whereKey($this->session->id)->exists())->toBeTrue();
+});
+
+test('the lock follows the school clock, not the server clock', function () {
+    // 09:30 UTC is 11:30 in Paris (summer time): the 10:00 session has started there.
+    config(['app.schedule_timezone' => 'Europe/Paris']);
+    $this->travelTo('2026-10-12 09:30');
+
+    reschedule(['starts_at' => '2026-10-14 14:00', 'ends_at' => '2026-10-14 16:00'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('starts_at');
+
+    $this->actingAs($this->coordinator)
+        ->deleteJson(route('course-sessions.destroy', $this->session))
+        ->assertUnprocessable();
 });
 
 test('a future session can be deleted', function () {

@@ -1,12 +1,14 @@
 <?php
 
 use App\Actions\CalendarFeeds\IssueCalendarFeedTokenAction;
+use App\Actions\CourseSessions\SaveCourseSessionAction;
 use App\Models\CourseSession;
 use App\Models\Module;
 use App\Models\Program;
 use App\Models\StudentGroup;
 use App\Models\StudentProfile;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
@@ -22,14 +24,11 @@ beforeEach(function () {
 
 function feedSession(string $startsAt, string $endsAt, array $attributes = []): CourseSession
 {
-    $session = CourseSession::factory()->between($startsAt, $endsAt)->create([
+    return CourseSession::factory()->between($startsAt, $endsAt)->forGroups(test()->group)->create([
         'module_id' => test()->module->id,
         'teacher_id' => test()->teacher->id,
         ...$attributes,
     ]);
-    $session->studentGroups()->attach(test()->group->id);
-
-    return $session;
 }
 
 function feedUrl(User $user): string
@@ -131,6 +130,32 @@ test('a moved session keeps its uid with a higher sequence, and a deleted one di
     $this->session->delete();
 
     expect($this->get($url)->getContent())->not->toContain('BEGIN:VEVENT');
+});
+
+test('changing only a session groups still raises its sequence', function () {
+    $url = feedUrl($this->teacher);
+    $sequenceOf = fn (string $body) => (int) str(collect(feedLines($body))->first(fn ($line) => str_starts_with($line, 'SEQUENCE:')))->after(':')->value();
+    $before = $sequenceOf($this->get($url)->getContent());
+
+    $this->travel(5)->minutes();
+    $this->session->room->update(['course_capacity' => 500, 'exam_capacity' => 100]);
+    app(SaveCourseSessionAction::class)->execute($this->session, [
+        'module_id' => $this->session->module_id,
+        'teacher_id' => $this->session->teacher_id,
+        'room_id' => $this->session->room_id,
+        'student_group_ids' => [$this->group->id, StudentGroup::factory()->create(['program_id' => $this->group->program_id])->id],
+        'starts_at' => '2026-10-12 10:00',
+        'ends_at' => '2026-10-12 12:00',
+    ]);
+
+    expect($sequenceOf($this->get($url)->getContent()))->toBeGreaterThan($before);
+});
+
+test('an account that may no longer read timetables gets nothing', function () {
+    $url = feedUrl($this->teacher);
+    Gate::before(fn (User $user, string $ability) => $ability === 'viewAny' ? false : null);
+
+    $this->get($url)->assertNotFound();
 });
 
 test('a replaced, revoked or unknown token gets nothing', function () {

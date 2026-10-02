@@ -46,17 +46,6 @@ function batchPayload(array $overrides = []): array
     ];
 }
 
-/**
- * @param  list<StudentGroup>  $groups
- */
-function existingSession(string $startsAt, string $endsAt, array $attributes, array $groups): CourseSession
-{
-    $session = CourseSession::factory()->between($startsAt, $endsAt)->create($attributes);
-    $session->studentGroups()->attach(collect($groups)->pluck('id'));
-
-    return $session;
-}
-
 test('a batch creates every slot as a session of the module, teacher, room and groups', function () {
     $second = StudentGroup::factory()->create(['program_id' => $this->program->id, 'expected_headcount' => 20]);
 
@@ -87,7 +76,7 @@ test('a single slot works as single-session scheduling', function () {
 });
 
 test('a hard conflict on one date rolls the whole batch back and names the slot', function () {
-    existingSession('2026-10-17 14:00', '2026-10-17 16:00', ['room_id' => $this->room->id], [StudentGroup::factory()->create()]);
+    CourseSession::factory()->between('2026-10-17 14:00', '2026-10-17 16:00')->forGroups(StudentGroup::factory()->create())->create(['room_id' => $this->room->id]);
 
     $this->actingAs($this->coordinator)
         ->postJson(route('course-sessions.batch.store'), batchPayload())
@@ -100,7 +89,7 @@ test('a hard conflict on one date rolls the whole batch back and names the slot'
 });
 
 test('inertia callers get the failing slot and its conflicts under slots', function () {
-    existingSession('2026-10-17 14:00', '2026-10-17 16:00', ['teacher_id' => $this->teacher->id], [StudentGroup::factory()->create()]);
+    CourseSession::factory()->between('2026-10-17 14:00', '2026-10-17 16:00')->forGroups(StudentGroup::factory()->create())->create(['teacher_id' => $this->teacher->id]);
 
     $this->actingAs($this->coordinator)
         ->from(route('timetable.index'))
@@ -164,7 +153,7 @@ test('one override covers every soft conflict of the batch and is audited per se
 });
 
 test('an override still cannot pass a hard conflict', function () {
-    existingSession('2026-10-24 09:00', '2026-10-24 10:00', ['room_id' => $this->room->id], [StudentGroup::factory()->create()]);
+    CourseSession::factory()->between('2026-10-24 09:00', '2026-10-24 10:00')->forGroups(StudentGroup::factory()->create())->create(['room_id' => $this->room->id]);
 
     $this->actingAs($this->coordinator)
         ->postJson(route('course-sessions.batch.store'), batchPayload([
@@ -222,9 +211,9 @@ test('invalid batches are rejected before anything is checked', function (Closur
 
 test('the check reports each slot without saving and shows the syllabus impact per group', function () {
     $second = StudentGroup::factory()->create(['program_id' => $this->program->id, 'expected_headcount' => 40]);
-    existingSession('2026-09-05 08:00', '2026-09-05 10:00', ['module_id' => $this->module->id], [$this->group, $second]);
-    existingSession('2026-09-12 08:00', '2026-09-12 09:30', ['module_id' => $this->module->id], [$second]);
-    existingSession('2026-10-17 14:00', '2026-10-17 16:00', ['room_id' => $this->room->id], [StudentGroup::factory()->create()]);
+    CourseSession::factory()->between('2026-09-05 08:00', '2026-09-05 10:00')->forGroups($this->group, $second)->create(['module_id' => $this->module->id]);
+    CourseSession::factory()->between('2026-09-12 08:00', '2026-09-12 09:30')->forGroups($second)->create(['module_id' => $this->module->id]);
+    CourseSession::factory()->between('2026-10-17 14:00', '2026-10-17 16:00')->forGroups(StudentGroup::factory()->create())->create(['room_id' => $this->room->id]);
 
     $this->actingAs($this->coordinator)
         ->postJson(route('course-sessions.batch.check'), batchPayload(['student_group_ids' => [$this->group->id, $second->id]]))

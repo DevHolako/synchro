@@ -35,15 +35,12 @@ beforeEach(function () {
  */
 function timetableSession(string $startsAt, string $endsAt, array $attributes = [], ?array $groups = null): CourseSession
 {
-    $session = CourseSession::factory()->between($startsAt, $endsAt)->create([
+    return CourseSession::factory()->between($startsAt, $endsAt)->forGroups(...$groups ?? [test()->group])->create([
         'module_id' => test()->module->id,
         'teacher_id' => test()->teacher->id,
         'room_id' => test()->room->id,
         ...$attributes,
     ]);
-    $session->studentGroups()->attach(collect($groups ?? [test()->group])->pluck('id'));
-
-    return $session;
 }
 
 /**
