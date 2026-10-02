@@ -25,7 +25,12 @@ class HardConflictException extends ConflictException
     {
         $result = $this->result->toArray();
 
-        return ['conflicts' => $result['hard_conflicts'], 'soft_conflicts' => $result['soft_conflicts']];
+        // `errors` follows Laravel's validation shape, the only part of a 422 that Inertia's useHttp keeps.
+        return [
+            'conflicts' => $result['hard_conflicts'],
+            'soft_conflicts' => $result['soft_conflicts'],
+            'errors' => array_filter($this->errors()),
+        ];
     }
 
     protected function errors(): array

@@ -93,6 +93,14 @@ class CourseSession extends Model
     }
 
     /**
+     * Whether the session has begun: from then on it is part of the record and no longer moves.
+     */
+    public function hasStarted(): bool
+    {
+        return $this->starts_at->lessThanOrEqualTo(now());
+    }
+
+    /**
      * How long the session lasts, which is what it counts towards a module's syllabus hours.
      */
     public function durationInMinutes(): int

@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\CourseSessions\CourseSessionBatchCheckController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionBatchStoreController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionCheckController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionDestroyController;
+use App\Http\Controllers\Web\CourseSessions\CourseSessionRescheduleController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionStoreController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionUpdateController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
@@ -101,6 +102,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('course-sessions/{session}', CourseSessionUpdateController::class)->name('course-sessions.update');
     Route::delete('course-sessions/{session}', CourseSessionDestroyController::class)->name('course-sessions.destroy');
+    Route::patch('course-sessions/{session}/reschedule', CourseSessionRescheduleController::class)->name('course-sessions.reschedule');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');
