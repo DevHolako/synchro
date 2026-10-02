@@ -56,7 +56,7 @@
             <tr><td class="label">{{ __('documents.pv_average', [], 'fr') }}</td><td>{{ $stats['average'] ?? '—' }}</td></tr>
             <tr><td class="label">{{ __('documents.pv_median', [], 'fr') }}</td><td>{{ $stats['median'] ?? '—' }}</td></tr>
             <tr><td class="label">{{ __('documents.pv_pass_rate', [], 'fr') }}</td><td>{{ $stats['pass_rate'] === null ? '—' : $stats['pass_rate'].' %' }}</td></tr>
-            <tr><td class="label">{{ __('documents.pv_counts', [], 'fr') }}</td><td>{{ __('documents.pv_counts_value', ['passing' => $stats['passing'], 'failing' => $stats['failing'], 'absent' => $stats['absent']], 'fr') }}</td></tr>
+            <tr><td class="label">{{ __($retake ? 'documents.pv_counts_retake' : 'documents.pv_counts', [], 'fr') }}</td><td>{{ __('documents.pv_counts_value', ['passing' => $stats['passing'], 'failing' => $stats['failing'], 'absent' => $stats['absent']], 'fr') }}</td></tr>
         </table>
 
         <table class="grid" style="margin-top: 14pt;">
