@@ -48,3 +48,4 @@ An interactive, responsive schedule management module powered by React FullCalen
 ## Further Notes
 
 - Eager load `group`, `module`, `teacher.user`, and `room` in all calendar endpoints to prevent N+1 query performance degradation.
+- **Deferred (agreed 2026-10-02, Part 03 review):** the official PDF copy of the weekly timetable (user story 11) is not built in Part 03. PDF generation must run as a queued job (ADR 0012), and Part 04 builds that pipeline for convocations; the timetable PDF reuses it there or later.

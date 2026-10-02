@@ -151,7 +151,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03's five tickets are done; the whole-Part code review is next, then Part 04.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02); Part 04 is next.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
@@ -172,6 +172,17 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 
 - **Deferred from Part 03 / Ticket 01 (decisions owed later):**
   - Sessions are not typed lecture/TP, so the syllabus widget compares against `total_hours` only. Typing them touches the conflict engine, the session requests and the batch wizard.
   - A "rooms × hours" board for the Global Campus view: either a custom component or FullCalendar's Premium resource views (paid licence). Build it only if coordinators ask.
+- **Part 03 review (2026-10-02, `5098312..HEAD`, standards + spec axes):** fixed right away:
+  - Started-session checks ran on the server's UTC clock while sessions are stored as school wall-clock time; `App\Support\SchoolClock` now gives the school's "now"/"today" (`hasStarted()`, the reschedule past check, the timetable's default date, the feed window).
+  - Changing only a session's groups did not touch it, so the iCal SEQUENCE did not grow; `SaveCourseSessionAction` touches it.
+  - The module absence rate is computed and tested on the server (`module_absence_rate`); a register mark can be removed (status `null`).
+  - The feed refuses accounts that can no longer read timetables (`FindCalendarFeedOwnerAction`).
+  - Controller logic moved to actions/scope (`FindCalendarFeedOwnerAction`, `CalendarFeedLinksAction`, `TimetableScope::groupId()`/`isStudentWithoutGroup()`); `session()` request helpers renamed `courseSession()`; reschedule and attendance saves answer 204; justification and batch limits come from PHP (`limits` prop); the attendance right per session comes from the policy (`can_take_attendance`); the French count labels carry their own colon.
+  - Duplication removed: `SumPlannedMinutesAction`, `User::scopeOnRegisterOf()`, `User::teacherOptions()`, `ValidatesSessionSlots::overrideRules()`, `BatchConflictException` now extends `ConflictException`, `CourseSessionFactory::forGroups()`, shared `wall-clock-format.ts` and `lib/form-classes.ts`; the timetable dialogs live in `useTimetableOverlays` (page down to 168 lines).
+- **Deferred from the Part 03 review:**
+  - The PDF copy of the weekly timetable (spec 03 user story 11): reuse Part 04's queued PDF pipeline (recorded in the spec).
+  - `resources/js/lib/scheduling-grid.ts` mirrors `SchedulingGrid` by hand, like `permissions.ts`.
+  - Older pages (unavailabilities, reviews) still define their own field class string; `lib/form-classes.ts` exists for them.
 - **Deferred from Part 03 / Ticket 05:** exams in the feed (Part 04); the feed route runs the `web` middleware, so each calendar poll starts a session.
 - **Deferred from Part 03 / Ticket 04:** students cannot see their own attendance; registers never lock; no absence alerts.
 - **Deferred from Part 03 / Ticket 03:**
