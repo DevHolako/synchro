@@ -6,6 +6,9 @@ use App\Http\Controllers\Web\Attendance\AttendanceUpdateController;
 use App\Http\Controllers\Web\Buildings\BuildingStoreController;
 use App\Http\Controllers\Web\Buildings\BuildingToggleActiveController;
 use App\Http\Controllers\Web\Buildings\BuildingUpdateController;
+use App\Http\Controllers\Web\CalendarFeeds\CalendarFeedDestroyController;
+use App\Http\Controllers\Web\CalendarFeeds\CalendarFeedShowController;
+use App\Http\Controllers\Web\CalendarFeeds\CalendarFeedStoreController;
 use App\Http\Controllers\Web\Campuses\CampusStoreController;
 use App\Http\Controllers\Web\Campuses\CampusToggleActiveController;
 use App\Http\Controllers\Web\Campuses\CampusUpdateController;
@@ -59,6 +62,12 @@ Route::post('invitations/{token}', InvitationActivateController::class)
     ->middleware(['signed', 'throttle:6,1'])
     ->name('invitations.activate');
 
+// Private iCal subscriptions (Part 03 / Ticket 05, ADR 0010): the token is the credential.
+Route::get('feeds/calendar/{token}.ics', CalendarFeedShowController::class)
+    ->where('token', '[A-Za-z0-9]+')
+    ->middleware('throttle:60,1')
+    ->name('calendar-feeds.show');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 
@@ -105,6 +114,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('course-sessions/{session}', CourseSessionUpdateController::class)->name('course-sessions.update');
     Route::delete('course-sessions/{session}', CourseSessionDestroyController::class)->name('course-sessions.destroy');
     Route::patch('course-sessions/{session}/reschedule', CourseSessionRescheduleController::class)->name('course-sessions.reschedule');
+
+    // The user's own calendar subscription link (Part 03 / Ticket 05)
+    Route::post('calendar-feed', CalendarFeedStoreController::class)->name('calendar-feed.store');
+    Route::delete('calendar-feed', CalendarFeedDestroyController::class)->name('calendar-feed.destroy');
 
     // Session attendance register (Part 03 / Ticket 04)
     Route::get('course-sessions/{session}/attendance', AttendanceShowController::class)->name('course-sessions.attendance.show');

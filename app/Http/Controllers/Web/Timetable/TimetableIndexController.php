@@ -46,6 +46,7 @@ class TimetableIndexController extends Controller
             'canBrowse' => $canBrowse,
             'options' => fn () => $canBrowse ? $listFilterOptions->execute($scope) : null,
             'canSchedule' => $canSchedule,
+            'calendarFeed' => fn () => $this->calendarFeed($request->user()?->calendar_feed_token),
             // Loaded by the scheduling wizard the first time it opens.
             'schedulingOptions' => Inertia::optional(fn () => $canSchedule ? $listSchedulingOptions->execute() : null),
             'syllabus' => function () use ($groupId, $calculateSyllabusProgress): ?array {
@@ -58,5 +59,21 @@ class TimetableIndexController extends Controller
                 && $scope->perspective === TimetablePerspective::Group
                 && $groupId === null,
         ]);
+    }
+
+    /**
+     * The viewer's subscription link, as https (Google) and webcal (Apple, Outlook) URLs.
+     *
+     * @return array{https: string, webcal: string}|null
+     */
+    private function calendarFeed(?string $token): ?array
+    {
+        if ($token === null) {
+            return null;
+        }
+
+        $url = route('calendar-feeds.show', ['token' => $token]);
+
+        return ['https' => $url, 'webcal' => (string) preg_replace('#^https?://#', 'webcal://', $url)];
     }
 }
