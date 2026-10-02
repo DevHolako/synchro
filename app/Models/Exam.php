@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\BookingType;
 use App\Enums\ExamState;
 use App\Enums\Permission;
 use App\Models\Concerns\OverlapsInTime;
+use App\Services\Scheduling\SessionSlot;
 use App\Support\SchoolClock;
+use Carbon\CarbonImmutable;
 use Database\Factories\ExamFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +17,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
@@ -29,6 +33,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $starts_at
  * @property Carbon $ends_at
  * @property ExamState $state
+ * @property bool $force_single_room
  * @property Carbon|null $published_at
  * @property int|null $published_by
  * @property Carbon|null $created_at
@@ -38,8 +43,11 @@ use Illuminate\Support\Carbon;
  * @property-read User|null $publisher
  * @property-read Collection<int, StudentGroup> $studentGroups
  * @property-read Collection<int, ConflictOverride> $conflictOverrides
+ * @property-read Collection<int, ExamRoomAssignment> $roomAssignments
+ * @property-read Collection<int, ExamCandidate> $candidates
+ * @property-read Collection<int, ExamInvigilator> $invigilators
  */
-#[Fillable(['exam_period_id', 'module_id', 'starts_at', 'ends_at', 'state', 'published_at', 'published_by'])]
+#[Fillable(['exam_period_id', 'module_id', 'starts_at', 'ends_at', 'state', 'force_single_room', 'published_at', 'published_by'])]
 class Exam extends Model
 {
     /** @use HasFactory<ExamFactory> */
@@ -52,6 +60,7 @@ class Exam extends Model
      */
     protected $attributes = [
         'state' => 'draft',
+        'force_single_room' => false,
     ];
 
     /**
@@ -63,6 +72,7 @@ class Exam extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'state' => ExamState::class,
+            'force_single_room' => 'boolean',
             'published_at' => 'datetime',
         ];
     }
@@ -110,6 +120,48 @@ class Exam extends Model
     }
 
     /**
+     * The rooms the exam is split across, in the coordinator's order.
+     *
+     * @return HasMany<ExamRoomAssignment, $this>
+     */
+    public function roomAssignments(): HasMany
+    {
+        return $this->hasMany(ExamRoomAssignment::class)->orderBy('position');
+    }
+
+    /**
+     * @return HasMany<ExamCandidate, $this>
+     */
+    public function candidates(): HasMany
+    {
+        return $this->hasMany(ExamCandidate::class);
+    }
+
+    /**
+     * @return HasMany<ExamInvigilator, $this>
+     */
+    public function invigilators(): HasMany
+    {
+        return $this->hasMany(ExamInvigilator::class);
+    }
+
+    /**
+     * What the exam books, as the conflict detector reads it: its groups, rooms and invigilators.
+     */
+    public function bookingSlot(): SessionSlot
+    {
+        return new SessionSlot(
+            type: BookingType::Exam,
+            teacherIds: array_values(array_map('intval', $this->invigilators()->pluck('teacher_id')->all())),
+            roomIds: array_values(array_map('intval', $this->roomAssignments()->pluck('room_id')->all())),
+            groupIds: array_values(array_map('intval', $this->studentGroups()->pluck('student_groups.id')->all())),
+            startsAt: CarbonImmutable::parse($this->starts_at->format('Y-m-d H:i:s')),
+            endsAt: CarbonImmutable::parse($this->ends_at->format('Y-m-d H:i:s')),
+            ignoreId: $this->id,
+        );
+    }
+
+    /**
      * Whether the exam has begun, by the school's clock.
      */
     public function hasStarted(): bool
@@ -146,8 +198,8 @@ class Exam extends Model
     }
 
     /**
-     * Published exams and their history that concern a user: their group's, or those of the
-     * modules they teach.
+     * Published exams and their history that concern a user: their group's, those of the
+     * modules they teach, or those they invigilate.
      *
      * @param  Builder<Exam>  $query
      */
@@ -158,6 +210,7 @@ class Exam extends Model
         $query->whereIn($query->qualifyColumn('state'), ExamState::visibleToCandidates())
             ->where(fn (Builder $concerned) => $concerned
                 ->whereHas('module', fn (Builder $modules) => $modules->where('teacher_id', $user->id))
+                ->orWhereHas('invigilators', fn (Builder $invigilators) => $invigilators->where('teacher_id', $user->id))
                 ->when($groupId, fn (Builder $query, int $groupId) => $query
                     ->orWhereHas('studentGroups', fn (Builder $groups) => $groups->whereKey($groupId))));
     }

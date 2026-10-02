@@ -15,4 +15,5 @@ enum ConflictType: string
     // Soft conflicts: policy violations an authorized user may override with a justification.
     case Capacity = 'capacity';
     case Unavailability = 'unavailability';
+    case ForcedSingleRoom = 'forced_single_room';
 }
