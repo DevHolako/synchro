@@ -302,6 +302,18 @@ export interface Translations {
         temp_dialog_copied: string;
         temp_dialog_close: string;
     };
+    login: {
+        page_title: string;
+        title: string;
+        description: string;
+        email: string;
+        email_placeholder: string;
+        password: string;
+        password_placeholder: string;
+        forgot_password: string;
+        remember: string;
+        submit: string;
+    };
     invitation: {
         title: string;
         description: string;

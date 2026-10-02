@@ -330,6 +330,19 @@ export const fr: Translations = {
         temp_dialog_copied: 'Copié',
         temp_dialog_close: 'Terminé',
     },
+    login: {
+        page_title: 'Connexion',
+        title: 'Connectez-vous à votre compte',
+        description:
+            'Saisissez votre adresse e-mail et votre mot de passe pour vous connecter',
+        email: 'Adresse e-mail',
+        email_placeholder: 'email@exemple.com',
+        password: 'Mot de passe',
+        password_placeholder: 'Mot de passe',
+        forgot_password: 'Mot de passe oublié ?',
+        remember: 'Se souvenir de moi',
+        submit: 'Se connecter',
+    },
     invitation: {
         title: 'Activez votre compte',
         description:

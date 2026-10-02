@@ -326,6 +326,18 @@ export const en: Translations = {
         temp_dialog_copied: 'Copied',
         temp_dialog_close: 'Done',
     },
+    login: {
+        page_title: 'Log in',
+        title: 'Log in to your account',
+        description: 'Enter your email and password below to log in',
+        email: 'Email address',
+        email_placeholder: 'email@example.com',
+        password: 'Password',
+        password_placeholder: 'Password',
+        forgot_password: 'Forgot your password?',
+        remember: 'Remember me',
+        submit: 'Log in',
+    },
     invitation: {
         title: 'Activate your account',
         description:
