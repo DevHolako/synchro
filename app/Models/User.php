@@ -31,6 +31,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
+ * @property string|null $calendar_feed_token
+ * @property string|null $calendar_feed_token_hash
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read TeacherProfile|null $teacherProfile
@@ -39,7 +41,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, TeacherUnavailability> $unavailabilities
  */
 #[Fillable(['name', 'email', 'password', 'role', 'status', 'activated_at'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'calendar_feed_token', 'calendar_feed_token_hash'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
@@ -58,6 +60,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'role' => UserRole::class,
             'status' => AccountStatus::class,
             'activated_at' => 'datetime',
+            'calendar_feed_token' => 'encrypted',
         ];
     }
 

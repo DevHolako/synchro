@@ -69,6 +69,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Scheduling Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Session times are stored as the school's local wall-clock time. This is
+    | the zone they are in, used wherever an absolute time is needed, such as
+    | the iCal subscription feeds (ADR 0010).
+    |
+    */
+
+    'schedule_timezone' => env('SCHEDULE_TIMEZONE', 'Africa/Casablanca'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |
