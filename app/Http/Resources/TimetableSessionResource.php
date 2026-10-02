@@ -47,6 +47,8 @@ class TimetableSessionResource extends JsonResource
                 ->map(fn (StudentGroup $group): array => ['id' => $group->id, 'name' => $group->name, 'code' => $group->code])
                 ->values()
                 ->all(),
+            // Whether the viewer may take this session's register (once it has started).
+            'can_take_attendance' => $request->user()?->can('recordAttendance', $session) ?? false,
             'overrides' => $session->conflictOverrides
                 ->map(fn (ConflictOverride $override): array => [
                     'id' => $override->id,

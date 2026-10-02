@@ -8,23 +8,38 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Saves a session's register in one go: each student's mark is created or replaced.
- * Students left unmarked are not stored.
+ * Saves a session's register in one go: each student's mark is created, replaced, or removed
+ * when sent without a status. Students never marked are not stored.
  */
 class RecordAttendanceAction
 {
     /**
-     * @param  list<array{student_id: int, status: string, remarks: string|null}>  $marks
+     * @param  list<array{student_id: int, status: string|null, remarks: string|null}>  $marks
      */
     public function execute(CourseSession $session, array $marks, User $recorder): void
     {
-        if ($marks === []) {
-            return;
-        }
+        $cleared = array_column(array_filter($marks, fn (array $mark): bool => $mark['status'] === null), 'student_id');
+        $kept = array_values(array_filter($marks, fn (array $mark): bool => $mark['status'] !== null));
 
+        DB::transaction(function () use ($session, $cleared, $kept, $recorder): void {
+            if ($cleared !== []) {
+                $session->attendances()->whereIn('student_id', $cleared)->delete();
+            }
+
+            if ($kept !== []) {
+                $this->upsert($session, $kept, $recorder);
+            }
+        });
+    }
+
+    /**
+     * @param  list<array{student_id: int, status: string|null, remarks: string|null}>  $marks
+     */
+    private function upsert(CourseSession $session, array $marks, User $recorder): void
+    {
         $now = now();
 
-        DB::transaction(fn () => SessionAttendance::query()->upsert(
+        SessionAttendance::query()->upsert(
             array_map(fn (array $mark): array => [
                 'course_session_id' => $session->id,
                 'student_id' => $mark['student_id'],
@@ -36,6 +51,6 @@ class RecordAttendanceAction
             ], $marks),
             ['course_session_id', 'student_id'],
             ['status', 'remarks', 'recorded_by', 'updated_at'],
-        ));
+        );
     }
 }

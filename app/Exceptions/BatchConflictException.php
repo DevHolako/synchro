@@ -3,10 +3,6 @@
 namespace App\Exceptions;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use RuntimeException;
 
 /**
  * A batch of sessions refused, and rolled back, because one of its slots has a conflict
@@ -15,7 +11,7 @@ use RuntimeException;
  * The slot's own conflict decides the status: 422 for a hard conflict, 409 for an
  * un-overridden soft one. Inertia callers get the messages under `slots`.
  */
-class BatchConflictException extends RuntimeException
+class BatchConflictException extends ConflictException
 {
     /**
      * @param  int  $slotIndex  The slot's position in the submitted batch.
@@ -26,30 +22,34 @@ class BatchConflictException extends RuntimeException
         public readonly array $slot,
         public readonly ConflictException $conflict,
     ) {
-        parent::__construct(__('messages.course_session_batch_conflict', $this->slotParameters()), previous: $conflict);
+        parent::__construct($conflict->result, __('messages.course_session_batch_conflict', $this->slotParameters()));
     }
 
-    public function render(Request $request): JsonResponse|RedirectResponse
+    protected function status(): int
     {
-        $result = $this->conflict->result;
+        return $this->conflict->status();
+    }
 
-        if (! $request->header('X-Inertia') && $request->expectsJson()) {
-            return new JsonResponse([
-                'message' => $this->getMessage(),
-                'slot' => ['index' => $this->slotIndex, ...$this->slot],
-                ...$result->toArray(),
-            ], $this->conflict instanceof HardConflictException ? 422 : 409);
-        }
+    protected function json(): array
+    {
+        return [
+            'slot' => ['index' => $this->slotIndex, ...$this->slot],
+            ...$this->result->toArray(),
+            'errors' => $this->errors(),
+        ];
+    }
 
+    protected function errors(): array
+    {
         $messages = array_map(
             fn (string $conflict): string => __('messages.course_session_batch_slot_conflict', [
                 ...$this->slotParameters(),
                 'conflict' => $conflict,
             ]),
-            [...$result->hardConflictMessages(), ...$result->softConflictMessages()],
+            [...$this->result->hardConflictMessages(), ...$this->result->softConflictMessages()],
         );
 
-        return back()->withInput()->withErrors(['slots' => [$this->getMessage(), ...$messages]]);
+        return ['slots' => [$this->getMessage(), ...$messages]];
     }
 
     /**

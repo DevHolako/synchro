@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Web\CalendarFeeds;
 
 use App\Actions\CalendarFeeds\BuildCalendarFeedAction;
+use App\Actions\CalendarFeeds\FindCalendarFeedOwnerAction;
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Response;
 
 /**
@@ -12,13 +12,13 @@ use Illuminate\Http\Response;
  */
 class CalendarFeedShowController extends Controller
 {
-    public function __invoke(string $token, BuildCalendarFeedAction $action): Response
+    public function __invoke(string $token, FindCalendarFeedOwnerAction $findOwner, BuildCalendarFeedAction $build): Response
     {
-        $user = User::query()->where('calendar_feed_token_hash', hash('sha256', $token))->first();
+        $user = $findOwner->execute($token);
 
-        abort_if($user === null || ! $user->isActive(), 404);
+        abort_if($user === null, 404);
 
-        return new Response($action->execute($user), 200, [
+        return new Response($build->execute($user), 200, [
             'Content-Type' => 'text/calendar; charset=utf-8',
             'Content-Disposition' => 'inline; filename="synchro.ics"',
             'Cache-Control' => 'private, max-age=0, must-revalidate',

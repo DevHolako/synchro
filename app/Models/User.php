@@ -158,6 +158,43 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * The students on a session's attendance register: those in its groups, plus anyone
+     * already marked on it who has since changed group.
+     *
+     * @param  Builder<User>  $query
+     */
+    public function scopeOnRegisterOf(Builder $query, CourseSession $session): void
+    {
+        $groupIds = $session->studentGroups()->pluck('student_groups.id');
+
+        $query->where(fn (Builder $query) => $query
+            ->whereHas('studentProfile', fn (Builder $profiles) => $profiles->whereIn('student_group_id', $groupIds))
+            ->orWhereHas('attendances', fn (Builder $marks) => $marks->where('course_session_id', $session->id)));
+    }
+
+    /**
+     * Feed tokens are looked up by this hash; the token itself is only kept, encrypted, for display.
+     */
+    public static function hashCalendarFeedToken(string $token): string
+    {
+        return hash('sha256', $token);
+    }
+
+    /**
+     * Every teacher as a picker option, by name.
+     *
+     * @return list<array{id: int, name: string}>
+     */
+    public static function teacherOptions(): array
+    {
+        return array_values(self::teachers()
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (User $teacher): array => ['id' => $teacher->id, 'name' => $teacher->name])
+            ->all());
+    }
+
+    /**
      * @param  Builder<User>  $query
      */
     public function scopeTeachers(Builder $query): void

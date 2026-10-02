@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Web\CourseSessions;
 use App\Actions\CourseSessions\RescheduleCourseSessionAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CourseSessions\RescheduleCourseSessionRequest;
-use App\Http\Resources\TimetableSessionResource;
 use App\Models\CourseSession;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 /**
- * A calendar drop or resize: JSON in and out, so the calendar can snap back or ask for an override.
+ * A calendar drop or resize, as JSON: 204 when saved, 422 (hard) or 409 (soft) conflicts otherwise,
+ * so the calendar can snap back or ask for an override.
  */
 class CourseSessionRescheduleController extends Controller
 {
@@ -18,13 +18,9 @@ class CourseSessionRescheduleController extends Controller
         RescheduleCourseSessionRequest $request,
         CourseSession $session,
         RescheduleCourseSessionAction $action,
-    ): JsonResponse {
-        $session = $action->execute($session, $request->times(), $request->softConflictOverride());
-        $session->load(['module', 'teacher', 'room.building', 'studentGroups', 'conflictOverrides']);
+    ): Response {
+        $action->execute($session, $request->times(), $request->softConflictOverride());
 
-        return new JsonResponse([
-            'message' => __('messages.course_session_rescheduled'),
-            'session' => (new TimetableSessionResource($session))->resolve(),
-        ]);
+        return response()->noContent();
     }
 }

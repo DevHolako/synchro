@@ -62,11 +62,7 @@ class ListSchedulingOptionsAction
                     'course_capacity' => $room->course_capacity,
                 ])
                 ->all()),
-            'teachers' => array_values(User::teachers()
-                ->orderBy('name')
-                ->get(['id', 'name'])
-                ->map(fn (User $teacher): array => ['id' => $teacher->id, 'name' => $teacher->name])
-                ->all()),
+            'teachers' => User::teacherOptions(),
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\CourseSession;
 use App\Models\Module;
 use App\Models\Room;
+use App\Models\StudentGroup;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
@@ -30,6 +31,16 @@ class CourseSessionFactory extends Factory
             'starts_at' => $start,
             'ends_at' => $start->copy()->addHours(2),
         ];
+    }
+
+    /**
+     * Link the session to these groups once created.
+     */
+    public function forGroups(StudentGroup ...$groups): static
+    {
+        return $this->afterCreating(
+            fn (CourseSession $session) => $session->studentGroups()->attach(array_map(fn (StudentGroup $group) => $group->id, $groups)),
+        );
     }
 
     public function between(string $startsAt, string $endsAt): static

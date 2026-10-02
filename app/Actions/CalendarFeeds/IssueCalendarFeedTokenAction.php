@@ -18,7 +18,7 @@ class IssueCalendarFeedTokenAction
 
         $user->forceFill([
             'calendar_feed_token' => $token,
-            'calendar_feed_token_hash' => hash('sha256', $token),
+            'calendar_feed_token_hash' => User::hashCalendarFeedToken($token),
         ])->save();
 
         return $token;

@@ -93,8 +93,6 @@ return [
     'course_session_deleted' => 'Séance supprimée.',
     'course_session_started' => 'Cette séance a déjà commencé : elle ne peut plus être déplacée ni supprimée.',
     'course_session_in_past' => 'Une séance ne peut pas être déplacée dans le passé.',
-    'course_session_rescheduled' => 'Séance déplacée.',
-    'attendance_saved' => 'Présences enregistrées.',
     'attendance_not_started' => 'Les présences se saisissent une fois la séance commencée.',
     'attendance_unknown_student' => 'Certains étudiants ne font pas partie des groupes de cette séance.',
     'calendar_feed_name' => ':app · Mon emploi du temps',

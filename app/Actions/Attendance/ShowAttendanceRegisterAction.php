@@ -6,7 +6,6 @@ use App\Enums\AttendanceStatus;
 use App\Models\CourseSession;
 use App\Models\SessionAttendance;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -16,17 +15,14 @@ use Illuminate\Support\Facades\DB;
 class ShowAttendanceRegisterAction
 {
     /**
-     * @return list<array{student_id: int, name: string, student_number: string|null, group: string|null, status: string|null, remarks: string|null, module_absences: int, module_recorded: int}>
+     * @return list<array{student_id: int, name: string, student_number: string|null, group: string|null, status: string|null, remarks: string|null, module_absences: int, module_recorded: int, module_absence_rate: int}>
      */
     public function execute(CourseSession $session): array
     {
         $marks = $session->attendances()->get()->keyBy('student_id');
-        $groupIds = $session->studentGroups()->pluck('student_groups.id');
 
         $students = User::query()
-            ->where(fn (Builder $query) => $query
-                ->whereHas('studentProfile', fn (Builder $profiles) => $profiles->whereIn('student_group_id', $groupIds))
-                ->orWhereIn('id', $marks->keys()))
+            ->onRegisterOf($session)
             ->with('studentProfile.studentGroup:id,name')
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -36,6 +32,8 @@ class ShowAttendanceRegisterAction
         return array_values($students->map(function (User $student) use ($marks, $history): array {
             /** @var SessionAttendance|null $mark */
             $mark = $marks->get($student->id);
+            $absences = $history[$student->id]['absences'] ?? 0;
+            $recorded = $history[$student->id]['recorded'] ?? 0;
 
             return [
                 'student_id' => $student->id,
@@ -44,10 +42,19 @@ class ShowAttendanceRegisterAction
                 'group' => $student->studentProfile?->studentGroup?->name,
                 'status' => $mark?->status->value,
                 'remarks' => $mark?->remarks,
-                'module_absences' => $history[$student->id]['absences'] ?? 0,
-                'module_recorded' => $history[$student->id]['recorded'] ?? 0,
+                'module_absences' => $absences,
+                'module_recorded' => $recorded,
+                'module_absence_rate' => $this->absenceRate($absences, $recorded),
             ];
         })->all());
+    }
+
+    /**
+     * Absences as a whole percentage of the module's recorded sessions; a late arrival counts as attended.
+     */
+    private function absenceRate(int $absences, int $recorded): int
+    {
+        return $recorded === 0 ? 0 : (int) round($absences / $recorded * 100);
     }
 
     /**

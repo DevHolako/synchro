@@ -2,13 +2,11 @@
 
 namespace App\Actions\CourseSessions;
 
-use App\Models\CourseSession;
 use App\Models\Module;
 use App\Models\StudentGroup;
 use App\Services\Scheduling\ConflictDetectorService;
 use App\Services\Scheduling\SessionSlot;
 use Carbon\CarbonImmutable;
-use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Previews a batch before anything is written: each slot's conflicts with saved bookings,
@@ -16,7 +14,10 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class CheckCourseSessionBatchAction
 {
-    public function __construct(private ConflictDetectorService $detector) {}
+    public function __construct(
+        private ConflictDetectorService $detector,
+        private SumPlannedMinutesAction $sumPlannedMinutes,
+    ) {}
 
     /**
      * @param array{
@@ -91,28 +92,14 @@ class CheckCourseSessionBatchAction
     }
 
     /**
-     * The module's hours already planned for each group, counting shared sessions in full.
+     * The module's hours already planned for each group.
      *
      * @param  list<int>  $groupIds
      * @return list<array{id: int, name: string, planned_minutes: int}>
      */
     private function plannedMinutesPerGroup(int $moduleId, array $groupIds): array
     {
-        $planned = array_fill_keys($groupIds, 0);
-
-        $sessions = CourseSession::query()
-            ->where('module_id', $moduleId)
-            ->whereHas('studentGroups', fn (Builder $groups) => $groups->whereIn('student_groups.id', $groupIds))
-            ->with('studentGroups:student_groups.id')
-            ->get(['id', 'starts_at', 'ends_at']);
-
-        foreach ($sessions as $session) {
-            foreach ($session->studentGroups as $group) {
-                if (isset($planned[$group->id])) {
-                    $planned[$group->id] += $session->durationInMinutes();
-                }
-            }
-        }
+        $planned = $this->sumPlannedMinutes->execute($groupIds, $moduleId);
 
         return array_values(StudentGroup::query()
             ->whereKey($groupIds)
@@ -121,7 +108,7 @@ class CheckCourseSessionBatchAction
             ->map(fn (StudentGroup $group): array => [
                 'id' => $group->id,
                 'name' => $group->name,
-                'planned_minutes' => $planned[$group->id],
+                'planned_minutes' => $planned[$group->id][$moduleId] ?? 0,
             ])
             ->all());
     }

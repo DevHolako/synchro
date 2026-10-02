@@ -8,6 +8,7 @@ use App\Services\Scheduling\TimetableScope;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use LogicException;
 
 /**
  * The sessions of one timetable within a date range, with everything a calendar card shows.
@@ -56,7 +57,8 @@ class ListTimetableSessionsAction
                 'room.building',
                 fn (Builder $buildings) => $buildings->where('campus_id', $subjectId),
             ),
-            TimetablePerspective::Mine => null,
+            // TimetableScope resolves "mine" to a group or a teacher before it gets here.
+            TimetablePerspective::Mine => throw new LogicException('An unresolved "mine" scope reached the timetable query.'),
         };
 
         return $query->get();

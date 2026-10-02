@@ -5,7 +5,6 @@ namespace App\Http\Requests\Attendance;
 use App\Enums\AttendanceStatus;
 use App\Models\CourseSession;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -14,7 +13,7 @@ class RecordAttendanceRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('recordAttendance', $this->session()) ?? false;
+        return $this->user()?->can('recordAttendance', $this->courseSession()) ?? false;
     }
 
     /**
@@ -26,7 +25,8 @@ class RecordAttendanceRequest extends FormRequest
             'marks' => ['present', 'array'],
             'marks.*' => ['array:student_id,status,remarks'],
             'marks.*.student_id' => ['required', 'integer', 'distinct'],
-            'marks.*.status' => ['required', Rule::enum(AttendanceStatus::class)],
+            // A null status removes the student's mark.
+            'marks.*.status' => ['present', 'nullable', Rule::enum(AttendanceStatus::class)],
             'marks.*.remarks' => ['nullable', 'string', 'max:255'],
         ];
     }
@@ -34,7 +34,7 @@ class RecordAttendanceRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            if (! $this->session()->hasStarted()) {
+            if (! $this->courseSession()->hasStarted()) {
                 $validator->errors()->add('marks', __('messages.attendance_not_started'));
 
                 return;
@@ -53,7 +53,10 @@ class RecordAttendanceRequest extends FormRequest
         });
     }
 
-    public function session(): CourseSession
+    /**
+     * The session whose register this is (named so as not to shadow `Request::session()`).
+     */
+    public function courseSession(): CourseSession
     {
         /** @var CourseSession $session */
         $session = $this->route('session');
@@ -62,7 +65,7 @@ class RecordAttendanceRequest extends FormRequest
     }
 
     /**
-     * @return list<array{student_id: int, status: string, remarks: string|null}>
+     * @return list<array{student_id: int, status: string|null, remarks: string|null}>
      */
     public function marks(): array
     {
@@ -73,7 +76,7 @@ class RecordAttendanceRequest extends FormRequest
 
             $marks[] = [
                 'student_id' => $this->integer("marks.{$index}.student_id"),
-                'status' => $this->string("marks.{$index}.status")->value(),
+                'status' => $this->input("marks.{$index}.status") === null ? null : $this->string("marks.{$index}.status")->value(),
                 'remarks' => $remarks === '' ? null : $remarks,
             ];
         }
@@ -82,21 +85,16 @@ class RecordAttendanceRequest extends FormRequest
     }
 
     /**
-     * Which of the students may be marked: those in the session's groups, or already marked.
+     * Which of the students may be marked: those on the session's register.
      *
      * @param  list<int>  $studentIds
      * @return list<int>
      */
     private function rosterStudentIds(array $studentIds): array
     {
-        $session = $this->session();
-        $groupIds = $session->studentGroups()->pluck('student_groups.id');
-
         return array_values(array_map('intval', User::query()
             ->whereKey($studentIds)
-            ->where(fn (Builder $query) => $query
-                ->whereHas('studentProfile', fn (Builder $profiles) => $profiles->whereIn('student_group_id', $groupIds))
-                ->orWhereHas('attendances', fn (Builder $marks) => $marks->where('course_session_id', $session->id)))
+            ->onRegisterOf($this->courseSession())
             ->pluck('id')
             ->all()));
     }

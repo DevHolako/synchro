@@ -93,8 +93,6 @@ return [
     'course_session_deleted' => 'Session removed.',
     'course_session_started' => 'This session has already started: it can no longer be moved or removed.',
     'course_session_in_past' => 'A session cannot be moved into the past.',
-    'course_session_rescheduled' => 'Session moved.',
-    'attendance_saved' => 'Attendance saved.',
     'attendance_not_started' => 'Attendance can be taken once the session has started.',
     'attendance_unknown_student' => 'Some students are not in this session\'s groups.',
     'calendar_feed_name' => ':app · My timetable',

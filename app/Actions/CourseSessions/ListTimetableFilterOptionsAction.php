@@ -35,11 +35,7 @@ class ListTimetableFilterOptionsAction
                     'academic_year' => $group->academic_year,
                 ])
                 ->all()),
-            'teachers' => array_values(User::teachers()
-                ->orderBy('name')
-                ->get(['id', 'name'])
-                ->map(fn (User $teacher): array => ['id' => $teacher->id, 'name' => $teacher->name])
-                ->all()),
+            'teachers' => User::teacherOptions(),
             'rooms' => array_values($this->activeOrSelected(Room::query(), $scope, TimetablePerspective::Room)
                 ->with('building:id,name')
                 ->orderBy('name')

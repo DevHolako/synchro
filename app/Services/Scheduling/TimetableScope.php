@@ -14,9 +14,13 @@ use InvalidArgumentException;
  */
 final readonly class TimetableScope
 {
+    /**
+     * @param  bool  $ownTimetable  Resolved from the viewer's "mine" perspective.
+     */
     public function __construct(
         public TimetablePerspective $perspective,
         public ?int $subjectId,
+        public bool $ownTimetable = false,
     ) {
         if ($perspective === TimetablePerspective::Mine) {
             throw new InvalidArgumentException('Resolve the "mine" perspective with TimetableScope::mine().');
@@ -31,7 +35,23 @@ final readonly class TimetableScope
         $studentProfile = $viewer->studentProfile;
 
         return $studentProfile === null
-            ? new self(TimetablePerspective::Teacher, $viewer->id)
-            : new self(TimetablePerspective::Group, $studentProfile->student_group_id);
+            ? new self(TimetablePerspective::Teacher, $viewer->id, ownTimetable: true)
+            : new self(TimetablePerspective::Group, $studentProfile->student_group_id, ownTimetable: true);
+    }
+
+    /**
+     * The group whose timetable this is, if any (the syllabus panel follows it).
+     */
+    public function groupId(): ?int
+    {
+        return $this->perspective === TimetablePerspective::Group ? $this->subjectId : null;
+    }
+
+    /**
+     * A student looking at their own timetable before being assigned to a group.
+     */
+    public function isStudentWithoutGroup(): bool
+    {
+        return $this->ownTimetable && $this->perspective === TimetablePerspective::Group && $this->subjectId === null;
     }
 }

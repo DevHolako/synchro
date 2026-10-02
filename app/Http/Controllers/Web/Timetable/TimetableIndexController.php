@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Web\Timetable;
 
+use App\Actions\CalendarFeeds\CalendarFeedLinksAction;
 use App\Actions\CourseSessions\CalculateSyllabusProgressAction;
 use App\Actions\CourseSessions\ListSchedulingOptionsAction;
 use App\Actions\CourseSessions\ListTimetableFilterOptionsAction;
 use App\Actions\CourseSessions\ListTimetableSessionsAction;
 use App\Enums\TimetablePerspective;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CourseSessions\StoreCourseSessionBatchRequest;
 use App\Http\Requests\Timetable\TimetableRequest;
 use App\Http\Resources\TimetableSessionResource;
 use App\Models\CourseSession;
-use App\Models\StudentGroup;
+use App\Services\Scheduling\SoftConflictOverride;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,13 +28,13 @@ class TimetableIndexController extends Controller
         CalculateSyllabusProgressAction $calculateSyllabusProgress,
         ListTimetableFilterOptionsAction $listFilterOptions,
         ListSchedulingOptionsAction $listSchedulingOptions,
+        CalendarFeedLinksAction $calendarFeedLinks,
     ): Response {
         $perspective = $request->perspective();
         $scope = $request->scope();
         [$from, $until] = $request->range();
         $canBrowse = $request->user()?->can('browse', CourseSession::class) ?? false;
         $canSchedule = $request->user()?->can('create', CourseSession::class) ?? false;
-        $groupId = $scope->perspective === TimetablePerspective::Group ? $scope->subjectId : null;
 
         return Inertia::render('timetable/index', [
             'sessions' => fn () => TimetableSessionResource::collection($listSessions->execute($scope, $from, $until))->resolve(),
@@ -46,34 +48,16 @@ class TimetableIndexController extends Controller
             'canBrowse' => $canBrowse,
             'options' => fn () => $canBrowse ? $listFilterOptions->execute($scope) : null,
             'canSchedule' => $canSchedule,
-            'calendarFeed' => fn () => $this->calendarFeed($request->user()?->calendar_feed_token),
+            'calendarFeed' => fn () => $request->user() === null ? null : $calendarFeedLinks->execute($request->user()),
+            'limits' => [
+                'batch_max_slots' => StoreCourseSessionBatchRequest::MAX_SLOTS,
+                'justification_min' => SoftConflictOverride::MIN_JUSTIFICATION,
+                'justification_max' => SoftConflictOverride::MAX_JUSTIFICATION,
+            ],
             // Loaded by the scheduling wizard the first time it opens.
             'schedulingOptions' => Inertia::optional(fn () => $canSchedule ? $listSchedulingOptions->execute() : null),
-            'syllabus' => function () use ($groupId, $calculateSyllabusProgress): ?array {
-                $group = $groupId === null ? null : StudentGroup::query()->find($groupId);
-
-                return $group === null ? null : $calculateSyllabusProgress->execute($group);
-            },
-            // A student whose profile has no group yet.
-            'noGroup' => $perspective === TimetablePerspective::Mine
-                && $scope->perspective === TimetablePerspective::Group
-                && $groupId === null,
+            'syllabus' => fn () => $scope->groupId() === null ? null : $calculateSyllabusProgress->execute($scope->groupId()),
+            'noGroup' => $scope->isStudentWithoutGroup(),
         ]);
-    }
-
-    /**
-     * The viewer's subscription link, as https (Google) and webcal (Apple, Outlook) URLs.
-     *
-     * @return array{https: string, webcal: string}|null
-     */
-    private function calendarFeed(?string $token): ?array
-    {
-        if ($token === null) {
-            return null;
-        }
-
-        $url = route('calendar-feeds.show', ['token' => $token]);
-
-        return ['https' => $url, 'webcal' => (string) preg_replace('#^https?://#', 'webcal://', $url)];
     }
 }
