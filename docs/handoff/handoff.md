@@ -198,6 +198,13 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
    - UI: `resources/js/pages/deliberations/`, `resources/js/pages/my-grades/`, the deliberation panel and send-back banner on the grid, sidebar entries.
    - **Run `php artisan migrate`** locally: new columns.
 
+4. **Ticket 04: Retake Candidates and Retake Exams** ([`04-retake-session-candidate-identification.md`](file:///home/holako/github/synchro/docs/specs/05-grade-entry-and-deliberations/tickets/04-retake-session-candidate-identification.md), defaults recorded in the ticket)
+   - Implemented: `exam_grades.previous_final_grade`, `Exam::isRetake()`; `Exam::isGradable()` no longer excludes retakes.
+   - Actions: `ListRetakeCandidatesAction` (used by `ResplitExamAction`, `OpenGradeSheetAction`, the roster), `ShowRetakeRosterAction`; `CalculateFinalGradeAction` keeps the better final.
+   - HTTP: `GET /retakes`; the retake exam is created through `POST /exams`.
+   - UI: `resources/js/pages/retakes/` (roster cards, retake exam dialog), the retake badge, the read-only CC and the normal-session final on the grid, the session in "Mes notes" and the deliberation period picker.
+   - **Run `php artisan migrate`** locally: one new column.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -209,7 +216,7 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is complete (tickets 01–05) and reviewed (2026-10-02); the review fixes are to be re-reviewed.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Parts 03 and 04 are complete and reviewed (2026-10-02). Part 05 is complete (tickets 01–04, 2026-10-02); its whole-Part review is due.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
