@@ -22,6 +22,19 @@ use App\Http\Controllers\Web\CourseSessions\CourseSessionUpdateController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
 use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
+use App\Http\Controllers\Web\Exams\ExamCheckController;
+use App\Http\Controllers\Web\Exams\ExamDestroyController;
+use App\Http\Controllers\Web\Exams\ExamIndexController;
+use App\Http\Controllers\Web\Exams\ExamPeriodArchiveController;
+use App\Http\Controllers\Web\Exams\ExamPeriodDestroyController;
+use App\Http\Controllers\Web\Exams\ExamPeriodPublishController;
+use App\Http\Controllers\Web\Exams\ExamPeriodStoreController;
+use App\Http\Controllers\Web\Exams\ExamPeriodUpdateController;
+use App\Http\Controllers\Web\Exams\ExamPublishController;
+use App\Http\Controllers\Web\Exams\ExamScheduleController;
+use App\Http\Controllers\Web\Exams\ExamStoreController;
+use App\Http\Controllers\Web\Exams\ExamUnscheduleController;
+use App\Http\Controllers\Web\Exams\ExamUpdateController;
 use App\Http\Controllers\Web\Imports\ImportIndexController;
 use App\Http\Controllers\Web\Imports\ImportStoreController;
 use App\Http\Controllers\Web\Imports\ImportTemplateController;
@@ -122,6 +135,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Session attendance register (Part 03 / Ticket 04)
     Route::get('course-sessions/{session}/attendance', AttendanceShowController::class)->name('course-sessions.attendance.show');
     Route::put('course-sessions/{session}/attendance', AttendanceUpdateController::class)->name('course-sessions.attendance.update');
+
+    // Exam periods and the five-state exam lifecycle (Part 04 / Ticket 01, ADR 0005)
+    Route::get('exams', ExamIndexController::class)->name('exams.index');
+    Route::post('exam-periods', ExamPeriodStoreController::class)->name('exam-periods.store');
+    Route::put('exam-periods/{exam_period}', ExamPeriodUpdateController::class)->name('exam-periods.update');
+    Route::delete('exam-periods/{exam_period}', ExamPeriodDestroyController::class)->name('exam-periods.destroy');
+    Route::post('exam-periods/{exam_period}/publish', ExamPeriodPublishController::class)->name('exam-periods.publish');
+    Route::post('exam-periods/{exam_period}/archive', ExamPeriodArchiveController::class)->name('exam-periods.archive');
+    Route::post('exams/check', ExamCheckController::class)->name('exams.check');
+    Route::post('exams', ExamStoreController::class)->name('exams.store');
+    Route::put('exams/{exam}', ExamUpdateController::class)->name('exams.update');
+    Route::delete('exams/{exam}', ExamDestroyController::class)->name('exams.destroy');
+    Route::post('exams/{exam}/schedule', ExamScheduleController::class)->name('exams.schedule');
+    Route::post('exams/{exam}/unschedule', ExamUnscheduleController::class)->name('exams.unschedule');
+    Route::post('exams/{exam}/publish', ExamPublishController::class)->name('exams.publish');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');
