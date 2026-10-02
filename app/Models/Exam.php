@@ -162,6 +162,14 @@ class Exam extends Model
     }
 
     /**
+     * Where the exam's door lists and attendance sheets are stored (private disk).
+     */
+    public function rosterPath(): string
+    {
+        return "exam-rosters/{$this->id}.pdf";
+    }
+
+    /**
      * Whether the exam has begun, by the school's clock.
      */
     public function hasStarted(): bool

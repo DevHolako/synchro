@@ -5,6 +5,7 @@ namespace App\Actions\Exams;
 use App\Models\Exam;
 use App\Models\ExamRoomAssignment;
 use App\Models\StudentProfile;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -56,6 +57,7 @@ class ResplitExamAction
                     'student_id' => $studentId,
                     'exam_room_assignment_id' => $assignment->id,
                     'seat_number' => $seat + 1,
+                    'convocation_uuid' => (string) Str::uuid(),
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];

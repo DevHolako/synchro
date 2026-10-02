@@ -15,13 +15,14 @@ use Illuminate\Support\Carbon;
  * @property int $student_id
  * @property int $exam_room_assignment_id
  * @property int $seat_number
+ * @property string $convocation_uuid
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Exam $exam
  * @property-read User $student
  * @property-read ExamRoomAssignment $roomAssignment
  */
-#[Fillable(['exam_id', 'student_id', 'exam_room_assignment_id', 'seat_number'])]
+#[Fillable(['exam_id', 'student_id', 'exam_room_assignment_id', 'seat_number', 'convocation_uuid'])]
 class ExamCandidate extends Model
 {
     /**
@@ -30,6 +31,14 @@ class ExamCandidate extends Model
     protected function casts(): array
     {
         return ['seat_number' => 'integer'];
+    }
+
+    /**
+     * Where the candidate's convocation PDF is stored (private disk).
+     */
+    public function convocationPath(): string
+    {
+        return "convocations/{$this->exam_id}/{$this->convocation_uuid}.pdf";
     }
 
     /**
