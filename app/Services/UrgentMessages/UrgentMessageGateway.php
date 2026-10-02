@@ -7,5 +7,8 @@ namespace App\Services\UrgentMessages;
  */
 interface UrgentMessageGateway
 {
-    public function send(string $phone, string $message): void;
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    public function send(string $phone, string $message, array $metadata = []): void;
 }

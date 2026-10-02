@@ -35,9 +35,19 @@ return [
         ],
     ],
 
-    // Urgent SMS/WhatsApp alerts (ADR 0003). Only the `log` driver exists until Part 06.
+    // Urgent SMS/WhatsApp alerts (ADR 0003).
     'urgent_messages' => [
         'driver' => env('URGENT_MESSAGES_DRIVER', 'log'),
     ],
 
+    'twilio' => [
+        'account_sid' => env('TWILIO_ACCOUNT_SID', ''),
+        'auth_token' => env('TWILIO_AUTH_TOKEN', ''),
+        'from' => env('TWILIO_FROM', ''),
+    ],
+
+    'whatsapp' => [
+        'token' => env('WHATSAPP_TOKEN', ''),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID', ''),
+    ],
 ];

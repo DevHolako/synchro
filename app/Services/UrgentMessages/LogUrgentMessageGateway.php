@@ -10,8 +10,16 @@ use Illuminate\Support\Facades\Log;
  */
 class LogUrgentMessageGateway implements UrgentMessageGateway
 {
-    public function send(string $phone, string $message): void
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    public function send(string $phone, string $message, array $metadata = []): void
     {
-        Log::info('Urgent message', ['phone' => $phone, 'message' => $message]);
+        $context = ['phone' => $phone, 'message' => $message];
+        if (! empty($metadata)) {
+            $context['metadata'] = $metadata;
+        }
+
+        Log::info('Urgent message', $context);
     }
 }
