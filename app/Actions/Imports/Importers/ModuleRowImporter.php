@@ -9,7 +9,7 @@ use App\Models\Program;
 use App\Models\User;
 
 /**
- * @implements RowImporter<array{program_id: int, teacher_id: int|null, name: string, code: string, total_hours: int, lecture_hours: int, tp_hours: int, color_code: string, description: string|null}>
+ * @implements RowImporter<array{program_id: int, teacher_id: int|null, name: string, code: string, total_hours: int, lecture_hours: int, tp_hours: int, continuous_assessment_weight: int, color_code: string, description: string|null}>
  */
 class ModuleRowImporter implements RowImporter
 {
@@ -27,6 +27,7 @@ class ModuleRowImporter implements RowImporter
             'total_hours' => ['required', 'integer', 'min:1'],
             'lecture_hours' => ['nullable', 'integer', 'min:0'],
             'tp_hours' => ['nullable', 'integer', 'min:0'],
+            'continuous_assessment_weight' => ['nullable', 'integer'],
             'color_code' => ['nullable', 'string', 'regex:/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/'],
             'teacher_email' => ['nullable', 'email', 'max:255'],
             'description' => ['nullable', 'string'],
@@ -47,6 +48,14 @@ class ModuleRowImporter implements RowImporter
 
         if ($lectureHours + $tpHours > (int) $row['total_hours']) {
             throw new ImportRowException('lecture_hours', __('messages.import_hours_exceed_total'));
+        }
+
+        $continuousAssessmentWeight = (int) ($row['continuous_assessment_weight'] ?? 0);
+
+        if ($continuousAssessmentWeight < 0 || $continuousAssessmentWeight > Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT) {
+            throw new ImportRowException('continuous_assessment_weight', __('messages.module_continuous_assessment_weight_range', [
+                'max' => Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT,
+            ]));
         }
 
         $program = Program::query()
@@ -85,6 +94,7 @@ class ModuleRowImporter implements RowImporter
             'total_hours' => (int) $row['total_hours'],
             'lecture_hours' => $lectureHours,
             'tp_hours' => $tpHours,
+            'continuous_assessment_weight' => $continuousAssessmentWeight,
             'color_code' => $row['color_code'] ?? self::DEFAULT_COLOR,
             'description' => $row['description'] ?? null,
         ];

@@ -18,6 +18,7 @@ class UpdateModuleAction
      *     total_hours?: int,
      *     lecture_hours?: int,
      *     tp_hours?: int,
+     *     continuous_assessment_weight?: int,
      *     color_code?: string,
      *     description?: string|null,
      *     is_active?: bool
@@ -81,6 +82,14 @@ class UpdateModuleAction
         }
         if (array_key_exists('tp_hours', $data)) {
             $payload['tp_hours'] = $tpHours;
+        }
+
+        if (array_key_exists('continuous_assessment_weight', $data)) {
+            $weight = (int) $data['continuous_assessment_weight'];
+            if ($weight < 0 || $weight > Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT) {
+                throw new InvalidArgumentException('The continuous assessment weight must be between 0 and '.Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT.'%.');
+            }
+            $payload['continuous_assessment_weight'] = $weight;
         }
 
         if (array_key_exists('color_code', $data)) {

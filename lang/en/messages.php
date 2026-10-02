@@ -19,6 +19,7 @@ return [
     'room_exam_capacity_exceeds_course' => 'The exam capacity cannot exceed the course capacity.',
     'room_name_taken' => 'A room with this name already exists in the selected building.',
     'module_hours_exceed_total' => 'The sum of lecture hours and practical work (TP) hours cannot exceed total syllabus hours.',
+    'module_continuous_assessment_weight_range' => 'The continuous assessment share must be between 0 and :max%: the final exam always counts for at least 1%.',
     'room_status_updated' => 'Room :name :status successfully.',
 
     'department_created' => 'Department :name created successfully.',

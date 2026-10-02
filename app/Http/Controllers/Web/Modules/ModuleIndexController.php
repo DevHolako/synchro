@@ -49,7 +49,7 @@ class ModuleIndexController extends Controller
             $query->where('is_active', (bool) $activeStatus);
         }
 
-        $modules = $query->orderBy('name')->get();
+        $modules = $query->orderBy('name')->get()->append('exam_weight');
 
         $programs = Program::with('department')
             ->where('is_active', true)
@@ -80,6 +80,9 @@ class ModuleIndexController extends Controller
                 'is_active' => $activeStatus,
             ],
             'stats' => $stats,
+            'limits' => [
+                'max_continuous_assessment_weight' => Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT,
+            ],
         ]);
     }
 }

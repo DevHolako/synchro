@@ -36,9 +36,25 @@ class StoreModuleRequest extends FormRequest
             'total_hours' => ['required', 'integer', 'min:1'],
             'lecture_hours' => ['required', 'integer', 'min:0'],
             'tp_hours' => ['required', 'integer', 'min:0'],
+            'continuous_assessment_weight' => ['nullable', 'integer', 'min:0', 'max:'.Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT],
             'color_code' => ['required', 'string', 'regex:/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/'],
             'description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
+        ];
+    }
+
+    /**
+     * Custom validation messages.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        $outOfRange = __('messages.module_continuous_assessment_weight_range', ['max' => Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT]);
+
+        return [
+            'continuous_assessment_weight.min' => $outOfRange,
+            'continuous_assessment_weight.max' => $outOfRange,
         ];
     }
 
@@ -61,7 +77,7 @@ class StoreModuleRequest extends FormRequest
     /**
      * The validated input, typed for the action.
      *
-     * @return array{program_id: int, teacher_id: int|null, name: string, code: string, total_hours: int, lecture_hours: int, tp_hours: int, color_code: string, description: string|null, is_active?: bool}
+     * @return array{program_id: int, teacher_id: int|null, name: string, code: string, total_hours: int, lecture_hours: int, tp_hours: int, continuous_assessment_weight: int, color_code: string, description: string|null, is_active?: bool}
      */
     public function payload(): array
     {
@@ -75,6 +91,7 @@ class StoreModuleRequest extends FormRequest
             'total_hours' => $this->integer('total_hours'),
             'lecture_hours' => $this->integer('lecture_hours'),
             'tp_hours' => $this->integer('tp_hours'),
+            'continuous_assessment_weight' => $this->integer('continuous_assessment_weight'),
             'color_code' => $this->string('color_code')->value(),
             'description' => $this->nullableString('description'),
             ...$this->activeFlag(),
