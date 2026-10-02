@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plan de Démonstration Synchro — Présentation Collègue</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4f46e5">
+    <title>Plan de Démonstration Synchro — Guide Mobile</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,121 +13,214 @@
             --primary: #4f46e5;
             --primary-light: #6366f1;
             --primary-dark: #3730a3;
-            --primary-glow: rgba(79, 70, 229, 0.25);
-            --bg-dark: #090d16;
-            --card-dark: #111827;
+            --primary-bg: #eef2ff;
+            --primary-glow: rgba(79, 70, 229, 0.15);
+            
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --card-subtle: #f1f5f9;
+            
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            
+            --accent-green: #059669;
+            --accent-green-bg: #ecfdf5;
+            --accent-green-border: #a7f3d0;
+            
+            --accent-blue: #0284c7;
+            --accent-blue-bg: #f0f9ff;
+            --accent-blue-border: #bae6fd;
+            
+            --accent-amber: #d97706;
+            --accent-amber-bg: #fffbeb;
+            --accent-amber-border: #fde68a;
+            
+            --accent-violet: #7c3aed;
+            --accent-violet-bg: #f5f3ff;
+            --accent-violet-border: #ddd6fe;
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px -1px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.08);
+        }
+
+        html.dark {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4338ca;
+            --primary-bg: rgba(99, 102, 241, 0.15);
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            
+            --bg-page: #090d16;
+            --card-bg: #111827;
             --card-border: #1f293d;
-            --text-main: #f3f4f6;
+            --card-subtle: #1e293b;
+            
+            --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --text-light: #64748b;
+            
             --accent-green: #10b981;
-            --accent-blue: #0ea5e9;
+            --accent-green-bg: rgba(16, 185, 129, 0.1);
+            --accent-green-border: rgba(16, 185, 129, 0.3);
+            
+            --accent-blue: #38bdf8;
+            --accent-blue-bg: rgba(14, 165, 233, 0.1);
+            --accent-blue-border: rgba(14, 165, 233, 0.3);
+            
             --accent-amber: #f59e0b;
-            --accent-rose: #f43f5e;
-            --accent-violet: #8b5cf6;
+            --accent-amber-bg: rgba(245, 158, 11, 0.1);
+            --accent-amber-border: rgba(245, 158, 11, 0.3);
+            
+            --accent-violet: #a78bfa;
+            --accent-violet-bg: rgba(139, 92, 246, 0.1);
+            --accent-violet-border: rgba(139, 92, 246, 0.3);
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px -1px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.5);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-dark);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-page);
             color: var(--text-main);
             min-height: 100vh;
             line-height: 1.5;
-            overflow-x: hidden;
+            transition: background-color 0.25s, color 0.25s;
+            padding-bottom: 90px; /* Space for mobile bottom sticky nav */
         }
 
-        /* Top Navigation Bar */
+        /* Top Sticky Header */
         header {
             position: sticky;
             top: 0;
             z-index: 50;
-            background: rgba(9, 13, 22, 0.85);
-            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--card-border);
-            padding: 12px 24px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
+        html.dark header {
+            background: rgba(9, 13, 22, 0.9);
+        }
+
         .brand-container {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .brand-logo {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, var(--primary-light), var(--accent-violet));
-            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 800;
-            font-size: 1.1rem;
-            box-shadow: 0 0 20px var(--primary-glow);
+            font-size: 1rem;
+            box-shadow: 0 2px 8px var(--primary-glow);
+            flex-shrink: 0;
         }
 
         .brand-text h1 {
-            font-size: 1.05rem;
-            font-weight: 700;
+            font-size: 0.95rem;
+            font-weight: 800;
             letter-spacing: -0.02em;
-            background: linear-gradient(to right, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
+            line-height: 1.1;
         }
 
         .brand-text p {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
+            font-weight: 500;
         }
 
-        .header-controls {
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 8px;
         }
 
         .timer-badge {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: var(--accent-green-bg);
+            border: 1px solid var(--accent-green-border);
             color: var(--accent-green);
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.78rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .timer-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             background: var(--accent-green);
             border-radius: 50%;
-            animation: pulse 2s infinite;
+            animation: pulse 1.8s infinite;
         }
 
         @keyframes pulse {
             0% { transform: scale(0.9); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px var(--accent-green); }
+            50% { transform: scale(1.2); opacity: 1; }
             100% { transform: scale(0.9); opacity: 0.8; }
         }
 
-        .view-switch {
-            background: #1e293b;
-            padding: 4px;
-            border-radius: 10px;
+        .icon-btn {
+            background: var(--card-subtle);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-main);
+            border-color: var(--primary);
+        }
+
+        /* View Mode Toggle */
+        .mode-toggle-container {
+            padding: 12px 16px 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .view-switch {
+            background: var(--card-subtle);
+            padding: 3px;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             border: 1px solid var(--card-border);
         }
 
@@ -134,418 +228,427 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 6px 14px;
+            padding: 8px 12px;
             border-radius: 7px;
             cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-align: center;
             transition: all 0.2s;
         }
 
         .view-btn.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 2px 8px var(--primary-glow);
+            background: var(--card-bg);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
         }
 
-        /* Container Layout */
+        /* Main Container */
         .main-container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 32px 24px;
+            padding: 14px 16px;
         }
 
-        /* Progress Steps Header */
-        .progress-bar-container {
-            margin-bottom: 32px;
-            background: var(--card-dark);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .progress-header {
+        /* Mobile Progress Horizontal Scroll Pills */
+        .progress-carousel {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 12px;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .progress-header h3 {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            font-weight: 700;
-        }
-
-        .progress-steps-pills {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
+        .progress-carousel::-webkit-scrollbar {
+            display: none;
         }
 
         .step-pill {
-            background: rgba(30, 41, 59, 0.6);
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
-            padding: 10px 12px;
-            border-radius: 10px;
+            padding: 8px 12px;
+            border-radius: 12px;
             cursor: pointer;
+            flex-shrink: 0;
+            min-width: 110px;
             transition: all 0.2s;
-            text-align: left;
-        }
-
-        .step-pill:hover {
-            border-color: var(--primary-light);
-            background: rgba(79, 70, 229, 0.1);
+            box-shadow: var(--shadow-sm);
         }
 
         .step-pill.active {
             border-color: var(--primary);
-            background: rgba(79, 70, 229, 0.2);
-            box-shadow: 0 0 15px var(--primary-glow);
+            background: var(--primary-bg);
+            box-shadow: 0 0 0 1px var(--primary);
         }
 
         .step-pill-number {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--primary-light);
+            font-size: 0.68rem;
+            color: var(--primary);
             font-weight: 700;
         }
 
         .step-pill-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-main);
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        /* Slide View Mode */
+        /* Slide View Card */
         .slide-card {
-            background: var(--card-dark);
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: var(--shadow-md);
             display: none;
-            animation: fadeIn 0.3s ease-out;
+            animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .slide-card.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .slide-header {
-            padding: 24px 32px;
+        .slide-top-bar {
+            padding: 14px 18px;
             border-bottom: 1px solid var(--card-border);
+            background: var(--card-subtle);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: linear-gradient(to right, rgba(79, 70, 229, 0.08), transparent);
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .slide-meta {
+        .slide-meta-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .step-badge {
             background: var(--primary);
             color: white;
-            font-weight: 700;
-            font-size: 0.8rem;
-            padding: 4px 12px;
-            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 6px;
             font-family: 'JetBrains Mono', monospace;
         }
 
         .duration-badge {
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: var(--accent-amber-bg);
+            border: 1px solid var(--accent-amber-border);
             color: var(--accent-amber);
-            font-size: 0.78rem;
-            font-weight: 600;
-            padding: 4px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
             border-radius: 6px;
         }
 
         .route-badge {
-            background: #1e293b;
+            background: var(--accent-blue-bg);
             color: var(--accent-blue);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            padding: 4px 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 8px;
             border-radius: 6px;
-            border: 1px solid rgba(14, 165, 233, 0.3);
+            border: 1px solid var(--accent-blue-border);
+            word-break: break-all;
         }
 
-        .slide-title-area {
-            padding: 24px 32px 12px;
+        .slide-hero {
+            padding: 18px;
+            border-bottom: 1px solid var(--card-border);
         }
 
-        .slide-title-area h2 {
-            font-size: 1.8rem;
+        .slide-hero h2 {
+            font-size: 1.35rem;
             font-weight: 800;
             letter-spacing: -0.02em;
-            margin-bottom: 8px;
-            color: #fff;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            line-height: 1.25;
         }
 
-        .slide-title-area p {
+        .slide-hero p {
             color: var(--text-muted);
-            font-size: 1.05rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
 
-        /* 3-Column Split for Action / Speech / Value */
-        .slide-body {
-            padding: 24px 32px 32px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
+        /* Content Sections */
+        .section-box {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--card-border);
         }
 
-        @media (max-width: 900px) {
-            .slide-body {
-                grid-template-columns: 1fr;
-            }
+        .section-box:last-child {
+            border-bottom: none;
         }
 
-        .column-box {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .column-box.highlight {
-            border-color: rgba(79, 70, 229, 0.4);
-            background: linear-gradient(145deg, rgba(79, 70, 229, 0.08), rgba(15, 23, 42, 0.7));
-        }
-
-        .column-header {
+        .section-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
-        .column-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .icon-action { background: var(--accent-blue-bg); color: var(--accent-blue); }
+        .icon-tell { background: var(--accent-green-bg); color: var(--accent-green); }
+        .icon-tech { background: var(--accent-violet-bg); color: var(--accent-violet); }
+
+        .section-title {
             font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
-        .icon-action { background: rgba(14, 165, 233, 0.2); color: var(--accent-blue); }
-        .icon-tell { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
-        .icon-tech { background: rgba(139, 92, 246, 0.2); color: var(--accent-violet); }
-
-        .column-header h3 {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        .action-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            font-size: 0.92rem;
-            line-height: 1.5;
-            color: #e2e8f0;
-        }
-
-        .action-click {
-            background: #1e293b;
-            color: var(--accent-blue);
-            border: 1px solid rgba(14, 165, 233, 0.3);
-            border-radius: 6px;
-            padding: 2px 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            white-space: nowrap;
-        }
-
-        .speech-quote {
-            background: rgba(16, 185, 129, 0.06);
-            border-left: 3px solid var(--accent-green);
-            padding: 12px 16px;
-            border-radius: 0 8px 8px 0;
-            font-size: 0.95rem;
-            color: #d1fae5;
-            font-style: italic;
-            line-height: 1.6;
-        }
-
-        .talking-points-list {
-            list-style: none;
+        /* Action list */
+        .action-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .talking-points-list li {
-            position: relative;
-            padding-left: 20px;
-            font-size: 0.92rem;
-            color: #cbd5e1;
+        .action-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.45;
         }
 
-        .talking-points-list li::before {
-            content: "✦";
-            position: absolute;
-            left: 0;
-            color: var(--primary-light);
-            font-size: 0.8rem;
+        .action-number {
+            width: 20px;
+            height: 20px;
+            background: var(--card-subtle);
+            border: 1px solid var(--card-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .code-tag {
+            background: var(--card-subtle);
+            color: var(--primary);
+            border: 1px solid var(--card-border);
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* Speech Quote Box */
+        .speech-card {
+            background: var(--accent-green-bg);
+            border: 1px solid var(--accent-green-border);
+            border-left: 4px solid var(--accent-green);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+
+        .speech-text {
+            font-size: 0.95rem;
+            color: var(--accent-green);
+            font-weight: 600;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Key points */
+        .point-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .point-item strong {
+            color: var(--text-main);
+        }
+
+        .point-bullet {
+            color: var(--primary);
+            font-size: 0.9rem;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        /* Tech Pills */
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
         }
 
         .tech-pill {
-            background: rgba(139, 92, 246, 0.15);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: #c4b5fd;
-            padding: 4px 10px;
+            background: var(--accent-violet-bg);
+            border: 1px solid var(--accent-violet-border);
+            color: var(--accent-violet);
+            padding: 3px 8px;
             border-radius: 6px;
-            font-size: 0.76rem;
+            font-size: 0.72rem;
             font-family: 'JetBrains Mono', monospace;
-            display: inline-block;
-            margin-right: 6px;
-            margin-bottom: 6px;
+            font-weight: 600;
         }
 
-        /* Slide Footer Controls */
-        .slide-footer {
-            padding: 18px 32px;
-            background: #0d121f;
-            border-top: 1px solid var(--card-border);
+        /* Desktop Bottom Controls in Card */
+        .desktop-footer {
+            padding: 14px 18px;
+            background: var(--card-subtle);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .nav-btn {
-            background: #1e293b;
+        /* Fixed Mobile Bottom Bar */
+        .mobile-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--card-border);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+        }
+
+        html.dark .mobile-bottom-bar {
+            background: rgba(17, 24, 39, 0.94);
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.4);
+        }
+
+        .btn-nav-prev, .btn-nav-next {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.88rem;
             border: 1px solid var(--card-border);
-            color: #fff;
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 6px;
             transition: all 0.2s;
+            user-select: none;
         }
 
-        .nav-btn:hover:not(:disabled) {
-            background: var(--primary);
-            border-color: var(--primary);
+        .btn-nav-prev {
+            background: var(--card-subtle);
+            color: var(--text-main);
         }
 
-        .nav-btn:disabled {
+        .btn-nav-prev:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
 
-        .slide-index-counter {
+        .btn-nav-next {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .mobile-step-indicator {
             font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 700;
             color: var(--text-muted);
-            font-size: 0.88rem;
+            white-space: nowrap;
+            padding: 0 4px;
         }
 
         /* Cheat Sheet / Runbook Mode */
-        .cheat-sheet-container {
+        .sheet-container {
             display: none;
             flex-direction: column;
-            gap: 24px;
-        }
-
-        .cheat-sheet-container.active {
-            display: flex;
-        }
-
-        .cheat-sheet-card {
-            background: var(--card-dark);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 24px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .cheat-sheet-card:hover {
-            border-color: rgba(79, 70, 229, 0.4);
-        }
-
-        .cheat-sheet-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .shortcut-hint {
-            font-size: 0.76rem;
-            color: var(--text-muted);
-            background: rgba(255,255,255,0.05);
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Presentation Tips Bar */
-        .tips-banner {
-            margin-top: 32px;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(16, 185, 129, 0.1));
-            border: 1px solid rgba(79, 70, 229, 0.3);
-            border-radius: 16px;
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             gap: 16px;
+        }
+
+        .sheet-container.active {
+            display: flex;
+        }
+
+        .sheet-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sheet-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
-        .tips-title {
-            font-weight: 700;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .sheet-step-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-main);
         }
 
-        .keyboard-shortcuts {
-            display: flex;
-            gap: 12px;
-            font-size: 0.8rem;
+        .sheet-actions {
+            margin-bottom: 12px;
             color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.5;
         }
 
-        .kbd {
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: #fff;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
+        .swipe-hint {
+            text-align: center;
             font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 12px;
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -556,590 +659,604 @@
         <div class="brand-container">
             <div class="brand-logo">S</div>
             <div class="brand-text">
-                <h1>SYNCHRO · Guide de Présentation</h1>
-                <p>Plan de Démonstration en Direct · 7 Étapes Stratégiques (20 min)</p>
+                <h1>Synchro · Démo</h1>
+                <p>Plan Présentation Collègue</p>
             </div>
         </div>
 
-        <div class="header-controls">
+        <div class="header-actions">
             <div class="timer-badge" id="timer">
                 <span class="timer-dot"></span>
                 <span id="timer-text">00:00</span>
             </div>
 
-            <div class="view-switch">
-                <button class="view-btn active" id="btn-slides-view" onclick="switchView('slides')">Diaporama Direct</button>
-                <button class="view-btn" id="btn-sheet-view" onclick="switchView('sheet')">Fiche Auteur (Cheat Sheet)</button>
-            </div>
+            <button class="icon-btn" id="theme-toggle" onclick="toggleTheme()" title="Basculer Mode Clair / Sombre">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
     </header>
 
+    <!-- Mode Selector: Diaporama vs Fiche -->
+    <div class="mode-toggle-container">
+        <div class="view-switch">
+            <button class="view-btn active" id="btn-slides-view" onclick="switchView('slides')">Diaporama Mobile</button>
+            <button class="view-btn" id="btn-sheet-view" onclick="switchView('sheet')">Fiche Continue (Runbook)</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
     <div class="main-container">
 
-        <!-- Progress Timeline Pager -->
-        <div class="progress-bar-container" id="timeline-container">
-            <div class="progress-header">
-                <h3>Progression de la démo</h3>
-                <span class="shortcut-hint">Navigation : Flèches <span class="kbd">←</span> <span class="kbd">→</span> ou <span class="kbd">Espace</span></span>
+        <!-- Progress Horizontal Carousel Pills -->
+        <div class="progress-carousel" id="carousel-pills">
+            <div class="step-pill active" onclick="goToStep(0)">
+                <div class="step-pill-number">01 · 2 MIN</div>
+                <div class="step-pill-title">Vision & Auth</div>
             </div>
-            <div class="progress-steps-pills">
-                <div class="step-pill active" onclick="goToStep(0)">
-                    <div class="step-pill-number">01 · 2 MIN</div>
-                    <div class="step-pill-title">Vision & Connexion</div>
-                </div>
-                <div class="step-pill" onclick="goToStep(1)">
-                    <div class="step-pill-number">02 · 3 MIN</div>
-                    <div class="step-pill-title">Dashboard & Thèmes</div>
-                </div>
-                <div class="step-pill" onclick="goToStep(2)">
-                    <div class="step-pill-number">03 · 3 MIN</div>
-                    <div class="step-pill-title">Espaces & Capacités</div>
-                </div>
-                <div class="step-pill" onclick="goToStep(3)">
-                    <div class="step-pill-number">04 · 3 MIN</div>
-                    <div class="step-pill-title">Structure & Filières</div>
-                </div>
-                <div class="step-pill" onclick="goToStep(4)">
-                    <div class="step-pill-number">05 · 4 MIN</div>
-                    <div class="step-pill-title">Emploi du Temps</div>
-                </div>
-                <div class="step-pill" onclick="goToStep(5)">
-                    <div class="step-pill-number">06 · 3 MIN</div>
-                    <div class="step-pill-title">Examens, QR & Notes</div>
-                </div>
-                <div class="step-pill" onclick="goToStep(6)">
-                    <div class="step-pill-number">07 · 2 MIN</div>
-                    <div class="step-pill-title">Mobile & Déploiement</div>
-                </div>
+            <div class="step-pill" onclick="goToStep(1)">
+                <div class="step-pill-number">02 · 3 MIN</div>
+                <div class="step-pill-title">Dashboard & Thème</div>
+            </div>
+            <div class="step-pill" onclick="goToStep(2)">
+                <div class="step-pill-number">03 · 3 MIN</div>
+                <div class="step-pill-title">Salles & Capacités</div>
+            </div>
+            <div class="step-pill" onclick="goToStep(3)">
+                <div class="step-pill-number">04 · 3 MIN</div>
+                <div class="step-pill-title">Filières & Structure</div>
+            </div>
+            <div class="step-pill" onclick="goToStep(4)">
+                <div class="step-pill-number">05 · 4 MIN</div>
+                <div class="step-pill-title">Planning & Conflits</div>
+            </div>
+            <div class="step-pill" onclick="goToStep(5)">
+                <div class="step-pill-number">06 · 3 MIN</div>
+                <div class="step-pill-title">Examens & QR Code</div>
+            </div>
+            <div class="step-pill" onclick="goToStep(6)">
+                <div class="step-pill-number">07 · 2 MIN</div>
+                <div class="step-pill-title">Mobile & Coolify</div>
             </div>
         </div>
 
+        <div class="swipe-hint" id="swipe-hint">👉 Glisse l'écran vers la gauche ou droite pour changer d'étape</div>
+
         <!-- ========================================================================= -->
-        <!-- SLIDE MODE                                                                -->
+        <!-- SLIDES VIEW                                                               -->
         <!-- ========================================================================= -->
         <div id="slides-view">
 
             <!-- STEP 1 -->
             <div class="slide-card active" data-step="0">
-                <div class="slide-header">
-                    <div class="slide-meta">
+                <div class="slide-top-bar">
+                    <div class="slide-meta-left">
                         <span class="step-badge">ÉTAPE 1 / 7</span>
-                        <span class="duration-badge">⏱ ~2 minutes</span>
+                        <span class="duration-badge">⏱ ~2 min</span>
                     </div>
-                    <span class="route-badge">Page : /login & Vue d'ensemble</span>
+                    <span class="route-badge">/login</span>
                 </div>
-                <div class="slide-title-area">
-                    <h2>Introduction, Contexte & Connexion Sécurisée</h2>
-                    <p>Poser le problème réel d'un établissement d'enseignement supérieur et le rôle de Synchro.</p>
-                </div>
-                <div class="slide-body">
-                    <div class="column-box">
-                        <div class="column-header">
-                            <span class="column-icon icon-action">💻</span>
-                            <h3>Ce que tu montres (Action)</h3>
-                        </div>
-                        <div class="action-item">
-                            <span>1.</span>
-                            <span>Affiche la page d'accueil / écran de connexion <strong>/login</strong>.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>2.</span>
-                            <span>Montre la propreté du design, le logo institutionnel et la sécurité d'accès.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>3.</span>
-                            <span>Connecte-toi avec le compte administrateur principal :<br>
-                            <span class="action-click">admin@synchro.test</span> / <span class="action-click">password</span></span>
-                        </div>
-                    </div>
 
-                    <div class="column-box highlight">
-                        <div class="column-header">
-                            <span class="column-icon icon-tell">🎙️</span>
-                            <h3>Ce que tu dis (Pitch & Valeur)</h3>
+                <div class="slide-hero">
+                    <h2>Vision & Connexion Sécurisée</h2>
+                    <p>Poser le problème réel d'un établissement d'enseignement supérieur et le rôle clé de Synchro.</p>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-action">💻</span>
+                        <span class="section-title">Ce que tu montres à l'écran</span>
+                    </div>
+                    <div class="action-list">
+                        <div class="action-step">
+                            <span class="action-number">1</span>
+                            <span>Affiche l'écran d'accueil propre <strong>/login</strong>.</span>
                         </div>
-                        <div class="speech-quote">
-                            « Aujourd'hui dans les universités et écoles supérieures, la gestion des plannings et examens est souvent éclatée entre des dizaines de fichiers Excel, des emails perdus et des doublons de salles. Synchro résout précisément cela en réunissant toute la logistique pédagogique dans une seule plateforme unifiée et temps-réel. »
+                        <div class="action-step">
+                            <span class="action-number">2</span>
+                            <span>Montre la sécurité et connecte-toi avec :<br>
+                            <span class="code-tag">admin@synchro.test</span> / <span class="code-tag">password</span></span>
                         </div>
-                        <ul class="talking-points-list">
-                            <li><strong>Multi-Rôles :</strong> 4 profils distincts (Administrateur, Coordinateur, Enseignant, Étudiant).</li>
-                            <li><strong>Autorisation par permissions atomiques :</strong> Pas de rôles rigides, contrôle granulaire (ADR 0011).</li>
-                            <li><strong>Bilingue FR/EN natif :</strong> Parité 100% avec le français par défaut.</li>
-                        </ul>
                     </div>
                 </div>
-                <div class="slide-footer">
-                    <button class="nav-btn" disabled onclick="prevStep()">Précédent</button>
-                    <span class="slide-index-counter">1 sur 7</span>
-                    <button class="nav-btn" onclick="nextStep()">Suivant : Dashboard →</button>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-tell">🎙️</span>
+                        <span class="section-title">Ce que tu dis (Pitch percutant)</span>
+                    </div>
+                    <div class="speech-card">
+                        <div class="speech-text">
+                            « Aujourd'hui, les plannings et examens sont éclatés entre des fichiers Excel, des emails et des doublons de salles. Synchro réunit toute la logistique pédagogique dans une seule plateforme unifiée et temps réel. »
+                        </div>
+                    </div>
+                    <div class="point-item">
+                        <span class="point-bullet">✦</span>
+                        <span><strong>4 Rôles intégrés :</strong> Administrateur, Coordinateur, Enseignant, Étudiant.</span>
+                    </div>
+                    <div class="point-item">
+                        <span class="point-bullet">✦</span>
+                        <span><strong>Bilingue natif :</strong> 100% de parité Français (défaut) / Anglais.</span>
+                    </div>
                 </div>
             </div>
 
             <!-- STEP 2 -->
             <div class="slide-card" data-step="1">
-                <div class="slide-header">
-                    <div class="slide-meta">
+                <div class="slide-top-bar">
+                    <div class="slide-meta-left">
                         <span class="step-badge">ÉTAPE 2 / 7</span>
-                        <span class="duration-badge">⏱ ~3 minutes</span>
+                        <span class="duration-badge">⏱ ~3 min</span>
                     </div>
-                    <span class="route-badge">Pages : /dashboard & /admin/settings</span>
+                    <span class="route-badge">/dashboard & /admin/settings</span>
                 </div>
-                <div class="slide-title-area">
-                    <h2>Dashboard Rôle-Dédié & Personnalisation de Thème</h2>
-                    <p>Démontrer la clarté opérationnelle pour l'administrateur et l'adaptabilité visuelle de la marque.</p>
-                </div>
-                <div class="slide-body">
-                    <div class="column-box">
-                        <div class="column-header">
-                            <span class="column-icon icon-action">💻</span>
-                            <h3>Ce que tu montres (Action)</h3>
-                        </div>
-                        <div class="action-item">
-                            <span>1.</span>
-                            <span>Explore le <strong>Dashboard</strong> : 4 cartes KPI d'impact (sessions, examens, étudiants, alertes).</span>
-                        </div>
-                        <div class="action-item">
-                            <span>2.</span>
-                            <span>Montre la timeline des prochains cours et des examens à venir.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>3.</span>
-                            <span>Clique sur <span class="action-click">FR / EN</span> en haut à droite pour basculer instantanément la langue sans rechargement.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>4.</span>
-                            <span>Ouvre <strong>Apparence & Thème</strong> (<span class="action-click">/admin/settings</span>) et clique sur <em>Émeraude</em>, <em>Océan</em> ou <em>Violet</em> avec aperçu direct en temps réel !</span>
-                        </div>
-                    </div>
 
-                    <div class="column-box highlight">
-                        <div class="column-header">
-                            <span class="column-icon icon-tell">🎙️</span>
-                            <h3>Ce que tu dis (Pitch & Valeur)</h3>
+                <div class="slide-hero">
+                    <h2>Dashboard Rôle-Dédié & Personnalisation</h2>
+                    <p>Clarté opérationnelle pour l'administration et adaptabilité graphique instantanée.</p>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-action">💻</span>
+                        <span class="section-title">Ce que tu montres à l'écran</span>
+                    </div>
+                    <div class="action-list">
+                        <div class="action-step">
+                            <span class="action-number">1</span>
+                            <span>Explore le <strong>Dashboard</strong> : 4 cartes KPI (séances, examens, étudiants, alertes).</span>
                         </div>
-                        <div class="speech-quote">
-                            « Dès la connexion, chaque utilisateur voit exactement ce qui l'intéresse. L'administrateur dispose d'une vue de pilotage globale. Et nous venons d'ajouter un moteur de personnalisation de marque qui permet d'adapter les couleurs et le style de l'application en un clic. »
+                        <div class="action-step">
+                            <span class="action-number">2</span>
+                            <span>Clique sur <span class="code-tag">FR / EN</span> en haut pour changer la langue en direct.</span>
                         </div>
-                        <ul class="talking-points-list">
-                            <li><strong>Zero Monolithic JSX :</strong> Dashboard découpé en composants ultra-optimisés sous Vercel Best Practices.</li>
-                            <li><strong>Mise en cache intelligente :</strong> Paramètres système persistés avec invalidation immédiate.</li>
-                        </ul>
+                        <div class="action-step">
+                            <span class="action-number">3</span>
+                            <span>Ouvre <strong>Apparence & Thème</strong> (<span class="code-tag">/admin/settings</span>) et sélectionne <em>Émeraude</em>, <em>Océan</em> ou <em>Violet</em> avec aperçu temps réel !</span>
+                        </div>
                     </div>
                 </div>
-                <div class="slide-footer">
-                    <button class="nav-btn" onclick="prevStep()">← Précédent</button>
-                    <span class="slide-index-counter">2 sur 7</span>
-                    <button class="nav-btn" onclick="nextStep()">Suivant : Espaces Pédagogiques →</button>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-tell">🎙️</span>
+                        <span class="section-title">Ce que tu dis (Pitch percutant)</span>
+                    </div>
+                    <div class="speech-card">
+                        <div class="speech-text">
+                            « Dès la connexion, chaque profil voit ses priorités. Et avec le nouveau panneau d'administration, on peut adapter les couleurs de la charte graphique de l'école instantanément sans toucher au code. »
+                        </div>
+                    </div>
+                    <div class="point-item">
+                        <span class="point-bullet">✦</span>
+                        <span><strong>Architecture propre :</strong> Zéro composant monolithique, optimisé Vercel Best Practices.</span>
+                    </div>
                 </div>
             </div>
 
             <!-- STEP 3 -->
             <div class="slide-card" data-step="2">
-                <div class="slide-header">
-                    <div class="slide-meta">
+                <div class="slide-top-bar">
+                    <div class="slide-meta-left">
                         <span class="step-badge">ÉTAPE 3 / 7</span>
-                        <span class="duration-badge">⏱ ~3 minutes</span>
+                        <span class="duration-badge">⏱ ~3 min</span>
                     </div>
-                    <span class="route-badge">Page : /rooms</span>
+                    <span class="route-badge">/rooms</span>
                 </div>
-                <div class="slide-title-area">
-                    <h2>Espaces Pédagogiques & Règle des « Deux Capacités »</h2>
+
+                <div class="slide-hero">
+                    <h2>Espaces & Règle des « Deux Capacités »</h2>
                     <p>L'innovation clé qui évite le surbooking et la fraude lors des sessions d'examens.</p>
                 </div>
-                <div class="slide-body">
-                    <div class="column-box">
-                        <div class="column-header">
-                            <span class="column-icon icon-action">💻</span>
-                            <h3>Ce que tu montres (Action)</h3>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-action">💻</span>
+                        <span class="section-title">Ce que tu montres à l'écran</span>
+                    </div>
+                    <div class="action-list">
+                        <div class="action-step">
+                            <span class="action-number">1</span>
+                            <span>Navigue vers <strong>Espaces Pédagogiques</strong> (<span class="code-tag">/rooms</span>).</span>
                         </div>
-                        <div class="action-item">
-                            <span>1.</span>
-                            <span>Navigue vers <strong>Espaces Pédagogiques</strong> (<span class="action-click">/rooms</span>).</span>
-                        </div>
-                        <div class="action-item">
-                            <span>2.</span>
+                        <div class="action-step">
+                            <span class="action-number">2</span>
                             <span>Montre la hiérarchie : <strong>Campus $\rightarrow$ Bâtiments $\rightarrow$ Salles</strong>.</span>
                         </div>
-                        <div class="action-item">
-                            <span>3.</span>
-                            <span>Clique sur <span class="action-click">Nouvelle salle</span> ou sur une salle existante.</span>
+                        <div class="action-step">
+                            <span class="action-number">3</span>
+                            <span>Clique sur une salle et montre les deux chiffres : <strong>Capacité Cours</strong> (ex: 60) vs <strong>Capacité Examen</strong> avec distanciation (ex: 30).</span>
                         </div>
-                        <div class="action-item">
-                            <span>4.</span>
-                            <span>Fais remarquer la distinction capitale : <strong>Capacité Cours</strong> (ex: 60) vs <strong>Capacité Examen</strong> (ex: 30 avec distanciation) + drapeaux labo/projecteur.</span>
-                        </div>
-                    </div>
-
-                    <div class="column-box highlight">
-                        <div class="column-header">
-                            <span class="column-icon icon-tell">🎙️</span>
-                            <h3>Ce que tu dis (Pitch & Valeur)</h3>
-                        </div>
-                        <div class="speech-quote">
-                            « C'est un des plus gros pièges dans les écoles : une salle peut contenir 60 élèves pour un cours magistral, mais seulement 30 pour un examen avec un siège d'écart anti-fraude. Synchro rend ces deux capacités explicites et vérifiées par le système. »
-                        </div>
-                        <ul class="talking-points-list">
-                            <li><strong>Règle de validation métier stricte :</strong> Impossible de déclarer une capacité examen supérieure à la capacité cours.</li>
-                            <li><strong>Prêt pour l'import massif :</strong> Possibilité d'importer tout le parc de salles par tableur Excel en un clic.</li>
-                        </ul>
                     </div>
                 </div>
-                <div class="slide-footer">
-                    <button class="nav-btn" onclick="prevStep()">← Précédent</button>
-                    <span class="slide-index-counter">3 sur 7</span>
-                    <button class="nav-btn" onclick="nextStep()">Suivant : Structure & Filières →</button>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-tell">🎙️</span>
+                        <span class="section-title">Ce que tu dis (Pitch percutant)</span>
+                    </div>
+                    <div class="speech-card">
+                        <div class="speech-text">
+                            « C'est le piège classique : une salle contient 60 élèves en cours magistral, mais seulement 30 en examen anti-fraude avec un siège d'écart. Synchro enforce cette règle mathématiquement. »
+                        </div>
+                    </div>
+                    <div class="point-item">
+                        <span class="point-bullet">✦</span>
+                        <span><strong>Règle stricte :</strong> Capacité examen $\le$ capacité cours vérifiée à la validation.</span>
+                    </div>
                 </div>
             </div>
 
             <!-- STEP 4 -->
             <div class="slide-card" data-step="3">
-                <div class="slide-header">
-                    <div class="slide-meta">
+                <div class="slide-top-bar">
+                    <div class="slide-meta-left">
                         <span class="step-badge">ÉTAPE 4 / 7</span>
-                        <span class="duration-badge">⏱ ~3 minutes</span>
+                        <span class="duration-badge">⏱ ~3 min</span>
                     </div>
-                    <span class="route-badge">Pages : /academic-structure & /modules</span>
+                    <span class="route-badge">/academic-structure & /modules</span>
                 </div>
-                <div class="slide-title-area">
-                    <h2>Structure Académique : Modalités Duales & Modules</h2>
-                    <p>Comment Synchro gère à la fois les filières classiques et les professionnels en cours du soir/weekend.</p>
+
+                <div class="slide-hero">
+                    <h2>Structure Académique & Modalités Duales</h2>
+                    <p>Gestion conjointe de la formation initiale et des professionnels en cours du soir/weekend.</p>
                 </div>
-                <div class="slide-body">
-                    <div class="column-box">
-                        <div class="column-header">
-                            <span class="column-icon icon-action">💻</span>
-                            <h3>Ce que tu montres (Action)</h3>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-action">💻</span>
+                        <span class="section-title">Ce que tu montres à l'écran</span>
+                    </div>
+                    <div class="action-list">
+                        <div class="action-step">
+                            <span class="action-number">1</span>
+                            <span>Ouvre <strong>Structure académique</strong> (<span class="code-tag">/academic-structure</span>).</span>
                         </div>
-                        <div class="action-item">
-                            <span>1.</span>
-                            <span>Ouvre <strong>Structure académique</strong> (<span class="action-click">/academic-structure</span>).</span>
-                        </div>
-                        <div class="action-item">
-                            <span>2.</span>
-                            <span>Montre l'arborescence : Département $\rightarrow$ Filière $\rightarrow$ Groupe d'étudiants.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>3.</span>
+                        <div class="action-step">
+                            <span class="action-number">2</span>
                             <span>Mets en évidence le badge de modalité : <strong>Formation Initiale</strong> vs <strong>Temps Aménagé</strong> (ADR 0001).</span>
                         </div>
-                        <div class="action-item">
-                            <span>4.</span>
-                            <span>Passe rapidement sur le <strong>Catalogue des Modules</strong> (<span class="action-click">/modules</span>) avec crédits, volume horaire et pondération CC/Examen.</span>
+                        <div class="action-step">
+                            <span class="action-number">3</span>
+                            <span>Survole le <strong>Catalogue des Modules</strong> (<span class="code-tag">/modules</span>) avec volumes horaires et pondération CC/Examen.</span>
                         </div>
-                    </div>
-
-                    <div class="column-box highlight">
-                        <div class="column-header">
-                            <span class="column-icon icon-tell">🎙️</span>
-                            <h3>Ce que tu dis (Pitch & Valeur)</h3>
-                        </div>
-                        <div class="speech-quote">
-                            « Notre modèle pédagogique s'adapte aussi bien aux étudiants de jour qu'aux cadres en formation continue le samedi et dimanche. La grille de planification sait exactement quand chaque cohorte a le droit d'avoir cours sans blocage rigide. »
-                        </div>
-                        <ul class="talking-points-list">
-                            <li><strong>Effectif cible (Headcount) :</strong> Chaque groupe a un effectif attendu qui empêche d'affecter une salle trop petite.</li>
-                            <li><strong>Cohorte rattachée au Campus :</strong> Possibilité de lier une promotion à Casablanca, Rabat, etc.</li>
-                        </ul>
                     </div>
                 </div>
-                <div class="slide-footer">
-                    <button class="nav-btn" onclick="prevStep()">← Précédent</button>
-                    <span class="slide-index-counter">4 sur 7</span>
-                    <button class="nav-btn" onclick="nextStep()">Suivant : Emploi du Temps →</button>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-tell">🎙️</span>
+                        <span class="section-title">Ce que tu dis (Pitch percutant)</span>
+                    </div>
+                    <div class="speech-card">
+                        <div class="speech-text">
+                            « Notre modèle s'adapte aussi bien aux cours de jour qu'aux cadres du weekend. La grille de planification sait exactement quand chaque promotion a le droit d'avoir cours. »
+                        </div>
+                    </div>
+                    <div class="point-item">
+                        <span class="point-bullet">✦</span>
+                        <span><strong>Effectif cible (Headcount) :</strong> Empêche d'affecter une promo dans une salle sous-dimensionnée.</span>
+                    </div>
                 </div>
             </div>
 
             <!-- STEP 5 -->
             <div class="slide-card" data-step="4">
-                <div class="slide-header">
-                    <div class="slide-meta">
+                <div class="slide-top-bar">
+                    <div class="slide-meta-left">
                         <span class="step-badge">ÉTAPE 5 / 7</span>
-                        <span class="duration-badge">⏱ ~4 minutes</span>
+                        <span class="duration-badge">⏱ ~4 min</span>
                     </div>
-                    <span class="route-badge">Page : /timetable (Le Cœur du Système)</span>
+                    <span class="route-badge">/timetable (Le Cœur du Système)</span>
                 </div>
-                <div class="slide-title-area">
-                    <h2>Planning Interactif & Détection de Conflits en Temps Réel</h2>
-                    <p>L'effet « Wahoo » de la démo : déplacer des séances et voir le moteur empêcher les collisions.</p>
-                </div>
-                <div class="slide-body">
-                    <div class="column-box">
-                        <div class="column-header">
-                            <span class="column-icon icon-action">💻</span>
-                            <h3>Ce que tu montres (Action)</h3>
-                        </div>
-                        <div class="action-item">
-                            <span>1.</span>
-                            <span>Ouvre <strong>Emploi du temps</strong> (<span class="action-click">/timetable</span>).</span>
-                        </div>
-                        <div class="action-item">
-                            <span>2.</span>
-                            <span>Filtre par Enseignant, par Groupe ou par Campus pour voir le calendrier se synchroniser.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>3.</span>
-                            <span>Clique sur un créneau ou <span class="action-click">Planifier une séance</span>.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>4.</span>
-                            <span>Simule un <strong>conflit dur</strong> (affecter une salle déjà occupée ou un prof déjà en cours) : montre le message d'alerte immédiat.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>5.</span>
-                            <span>Montre la gestion des <strong>indisponibilités profs</strong> avec demande d'arbitrage.</span>
-                        </div>
-                    </div>
 
-                    <div class="column-box highlight">
-                        <div class="column-header">
-                            <span class="column-icon icon-tell">🎙️</span>
-                            <h3>Ce que tu dis (Pitch & Valeur)</h3>
+                <div class="slide-hero">
+                    <h2>Planning Interactif & Détection de Conflits</h2>
+                    <p>L'effet « Wahoo » : déplacer des séances et voir le moteur empêcher les collisions.</p>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-action">💻</span>
+                        <span class="section-title">Ce que tu montres à l'écran</span>
+                    </div>
+                    <div class="action-list">
+                        <div class="action-step">
+                            <span class="action-number">1</span>
+                            <span>Ouvre <strong>Emploi du temps</strong> (<span class="code-tag">/timetable</span>).</span>
                         </div>
-                        <div class="speech-quote">
-                            « C'est le cœur de Synchro : notre moteur de conflits sépare mathématiquement les conflits durs (impossibles physiquement) des conflits souples (préférences ou indisponibilités déclarées). Fini les profs convoqués à deux endroits en même temps. »
+                        <div class="action-step">
+                            <span class="action-number">2</span>
+                            <span>Filtre par Enseignant, Promotion ou Campus.</span>
                         </div>
-                        <ul class="talking-points-list">
-                            <li><strong>Flux d'abonnement iCal privé :</strong> Chaque enseignant et étudiant peut synchroniser son planning directement sur son iPhone ou Google Calendar via token sécurisé.</li>
-                            <li><strong>Fuseau horaire de l'école :</strong> Synchronisation stricte sur l'heure locale de l'établissement.</li>
-                        </ul>
+                        <div class="action-step">
+                            <span class="action-number">3</span>
+                            <span>Simule un <strong>conflit dur</strong> (assigner un prof ou une salle déjà occupée) : montre le blocage instantané !</span>
+                        </div>
+                        <div class="action-step">
+                            <span class="action-number">4</span>
+                            <span>Mentionne les <strong>flux iCal sécurisés</strong> pour synchroniser sur smartphone.</span>
+                        </div>
                     </div>
                 </div>
-                <div class="slide-footer">
-                    <button class="nav-btn" onclick="prevStep()">← Précédent</button>
-                    <span class="slide-index-counter">5 sur 7</span>
-                    <button class="nav-btn" onclick="nextStep()">Suivant : Examens & Notes →</button>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-tell">🎙️</span>
+                        <span class="section-title">Ce que tu dis (Pitch percutant)</span>
+                    </div>
+                    <div class="speech-card">
+                        <div class="speech-text">
+                            « C'est le cœur de Synchro : notre moteur sépare les conflits durs (impossibilités physiques bloquées) des conflits souples (indisponibilités avec arbitrage). Plus jamais de prof convoqué à deux endroits à la fois. »
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- STEP 6 -->
             <div class="slide-card" data-step="5">
-                <div class="slide-header">
-                    <div class="slide-meta">
+                <div class="slide-top-bar">
+                    <div class="slide-meta-left">
                         <span class="step-badge">ÉTAPE 6 / 7</span>
-                        <span class="duration-badge">⏱ ~3 minutes</span>
+                        <span class="duration-badge">⏱ ~3 min</span>
                     </div>
-                    <span class="route-badge">Pages : /exams, /deliberations & QR Check-in</span>
+                    <span class="route-badge">/exams, /deliberations & QR Check-in</span>
                 </div>
-                <div class="slide-title-area">
-                    <h2>Logistique d'Examens, Pointage QR Code & Délibérations</h2>
-                    <p>Le cycle de vie complet de l'épreuve : convocation, feuille d'émargement, PV et rattrapages.</p>
-                </div>
-                <div class="slide-body">
-                    <div class="column-box">
-                        <div class="column-header">
-                            <span class="column-icon icon-action">💻</span>
-                            <h3>Ce que tu montres (Action)</h3>
-                        </div>
-                        <div class="action-item">
-                            <span>1.</span>
-                            <span>Ouvre la liste des <strong>Examens</strong> (<span class="action-click">/exams</span>) : montre le cycle à 5 états (<em>Brouillon $\rightarrow$ Planifié $\rightarrow$ Publié $\rightarrow$ Terminé $\rightarrow$ Archivé</em>).</span>
-                        </div>
-                        <div class="action-item">
-                            <span>2.</span>
-                            <span>Montre l'écran de <strong>Pointage & Émargement par QR Code</strong> interactif.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>3.</span>
-                            <span>Ouvre <strong>Délibérations</strong> (<span class="action-click">/deliberations</span>) : saisie des notes CC / Examen avec calcul automatique de moyenne.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>4.</span>
-                            <span>Montre le bouton de <strong>Verrouillage</strong> définitif et le basculement automatique des ajournés vers les <strong>Rattrapages</strong> (<span class="action-click">/retakes</span>).</span>
-                        </div>
-                    </div>
 
-                    <div class="column-box highlight">
-                        <div class="column-header">
-                            <span class="column-icon icon-tell">🎙️</span>
-                            <h3>Ce que tu dis (Pitch & Valeur)</h3>
+                <div class="slide-hero">
+                    <h2>Examens, Pointage QR Code & Délibérations</h2>
+                    <p>Le cycle de vie complet de l'épreuve : émargement QR, saisie des notes, PV et rattrapages.</p>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-action">💻</span>
+                        <span class="section-title">Ce que tu montres à l'écran</span>
+                    </div>
+                    <div class="action-list">
+                        <div class="action-step">
+                            <span class="action-number">1</span>
+                            <span>Montre la liste <strong>Examens</strong> (<span class="code-tag">/exams</span>) et son cycle à 5 états.</span>
                         </div>
-                        <div class="speech-quote">
-                            « Tout le processus d'examen est numérisé et infalsifiable. Le surveillant peut pointer les étudiants en direct avec un scan QR Code. Dès que la délibération est verrouillée, le PV est généré et les étudiants rattrapables sont automatiquement identifiés sans recalcul manuel. »
+                        <div class="action-step">
+                            <span class="action-number">2</span>
+                            <span>Ouvre l'écran de <strong>Pointage QR Code</strong> interactif pour les surveillants.</span>
                         </div>
-                        <ul class="talking-points-list">
-                            <li><strong>Feuille de présence horodatée :</strong> Évite les contestations d'absence.</li>
-                            <li><strong>Espace Notes étudiant :</strong> Notes publiées uniquement une fois le PV scellé par l'administration.</li>
-                        </ul>
+                        <div class="action-step">
+                            <span class="action-number">3</span>
+                            <span>Ouvre <strong>Délibérations</strong> (<span class="code-tag">/deliberations</span>) : saisie des notes, calcul de moyenne et verrouillage.</span>
+                        </div>
+                        <div class="action-step">
+                            <span class="action-number">4</span>
+                            <span>Montre la bascule automatique des ajournés vers <strong>Rattrapages</strong> (<span class="code-tag">/retakes</span>).</span>
+                        </div>
                     </div>
                 </div>
-                <div class="slide-footer">
-                    <button class="nav-btn" onclick="prevStep()">← Précédent</button>
-                    <span class="slide-index-counter">6 sur 7</span>
-                    <button class="nav-btn" onclick="nextStep()">Suivant : Mobile & Coolify →</button>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-tell">🎙️</span>
+                        <span class="section-title">Ce que tu dis (Pitch percutant)</span>
+                    </div>
+                    <div class="speech-card">
+                        <div class="speech-text">
+                            « Tout le processus d'examen est numérisé. Le surveillant pointe les étudiants via QR Code, le PV de délibération est scellé, et les rattrapages sont générés automatiquement sans tableur. »
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- STEP 7 -->
             <div class="slide-card" data-step="6">
-                <div class="slide-header">
-                    <div class="slide-meta">
+                <div class="slide-top-bar">
+                    <div class="slide-meta-left">
                         <span class="step-badge">ÉTAPE 7 / 7</span>
-                        <span class="duration-badge">⏱ ~2 minutes</span>
+                        <span class="duration-badge">⏱ ~2 min</span>
                     </div>
                     <span class="route-badge">Architecture & Infrastructure Coolify</span>
                 </div>
-                <div class="slide-title-area">
-                    <h2>Mobile REST API, Centre d'Alertes & Déploiement Docker</h2>
-                    <p>Conclure sur la robustesse technique, l'évolutivité mobile et la mise en production instantanée.</p>
-                </div>
-                <div class="slide-body">
-                    <div class="column-box">
-                        <div class="column-header">
-                            <span class="column-icon icon-action">💻</span>
-                            <h3>Ce que tu montres (Action)</h3>
-                        </div>
-                        <div class="action-item">
-                            <span>1.</span>
-                            <span>Montre le <strong>Centre de Notifications</strong> (la cloche dans le top bar) avec les convocations et alertes urgentes.</span>
-                        </div>
-                        <div class="action-item">
-                            <span>2.</span>
-                            <span>Mentionne l'<strong>API REST Mobile v1</strong> sécurisée par Laravel Sanctum (<span class="action-click">/api/v1/...</span>).</span>
-                        </div>
-                        <div class="action-item">
-                            <span>3.</span>
-                            <span>Explique l'infrastructure <strong>Docker & Coolify</strong> qui héberge l'application en continu avec Redis, Horizon et FrankenPHP.</span>
-                        </div>
-                    </div>
 
-                    <div class="column-box highlight">
-                        <div class="column-header">
-                            <span class="column-icon icon-tell">🎙️</span>
-                            <h3>Ce que tu dis (Pitch & Valeur)</h3>
+                <div class="slide-hero">
+                    <h2>Mobile REST API & Déploiement Docker</h2>
+                    <p>Conclure sur la robustesse technique, l'évolutivité mobile et la mise en production continue.</p>
+                </div>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-action">💻</span>
+                        <span class="section-title">Ce que tu montres à l'écran</span>
+                    </div>
+                    <div class="action-list">
+                        <div class="action-step">
+                            <span class="action-number">1</span>
+                            <span>Montre la cloche du <strong>Centre de Notifications</strong> (convocations, alertes).</span>
                         </div>
-                        <div class="speech-quote">
-                            « Synchro n'est pas un prototype : c'est une plateforme d'entreprise prête pour la production. Nous disposons d'une API pour connecter l'application mobile des étudiants, de files d'attente Redis avec supervision Horizon pour les emails, et d'un déploiement conteneurisé automatique sur notre serveur Coolify. »
+                        <div class="action-step">
+                            <span class="action-number">2</span>
+                            <span>Mentionne l'<strong>API Mobile REST v1</strong> (Sanctum) pour l'application étudiante.</span>
                         </div>
-                        <div style="margin-top: 10px;">
-                            <span class="tech-pill">Docker Compose</span>
-                            <span class="tech-pill">FrankenPHP Caddy</span>
-                            <span class="tech-pill">Laravel Horizon</span>
-                            <span class="tech-pill">Redis Queues</span>
-                            <span class="tech-pill">Sanctum REST API</span>
-                            <span class="tech-pill">Inertia.js v3 + React</span>
+                        <div class="action-step">
+                            <span class="action-number">3</span>
+                            <span>Explique l'infrastructure <strong>Docker & Coolify</strong> avec FrankenPHP et Redis Horizon.</span>
                         </div>
                     </div>
                 </div>
-                <div class="slide-footer">
-                    <button class="nav-btn" onclick="prevStep()">← Précédent</button>
-                    <span class="slide-index-counter">7 sur 7</span>
-                    <button class="nav-btn" style="background: var(--accent-green); border-color: var(--accent-green);" onclick="goToStep(0)">Recommencer la démo ↺</button>
+
+                <div class="section-box">
+                    <div class="section-header">
+                        <span class="section-icon icon-tell">🎙️</span>
+                        <span class="section-title">Ce que tu dis (Pitch percutant)</span>
+                    </div>
+                    <div class="speech-card">
+                        <div class="speech-text">
+                            « Ce n'est pas une maquette : c'est une plateforme d'entreprise déployée en production sur notre serveur Coolify, prête pour l'application mobile étudiante et capable d'encaisser la charge de tout l'établissement. »
+                        </div>
+                    </div>
+                    <div class="tech-tags">
+                        <span class="tech-pill">Docker Compose</span>
+                        <span class="tech-pill">FrankenPHP</span>
+                        <span class="tech-pill">Redis Horizon</span>
+                        <span class="tech-pill">Sanctum REST API</span>
+                        <span class="tech-pill">React + Inertia v3</span>
+                    </div>
                 </div>
             </div>
 
         </div>
 
         <!-- ========================================================================= -->
-        <!-- CHEAT SHEET / RUNBOOK MODE                                                -->
+        <!-- CONTINUOUS CHEAT SHEET (RUNBOOK VIEW)                                     -->
         <!-- ========================================================================= -->
-        <div class="cheat-sheet-container" id="sheet-view">
+        <div class="sheet-container" id="sheet-view">
 
-            <div class="cheat-sheet-card">
-                <div class="cheat-sheet-header">
+            <div class="sheet-card">
+                <div class="sheet-card-header">
                     <div>
                         <span class="step-badge">1 · 2 MIN</span>
-                        <strong style="margin-left: 10px; font-size: 1.1rem;">Connexion & Vision Produit</strong>
+                        <span class="sheet-step-title" style="margin-left: 8px;">Vision & Connexion</span>
                     </div>
                     <span class="route-badge">/login</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>À faire :</strong> Ouvrir la page de connexion, se connecter avec <code>admin@synchro.test</code> / <code>password</code>.</p>
-                <div class="speech-quote">« Synchro unifie toute la logistique pédagogique de l'école (salles, plannings, examens, notes) dans une plateforme temps réel pour remplacer les fichiers Excel. »</div>
+                <div class="sheet-actions">
+                    <strong>Action :</strong> Ouvrir <code>/login</code>, se connecter avec <code>admin@synchro.test</code> / <code>password</code>.
+                </div>
+                <div class="speech-card">
+                    <div class="speech-text">« Synchro unifie toute la logistique pédagogique (salles, plannings, examens, notes) dans une plateforme temps réel pour remplacer les fichiers Excel. »</div>
+                </div>
             </div>
 
-            <div class="cheat-sheet-card">
-                <div class="cheat-sheet-header">
+            <div class="sheet-card">
+                <div class="sheet-card-header">
                     <div>
                         <span class="step-badge">2 · 3 MIN</span>
-                        <strong style="margin-left: 10px; font-size: 1.1rem;">Dashboard & Personnalisation de Thème</strong>
+                        <span class="sheet-step-title" style="margin-left: 8px;">Dashboard & Thèmes</span>
                     </div>
                     <span class="route-badge">/dashboard & /admin/settings</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>À faire :</strong> Montrer les cartes KPI, changer la langue en anglais puis en français. Ouvrir les paramètres d'apparence et changer la couleur en direct (Émeraude / Océan).</p>
-                <div class="speech-quote">« Un tableau de bord adapté à chaque rôle, bilingue natif, et un moteur de thème personnalisable selon la charte graphique. »</div>
+                <div class="sheet-actions">
+                    <strong>Action :</strong> Montrer les KPI, changer la langue FR/EN, ouvrir <code>/admin/settings</code> et changer la couleur en direct (Émeraude / Océan).
+                </div>
+                <div class="speech-card">
+                    <div class="speech-text">« Tableau de bord adapté à chaque rôle, bilingue natif, et personnalisation visuelle immédiate de la charte graphique. »</div>
+                </div>
             </div>
 
-            <div class="cheat-sheet-card">
-                <div class="cheat-sheet-header">
+            <div class="sheet-card">
+                <div class="sheet-card-header">
                     <div>
                         <span class="step-badge">3 · 3 MIN</span>
-                        <strong style="margin-left: 10px; font-size: 1.1rem;">Espaces Pédagogiques & Règle des Deux Capacités</strong>
+                        <span class="sheet-step-title" style="margin-left: 8px;">Espaces & Capacités</span>
                     </div>
                     <span class="route-badge">/rooms</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>À faire :</strong> Ouvrir la liste des salles, cliquer sur une salle, montrer la Capacité Cours (60) vs Capacité Examen avec distanciation (30).</p>
-                <div class="speech-quote">« Synchro empêche mathématiquement d'affecter trop d'étudiants en examen dans une salle, tout en gérant les campus et bâtiments. »</div>
+                <div class="sheet-actions">
+                    <strong>Action :</strong> Montrer Campus $\rightarrow$ Bâtiments $\rightarrow$ Salles, puis la Capacité Cours (60) vs Capacité Examen avec distanciation (30).
+                </div>
+                <div class="speech-card">
+                    <div class="speech-text">« Synchro empêche mathématiquement d'affecter trop d'étudiants en examen dans une salle, tout en gérant les campus et bâtiments. »</div>
+                </div>
             </div>
 
-            <div class="cheat-sheet-card">
-                <div class="cheat-sheet-header">
+            <div class="sheet-card">
+                <div class="sheet-card-header">
                     <div>
                         <span class="step-badge">4 · 3 MIN</span>
-                        <strong style="margin-left: 10px; font-size: 1.1rem;">Structure Académique & Modalités Duales</strong>
+                        <span class="sheet-step-title" style="margin-left: 8px;">Structure Académique</span>
                     </div>
                     <span class="route-badge">/academic-structure</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>À faire :</strong> Dérouler Département $\rightarrow$ Filières $\rightarrow$ Groupes. Montrer les badges « Formation Initiale » et « Temps Aménagé ».</p>
-                <div class="speech-quote">« La grille s'adapte aussi bien aux cours de jour qu'aux professionnels du soir et weekend. »</div>
+                <div class="sheet-actions">
+                    <strong>Action :</strong> Dérouler Département $\rightarrow$ Filières $\rightarrow$ Groupes. Montrer les badges « Formation Initiale » et « Temps Aménagé ».
+                </div>
+                <div class="speech-card">
+                    <div class="speech-text">« La grille s'adapte aussi bien aux cours de jour qu'aux professionnels du soir et weekend. »</div>
+                </div>
             </div>
 
-            <div class="cheat-sheet-card">
-                <div class="cheat-sheet-header">
+            <div class="sheet-card">
+                <div class="sheet-card-header">
                     <div>
                         <span class="step-badge">5 · 4 MIN</span>
-                        <strong style="margin-left: 10px; font-size: 1.1rem;">Emploi du Temps Interactif & Détection de Conflits</strong>
+                        <span class="sheet-step-title" style="margin-left: 8px;">Planning & Conflits</span>
                     </div>
                     <span class="route-badge">/timetable</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>À faire :</strong> Naviguer dans la grille, tenter une double réservation de salle ou de professeur pour déclencher l'alerte de conflit dur.</p>
-                <div class="speech-quote">« Le moteur vérifie les collisions en temps réel (salle, prof, promo) et propose des flux iCal pour synchroniser les agendas sur smartphone. »</div>
+                <div class="sheet-actions">
+                    <strong>Action :</strong> Naviguer dans le calendrier, tenter une double réservation de salle ou de professeur pour déclencher l'alerte de conflit dur.
+                </div>
+                <div class="speech-card">
+                    <div class="speech-text">« Le moteur vérifie les collisions en temps réel (salle, prof, promo) et propose des flux iCal pour smartphone. »</div>
+                </div>
             </div>
 
-            <div class="cheat-sheet-card">
-                <div class="cheat-sheet-header">
+            <div class="sheet-card">
+                <div class="sheet-card-header">
                     <div>
                         <span class="step-badge">6 · 3 MIN</span>
-                        <strong style="margin-left: 10px; font-size: 1.1rem;">Examens, Pointage QR Code & Délibérations</strong>
+                        <span class="sheet-step-title" style="margin-left: 8px;">Examens & Délibérations</span>
                     </div>
                     <span class="route-badge">/exams & /deliberations</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>À faire :</strong> Montrer la feuille d'émargement QR Code, puis l'écran de délibération des notes avec verrouillage et bascule automatique en rattrapage.</p>
-                <div class="speech-quote">« Tout le cycle d'examen est sécurisé : de l'émargement QR jusqu'aux délibérations officielles verrouillées avec calcul des rattrapages. »</div>
+                <div class="sheet-actions">
+                    <strong>Action :</strong> Montrer l'émargement QR Code, la saisie des notes, le verrouillage de délibération et le calcul des rattrapages.
+                </div>
+                <div class="speech-card">
+                    <div class="speech-text">« Tout le cycle d'examen est numérisé : pointage QR immédiat, PV officiel scellé et rattrapages automatiques. »</div>
+                </div>
             </div>
 
-            <div class="cheat-sheet-card">
-                <div class="cheat-sheet-header">
+            <div class="sheet-card">
+                <div class="sheet-card-header">
                     <div>
                         <span class="step-badge">7 · 2 MIN</span>
-                        <strong style="margin-left: 10px; font-size: 1.1rem;">Mobile API & Déploiement Production</strong>
+                        <span class="sheet-step-title" style="margin-left: 8px;">Mobile & Coolify</span>
                     </div>
-                    <span class="route-badge">Mobile & Coolify</span>
+                    <span class="route-badge">Mobile & Infra</span>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>À faire :</strong> Montrer la cloche de notifications en direct, mentionner l'API mobile Sanctum et le déploiement conteneurisé Coolify Docker.</p>
-                <div class="speech-quote">« Une architecture moderne conteneurisée sur Coolify, scalable avec des queues Redis et prête pour l'application mobile étudiante. »</div>
+                <div class="sheet-actions">
+                    <strong>Action :</strong> Montrer les notifications d'urgence, mentionner l'API mobile Sanctum et le déploiement conteneurisé Docker sur Coolify.
+                </div>
+                <div class="speech-card">
+                    <div class="speech-text">« Une architecture moderne conteneurisée sur Coolify, scalable avec des queues Redis et prête pour l'application mobile étudiante. »</div>
+                </div>
             </div>
 
-        </div>
-
-        <!-- Tips & Shortcuts Footer -->
-        <div class="tips-banner">
-            <div class="tips-title">
-                <span>💡</span>
-                <span>Conseil Pro : Laisse 3 à 5 minutes à la fin pour les questions / réponses.</span>
-            </div>
-            <div class="keyboard-shortcuts">
-                <span>Passer d'une diapo à l'autre avec <span class="kbd">←</span> et <span class="kbd">→</span></span>
-                <span>Chronomètre automatique en haut à droite</span>
-            </div>
         </div>
 
     </div>
 
-    <!-- Scripts -->
+    <!-- Sticky Mobile Bottom Bar -->
+    <div class="mobile-bottom-bar" id="mobile-bar">
+        <button class="btn-nav-prev" id="btn-prev" onclick="prevStep()" disabled>
+            ← Précédent
+        </button>
+        <span class="mobile-step-indicator" id="step-counter">1 / 7</span>
+        <button class="btn-nav-next" id="btn-next" onclick="nextStep()">
+            Suivant →
+        </button>
+    </div>
+
     <script>
         let currentStep = 0;
         const totalSteps = 7;
         let timerInterval = null;
         let elapsedSeconds = 0;
+
+        // Theme Toggle (Light default)
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.textContent = '☀️';
+                localStorage.setItem('demo_theme', 'light');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.textContent = '🌙';
+                localStorage.setItem('demo_theme', 'dark');
+            }
+        }
 
         // Timer
         function startTimer() {
@@ -1162,14 +1279,42 @@
             // Update pills
             const pills = document.querySelectorAll('.step-pill');
             pills.forEach((pill, idx) => {
-                pill.classList.toggle('active', idx === currentStep);
+                const isActive = idx === currentStep;
+                pill.classList.toggle('active', isActive);
+                if (isActive) {
+                    pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
             });
+
+            // Update bottom bar
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            const counter = document.getElementById('step-counter');
+
+            if (btnPrev) btnPrev.disabled = currentStep === 0;
+            if (btnNext) {
+                if (currentStep === totalSteps - 1) {
+                    btnNext.textContent = 'Recommencer ↺';
+                    btnNext.style.background = 'var(--accent-green)';
+                    btnNext.style.borderColor = 'var(--accent-green)';
+                } else {
+                    btnNext.textContent = 'Suivant →';
+                    btnNext.style.background = 'var(--primary)';
+                    btnNext.style.borderColor = 'var(--primary)';
+                }
+            }
+            if (counter) counter.textContent = `${currentStep + 1} / ${totalSteps}`;
+
+            // Scroll top of slide on change
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function nextStep() {
             if (currentStep < totalSteps - 1) {
                 currentStep++;
                 updateUI();
+            } else {
+                goToStep(0);
             }
         }
 
@@ -1190,20 +1335,58 @@
             const btnSheet = document.getElementById('btn-sheet-view');
             const slidesView = document.getElementById('slides-view');
             const sheetView = document.getElementById('sheet-view');
-            const timeline = document.getElementById('timeline-container');
+            const pills = document.getElementById('carousel-pills');
+            const mobileBar = document.getElementById('mobile-bar');
+            const swipeHint = document.getElementById('swipe-hint');
 
             if (mode === 'slides') {
                 btnSlides.classList.add('active');
                 btnSheet.classList.remove('active');
                 slidesView.style.display = 'block';
                 sheetView.classList.remove('active');
-                timeline.style.display = 'block';
+                pills.style.display = 'flex';
+                mobileBar.style.display = 'flex';
+                swipeHint.style.display = 'block';
             } else {
                 btnSheet.classList.add('active');
                 btnSlides.classList.remove('active');
                 slidesView.style.display = 'none';
                 sheetView.classList.add('active');
-                timeline.style.display = 'none';
+                pills.style.display = 'none';
+                mobileBar.style.display = 'none';
+                swipeHint.style.display = 'none';
+            }
+        }
+
+        // Swipe Gestures for Mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            // Only trigger if horizontal swipe is greater than vertical scroll
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 45) {
+                if (diffX < 0) {
+                    // Swipe left -> next
+                    nextStep();
+                } else {
+                    // Swipe right -> prev
+                    prevStep();
+                }
             }
         }
 
@@ -1220,6 +1403,12 @@
 
         // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('demo_theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').textContent = '🌙';
+            }
             startTimer();
             updateUI();
         });
