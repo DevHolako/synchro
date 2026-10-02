@@ -2,6 +2,7 @@
 
 use App\Actions\CalendarFeeds\IssueCalendarFeedTokenAction;
 use App\Models\CourseSession;
+use App\Models\Exam;
 use App\Models\Module;
 use App\Models\Program;
 use App\Models\StudentGroup;
@@ -95,6 +96,27 @@ test('feed lines are folded at 75 octets without splitting characters', function
     }
 
     expect(feedLines($body))->toContain('SUMMARY:ALG-101 · '.trim(str_repeat('Systèmes répartis et parallèles ', 6)));
+});
+
+test('published exams join the feeds of their groups and of the module teacher, earlier states do not', function () {
+    $student = StudentProfile::factory()->create(['student_group_id' => $this->group->id])->user;
+    $this->module->update(['teacher_id' => $this->teacher->id]);
+    $published = Exam::factory()->published()->between('2026-10-14 09:00', '2026-10-14 11:00')->forGroups($this->group)
+        ->create(['module_id' => $this->module->id]);
+    $scheduled = Exam::factory()->scheduled()->between('2026-10-15 09:00', '2026-10-15 11:00')->forGroups($this->group)
+        ->create(['module_id' => $this->module->id]);
+
+    foreach ([$student, $this->teacher] as $user) {
+        $lines = feedLines($this->get(feedUrl($user))->getContent());
+
+        expect($lines)->toContain("UID:exam-{$published->id}@synchro.test")
+            ->toContain('DTSTART:20261014T070000Z')
+            ->toContain('SUMMARY:'.str_replace([',', ';'], ['\,', '\;'], __('messages.calendar_feed_exam_summary', [
+                'code' => 'ALG-101',
+                'name' => 'Algorithmes, structures; et données',
+            ])))
+            ->not->toContain("UID:exam-{$scheduled->id}@synchro.test");
+    }
 });
 
 test('a student feed follows their group, and winter time shifts by one hour less', function () {
