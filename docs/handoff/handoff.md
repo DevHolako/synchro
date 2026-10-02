@@ -157,6 +157,13 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - UI: "Salles & surveillants" sheet on the exams page.
    - **Run `php artisan migrate`** locally: two migrations (names backfilled from `users.name`).
 
+3. **Ticket 03: PDF Convocations and Room Sheets** ([`03-pdf-convocation-and-attendance-roster-generation.md`](file:///home/holako/github/synchro/docs/specs/04-examination-logistics-and-convocations/tickets/03-pdf-convocation-and-attendance-roster-generation.md), design decisions recorded in the ticket)
+   - Dependencies: `barryvdh/laravel-dompdf` ^3.1 and `bacon/bacon-qr-code` ^3.1.
+   - Implemented: `exam_candidates.convocation_uuid`, `RenderConvocationPdfAction` (signed QR link), `RenderExamRosterPdfAction`, `StoreConvocationAction` / `StoreExamRosterAction` (idempotent), `QueueExamDocumentsAction` (after commit, on publication), `GenerateConvocationJob` / `GenerateExamRosterJob` (`default` queue), `VerifyConvocationAction`, `App\Services\Documents\QrCode`, Blade templates in `resources/views/pdf/`, `lang/*/documents.php`.
+   - HTTP: `GET /exams/{exam}/convocation`, `GET /exams/{exam}/roster`, `GET /verify/convocation/{uuid}` (signed, `convocations/verify` page).
+   - Tests fake the `local` disk: publishing runs the jobs on the sync queue.
+   - **Run `php artisan migrate`** locally: one new column.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -168,7 +175,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is in progress: tickets 01–02 are done, ticket 03 (PDF convocations and attendance sheets) is next.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is in progress: tickets 01–03 are done, ticket 04 (mobile QR check-in) is next.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
