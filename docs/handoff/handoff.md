@@ -127,6 +127,9 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - Actions: `BatchCreateCourseSessionsAction` (one transaction over `SaveCourseSessionAction`, so each slot is locked and re-checked and overlapping slots of the batch collide; one override covers the batch, audited per session), `CheckCourseSessionBatchAction` (per-slot conflicts, in-batch overlaps, per-group syllabus meter), `ListSchedulingOptionsAction`. `CourseSession::durationInMinutes()`.
    - Grid: `App\Support\SchedulingGrid` and `resources/js/lib/scheduling-grid.ts` are the single source of the 08:00–22:00 quarter-hour grid; the shared session validation lives in `Http/Requests/Concerns/ValidatesSessionSlots`.
    - UI: `resources/js/pages/timetable/components/schedule/` (3-step dialog driven by `useScheduleWizard`; recurrence rule + editable dates + day template; review with per-slot conflicts, removal and re-check, meter and justification). Timetable props `canSchedule` and optional `schedulingOptions`; the calendar follows external date changes (`gotoDate`).
+3. **Ticket 03: Drag-and-Drop Rescheduling** ([`03-drag-drop-interactive-rescheduling.md`](file:///home/holako/github/synchro/docs/specs/03-interactive-course-planning/tickets/03-drag-drop-interactive-rescheduling.md), design decisions recorded in the ticket)
+   - Implemented: `PATCH /course-sessions/{session}/reschedule` (`RescheduleCourseSessionRequest`, `RescheduleCourseSessionAction`, `CourseSessionRescheduleController`; JSON 200/422/409), `CourseSession::hasStarted()`; started sessions can be neither moved nor deleted (`DeleteCourseSessionAction` refuses them). `HardConflictException` JSON also carries `errors`.
+   - UI: FullCalendar `interaction` plugin; `use-session-reschedule.ts` (save on drop, snap back on 422, `soft-conflict-dialog.tsx` on 409), delete with confirmation in the details dialog, `use-timetable-polling.ts` (`usePoll` every 30 s, paused while editing).
 
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
@@ -139,7 +142,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is in progress: Tickets 01 and 02 are done; Ticket 03 (drag-and-drop rescheduling) is next.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is in progress: Tickets 01–03 are done; Ticket 04 (attendance register) is next.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
@@ -160,6 +163,10 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 
 - **Deferred from Part 03 / Ticket 01 (decisions owed later):**
   - Sessions are not typed lecture/TP, so the syllabus widget compares against `total_hours` only. Typing them touches the conflict engine, the session requests and the batch wizard.
   - A "rooms × hours" board for the Global Campus view: either a custom component or FullCalendar's Premium resource views (paid licence). Build it only if coordinators ask.
+- **Deferred from Part 03 / Ticket 03:**
+  - Live updates use `usePoll` (30 s, paused while editing). Reverb was discussed on 2026-10-02 and deferred for time: it needs `laravel/reverb`, `laravel-echo`, `@laravel/echo-react`, `pusher-js`, a `reverb` Docker service, Caddy and Hestia nginx WebSocket proxying, per-subject private channels (`timetable.group|teacher|room|campus.{id}`, authorized by permission) carrying ids only, and after-commit broadcasts on the `notifications` queue. `useTimetablePolling` is the only thing to swap: the page just needs a "reload sessions" trigger. Presence indicators were also left out.
+  - Past sessions can only be corrected through the full `PUT /course-sessions/{session}` route; there is no UI for it.
+  - Hard-conflict toasts on a drop show the server's message, which follows `APP_LOCALE` (see the Part 01 item below).
 - **Deferred findings from the Part 02 review (not blocking):**
   - `resources/js/lib/permissions.ts` mirrors `App\Enums\Permission` by hand (the grid duplication was fixed in Part 03 / Ticket 02).
   - "Is a teacher" is decided by role (`Rule::exists(...)->where('role')`, `User::teachers()`) while declaring is gated by `DeclareUnavailability`; settle when roles are revisited (Part 06).
