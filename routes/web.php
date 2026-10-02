@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Web\AcademicStructure\AcademicStructureIndexController;
+use App\Http\Controllers\Web\Attendance\AttendanceShowController;
+use App\Http\Controllers\Web\Attendance\AttendanceUpdateController;
 use App\Http\Controllers\Web\Buildings\BuildingStoreController;
 use App\Http\Controllers\Web\Buildings\BuildingToggleActiveController;
 use App\Http\Controllers\Web\Buildings\BuildingUpdateController;
@@ -103,6 +105,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('course-sessions/{session}', CourseSessionUpdateController::class)->name('course-sessions.update');
     Route::delete('course-sessions/{session}', CourseSessionDestroyController::class)->name('course-sessions.destroy');
     Route::patch('course-sessions/{session}/reschedule', CourseSessionRescheduleController::class)->name('course-sessions.reschedule');
+
+    // Session attendance register (Part 03 / Ticket 04)
+    Route::get('course-sessions/{session}/attendance', AttendanceShowController::class)->name('course-sessions.attendance.show');
+    Route::put('course-sessions/{session}/attendance', AttendanceUpdateController::class)->name('course-sessions.attendance.update');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');

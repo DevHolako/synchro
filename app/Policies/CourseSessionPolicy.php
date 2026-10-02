@@ -43,6 +43,16 @@ class CourseSessionPolicy
     }
 
     /**
+     * Determine whether the user can take a session's attendance: the session's own teacher,
+     * or anyone who manages schedules.
+     */
+    public function recordAttendance(User $user, CourseSession $session): bool
+    {
+        return $user->hasPermission(Permission::RecordAttendance)
+            && ($session->teacher_id === $user->id || $user->hasPermission(Permission::ManageSchedules));
+    }
+
+    /**
      * Determine whether the user can remove a session.
      */
     public function delete(User $user, CourseSession $session): bool
