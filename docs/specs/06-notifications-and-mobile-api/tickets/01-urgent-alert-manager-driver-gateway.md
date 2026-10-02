@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** complete
+**Status:** completed
 
 - [x] `UrgentAlertGatewayInterface` contract defining `sendUrgentAlert(recipientPhone, message, metadata)`
 - [x] `UrgentAlertManager` implementing driver resolution via configuration (`config/services.php`)
