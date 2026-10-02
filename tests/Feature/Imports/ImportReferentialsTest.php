@@ -152,6 +152,39 @@ test('a module spreadsheet resolves programs and assigned teachers', function ()
         ->and($module->color_code)->toBe('#3B82F6');
 });
 
+test('module spreadsheets carry the continuous assessment share, 100% exam when left out', function () {
+    $department = Department::factory()->create(['code' => 'ISI']);
+    Program::factory()->for($department)->create(['code' => '1CI']);
+
+    $file = csvUpload('modules.csv', [
+        ['department_code', 'program_code', 'code', 'name', 'total_hours', 'continuous_assessment_weight'],
+        ['ISI', '1CI', 'ALGO-101', 'Algorithmique', '40', '40'],
+        ['ISI', '1CI', 'BDD-101', 'Bases de données', '30', ''],
+    ]);
+
+    $this->actingAs($this->admin)->post(route('imports.store', 'modules'), ['file' => $file]);
+
+    expect(Module::where('code', 'ALGO-101')->sole()->exam_weight)->toBe(60)
+        ->and(Module::where('code', 'BDD-101')->sole()->continuous_assessment_weight)->toBe(0);
+});
+
+test('module weightings that leave the final exam without weight are reported per row', function () {
+    $department = Department::factory()->create(['code' => 'ISI']);
+    Program::factory()->for($department)->create(['code' => '1CI']);
+
+    $file = csvUpload('modules.csv', [
+        ['department_code', 'program_code', 'code', 'name', 'total_hours', 'continuous_assessment_weight'],
+        ['ISI', '1CI', 'OK-1', 'Valide', '40', '99'],
+        ['ISI', '1CI', 'KO-1', 'Sans examen', '40', '100'],
+    ]);
+
+    $this->actingAs($this->admin)->post(route('imports.store', 'modules'), ['file' => $file]);
+
+    expect(collect(importReport()['errors'])->map(fn (array $e) => [$e['row'], $e['column']])->all())
+        ->toBe([[3, 'continuous_assessment_weight']])
+        ->and(Module::count())->toBe(0);
+});
+
 test('module syllabus hours are validated per row', function () {
     $department = Department::factory()->create(['code' => 'ISI']);
     Program::factory()->for($department)->create(['code' => '1CI']);
