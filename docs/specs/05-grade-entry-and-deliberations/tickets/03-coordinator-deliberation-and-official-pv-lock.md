@@ -46,4 +46,5 @@
 
 - Immutability moved from model events to the builders (`GradeLineBuilder`, `DeliberationBuilder`). Bulk writes on locked lines or deliberations are refused, except filling in the PV once.
 - Retake deliberations say "Ajournés" in the PV summary and in the coordinator's figures.
-- The PV's "submitted by" and the coordinator's signature block print official names.
+- The PV's "submitted by" and the coordinator's signature block print the staff member's name, which is their official name: staff have no recorded surname.
+- After the re-review, the guards also cover model creates, `insertOrIgnore`, increments and `forceDelete`. The PV is written under a lock on the deliberation row.

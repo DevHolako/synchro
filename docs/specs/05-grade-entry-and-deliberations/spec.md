@@ -72,4 +72,4 @@ A structured two-step Grade Entry and Deliberation module. Instructors enter mar
 - **Opening a sheet**: only the module teacher's visit creates the sheet and its lines. Coordinators and exam managers read a sheet once it exists. Before that, the exams list offers them no link, and a direct visit is sent back with a toast.
 - **Immutability**: locked lines and deliberations are guarded at the Eloquent builder (`GradeLineBuilder`, `DeliberationBuilder`), so bulk updates, upserts, inserts and deletes are refused as well as model saves. Raw `DB::table()` is out of reach, as for `ImmutableBuilder`.
 - **Grade scale**: one `App\Support\GradeScale` (max 20, pass mark 10.00, hundredths conversions, `passes()`). `FrenchCollation` gives the official name order.
-- **Official names**: the "submitted by" and the coordinator's signature block use `User::officialName()`.
+- **Staff names**: the "submitted by" and the coordinator's signature block print the user's name. Staff have no recorded official surname (`User::officialName()` only reads student profiles), so it is their official name.

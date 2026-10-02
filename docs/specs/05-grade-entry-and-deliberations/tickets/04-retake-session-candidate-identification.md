@@ -31,3 +31,4 @@
 - **Students without a group**: they can't be seated by any exam, so each roster card counts them (`ungrouped`) with a warning.
 - **"Ajourné" wording**: "Mes notes" shows "Ajourné" for a failed retake line.
 - **Request and filter bar**: the roster reads its period through `RetakeIndexRequest`, and the page has its own `retake-filter-bar.tsx`.
+- After the re-review, only students who failed somewhere are loaded, and ties on the exam start are broken by exam id.

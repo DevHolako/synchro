@@ -45,3 +45,4 @@
 - Only the module teacher's visit opens the sheet (`ExamGradesShowController`). Others are sent back until it exists, and the exams list shows them no link before then. Exam rows carry `grades.can_edit` from the server instead of a client-side rule.
 - Weight recomputes write once per exam (an upsert) instead of once per line.
 - After a save or a submission, the grid reloads the deliberation block too (shared `GRADE_SHEET_PROPS`).
+- After the re-review, `FindGradeSheetAction` decides between opening and reading, and `ExamPolicy::editGrades` is the one "may still change grades" rule used by the exam rows and the grid.
