@@ -1,22 +1,17 @@
-# Synchro stack for any single server (ADR 0012).
+# Synchro stack for Docker & Coolify deployments (ADR 0012).
 #
-# The host owns the domain and HTTPS: point its nginx at 127.0.0.1:${APP_PORT}
-# (Hestia templates for this live in docker/hestia/).
+# Production reverse proxy (Coolify / Traefik / Nginx / Caddy) connects to the app on port 80.
+# Local / direct host access binds to ${APP_PORT:-8000}:80.
 #
 # Everything is configured from the .env next to this file (template: .env.docker.example):
 #   COMPOSE_PROFILES=mysql,redis,phpmyadmin   bundled services to run (drop any you replace)
 #   DB_HOST=mysql    | or an external host, or DB_URL=mysql://user:pass@host:3306/db
-#                      a database on this server itself, through its socket:
-#                      DB_SOCKET_DIR=/run/mysqld, DB_SOCKET=/run/mysqld/mysqld.sock, DB_HOST=localhost
-#                      The host's mysql.service needs RuntimeDirectoryPreserve=yes: without it systemd
-#                      replaces that folder on every MySQL restart and the containers lose the socket.
 #   REDIS_HOST=redis | or an external host, or REDIS_URL=redis://user:pass@host:6379
-#   APP_STORAGE=/home/<user>/synchro-storage   host folder for uploads and logs, so the
-#                      host's backups include it (default: a named Docker volume)
-#   APP_USER=<uid>:<gid>   who the containers run as (default: root). With APP_STORAGE, use the
-#                      folder's owner (`id -u`:`id -g`), or every file PHP writes there is root's.
+#   APP_STORAGE      | host folder for uploads and logs (default: named Docker volume)
+#   APP_USER         | uid:gid for container processes (default: root)
 #
 # Deploy by hand: docker compose up -d --build
+# Deploy in Coolify: Add Resource -> Docker Compose -> Select this repo
 
 x-build: &build
   context: .
@@ -31,7 +26,8 @@ x-laravel: &laravel
   # Forwards stop signals to PHP, so containers stop at once instead of after the grace period.
   init: true
   user: ${APP_USER:-root}
-  env_file: .env
+  env_file:
+    - .env
   environment:
     # Caddy and Tinker keep their state under these; the default folders are root's.
     XDG_CONFIG_HOME: /tmp
@@ -52,10 +48,12 @@ x-laravel: &laravel
 services:
   app:
     <<: *laravel
-    # Migrate on boot so the schema never lags the code.
+    # Migrate on boot so the database schema never lags the code.
     command: sh -c "php artisan migrate --force && exec frankenphp run --config /etc/caddy/Caddyfile"
+    expose:
+      - '80'
     ports:
-      - '127.0.0.1:${APP_PORT:-8000}:80'
+      - '${APP_PORT:-8000}:80'
     healthcheck:
       test: ['CMD', 'php', '-r', 'exit(@fsockopen("127.0.0.1", 80) ? 0 : 1);']
       interval: 5s
@@ -94,10 +92,8 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-synchro}
       MYSQL_USER: ${DB_USERNAME:-synchro}
-      MYSQL_PASSWORD: ${DB_PASSWORD:?}
-      # Not `:?`: compose checks every service, even outside COMPOSE_PROFILES. Without it,
-      # the mysql image refuses to start and says the root password is missing.
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-synchro_secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secret}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -128,8 +124,10 @@ services:
       PMA_HOST: ${DB_HOST:-mysql}
       PMA_PORT: ${DB_PORT:-3306}
       UPLOAD_LIMIT: 256M
+    expose:
+      - '80'
     ports:
-      - '127.0.0.1:${PHPMYADMIN_PORT:-8081}:80'
+      - '${PHPMYADMIN_PORT:-8081}:80'
     depends_on:
       mysql:
         condition: service_healthy
@@ -140,3 +138,7 @@ volumes:
   mysqld_socket:
   mysql_data:
   redis_data:
+
+networks:
+  default:
+    name: synchro_network

@@ -9,7 +9,7 @@
 FROM dunglas/frankenphp:1-php8.5 AS base
 
 # Required PHP extensions: MySQL, Redis (queues/cache/sessions), Horizon (pcntl/posix),
-# and zip for reading .xlsx spreadsheet imports.
+# zip for spreadsheet imports, and gd for DomPDF image/QR processing.
 RUN install-php-extensions \
     pdo_mysql \
     redis \
@@ -18,9 +18,10 @@ RUN install-php-extensions \
     bcmath \
     intl \
     opcache \
-    zip
+    zip \
+    gd
 
-# The host's web server owns the domain and HTTPS, so Caddy listens on plain HTTP.
+# The host's reverse proxy (Coolify/Traefik/Caddy/Nginx) owns domain and HTTPS, so Caddy listens on plain HTTP.
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     SERVER_NAME=":80" \
     CADDY_GLOBAL_OPTIONS="auto_https off"
@@ -49,26 +50,10 @@ RUN composer install \
 ############################################
 # 3. Frontend builder stage (Inertia React + Wayfinder)
 ############################################
-FROM node:22-alpine AS frontend-builder
+FROM base AS frontend-builder
 
-RUN apk add --no-cache \
-    php \
-    php-cli \
-    php-phar \
-    php-mbstring \
-    php-openssl \
-    php-tokenizer \
-    php-xml \
-    php-dom \
-    php-curl \
-    php-fileinfo \
-    php-ctype \
-    php-json \
-    php-session \
-    php-pdo \
-    php-pdo_mysql \
-    php-pcntl \
-    php-posix
+# Install Node.js 22 from official Debian-compatible node image
+COPY --from=node:22-bookworm-slim /usr/local /usr/local
 
 WORKDIR /app
 
