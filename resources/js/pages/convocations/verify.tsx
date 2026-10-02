@@ -1,16 +1,14 @@
-import { Head, Link, router, setLayoutProps } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ListChecks, UserCheck, Undo2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { dashboard } from '@/routes';
 import {
     destroy as undoCheckIn,
     store as checkIn,
 } from '@/routes/exam-candidates/check-in';
-import { index as examsIndex } from '@/routes/exams';
+import { toastErrors } from '@/lib/toast-errors';
 import { checkIn as roomCheckIn } from '@/routes/exams/rooms';
 import { CandidateCard } from './components/candidate-card';
 import { CheckInBanner } from './components/check-in-banner';
@@ -19,6 +17,7 @@ import type {
     CheckInExam,
     CheckInState,
 } from './components/types';
+import { useExamsBreadcrumbs } from '@/pages/exams/components/use-exams-breadcrumbs';
 
 interface ConvocationVerifyProps {
     candidate: CheckInCandidate;
@@ -38,14 +37,7 @@ export default function ConvocationVerify({
     const { t } = useTranslation();
     const [processing, setProcessing] = useState(false);
 
-    useEffect(() => {
-        setLayoutProps({
-            breadcrumbs: [
-                { title: t('nav.dashboard'), href: dashboard().url },
-                { title: t('nav.exams'), href: examsIndex().url },
-            ],
-        });
-    }, [t]);
+    useExamsBreadcrumbs();
 
     const submit = (
         route: ReturnType<typeof checkIn> | ReturnType<typeof undoCheckIn>,
@@ -54,10 +46,7 @@ export default function ConvocationVerify({
             preserveScroll: true,
             onStart: () => setProcessing(true),
             onFinish: () => setProcessing(false),
-            onError: (errors) =>
-                Object.values(errors).forEach((message) =>
-                    toast.error(message),
-                ),
+            onError: (errors) => toastErrors(errors),
         });
 
     return (

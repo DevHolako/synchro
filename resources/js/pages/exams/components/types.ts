@@ -38,6 +38,8 @@ export interface Exam {
     last_reschedule_reason: string | null;
     /** By the school's clock. */
     has_started: boolean;
+    /** Draft or scheduled: from publication on, only an emergency reschedule changes it. */
+    is_editable: boolean;
     /** Still a draft or scheduled once its start has passed. */
     is_overdue: boolean;
     module: {
@@ -75,6 +77,8 @@ export interface ExamRoom {
 /** The rooms and invigilators sheet's data (GET /exams/{exam}/allocation). */
 export interface ExamAllocation {
     state: ExamState;
+    /** Rooms (and so seats) are frozen from publication on. */
+    rooms_editable: boolean;
     force_single_room: boolean;
     students_count: number;
     assistant_threshold: number;

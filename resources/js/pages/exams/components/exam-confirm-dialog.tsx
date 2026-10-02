@@ -1,6 +1,5 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -12,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { moduleLabel } from '@/lib/module-label';
 import {
     archive as archivePeriod,
     destroy as destroyPeriod,
@@ -23,6 +23,7 @@ import {
     schedule as scheduleExam,
     unschedule as unscheduleExam,
 } from '@/routes/exams';
+import { toastErrors } from '@/lib/toast-errors';
 import type { ExamConfirmation } from './types';
 
 const DESTRUCTIVE = new Set<ExamConfirmation['kind']>([
@@ -51,7 +52,7 @@ function routeOf(confirmation: ExamConfirmation) {
 
 function subjectOf(confirmation: ExamConfirmation): string {
     return 'exam' in confirmation
-        ? `${confirmation.exam.module.code} · ${confirmation.exam.module.name}`
+        ? moduleLabel(confirmation.exam.module)
         : confirmation.period.name;
 }
 
@@ -79,9 +80,7 @@ export function ExamConfirmDialog({
             onSuccess: onClose,
             // Lifecycle refusals (conflicts, wrong state, past start) come back as errors.
             onError: (errors) => {
-                Object.values(errors).forEach((message) =>
-                    toast.error(message),
-                );
+                toastErrors(errors);
                 onClose();
             },
         });

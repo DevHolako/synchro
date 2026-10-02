@@ -1,13 +1,11 @@
-import { Head, setLayoutProps } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { OctagonAlert } from 'lucide-react';
-import { useEffect } from 'react';
 import { useTranslation } from '@/i18n/LanguageContext';
 import {
     formatDay,
     timeOf,
 } from '@/pages/timetable/components/wall-clock-format';
-import { dashboard } from '@/routes';
-import { index as examsIndex } from '@/routes/exams';
+import { useExamsBreadcrumbs } from '@/pages/exams/components/use-exams-breadcrumbs';
 
 interface SupersededProps {
     student: string;
@@ -24,14 +22,7 @@ export default function SupersededConvocation({
 }: SupersededProps) {
     const { t, locale } = useTranslation();
 
-    useEffect(() => {
-        setLayoutProps({
-            breadcrumbs: [
-                { title: t('nav.dashboard'), href: dashboard().url },
-                { title: t('nav.exams'), href: examsIndex().url },
-            ],
-        });
-    }, [t]);
+    useExamsBreadcrumbs();
 
     return (
         <>

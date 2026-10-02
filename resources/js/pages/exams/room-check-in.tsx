@@ -1,19 +1,18 @@
-import { Head, router, setLayoutProps, usePoll } from '@inertiajs/react';
-import { useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { Head, router, usePoll } from '@inertiajs/react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from '@/i18n/LanguageContext';
 import {
     formatDay,
     timeOf,
 } from '@/pages/timetable/components/wall-clock-format';
-import { dashboard } from '@/routes';
 import {
     destroy as undoCheckIn,
     store as checkIn,
 } from '@/routes/exam-candidates/check-in';
-import { index as examsIndex } from '@/routes/exams';
+import { toastErrors } from '@/lib/toast-errors';
 import { RoomCheckInRow } from './components/check-in/room-check-in-row';
 import type { CheckInRoom, RoomCandidate } from './components/check-in/types';
+import { useExamsBreadcrumbs } from './components/use-exams-breadcrumbs';
 
 const POLL_INTERVAL_MS = 10_000;
 
@@ -39,14 +38,7 @@ export default function RoomCheckIn({
 
     usePoll(POLL_INTERVAL_MS, { only: ['candidates', 'open'] });
 
-    useEffect(() => {
-        setLayoutProps({
-            breadcrumbs: [
-                { title: t('nav.dashboard'), href: dashboard().url },
-                { title: t('nav.exams'), href: examsIndex().url },
-            ],
-        });
-    }, [t]);
+    useExamsBreadcrumbs();
 
     const send = useCallback(
         (route: ReturnType<typeof checkIn> | ReturnType<typeof undoCheckIn>) =>
@@ -55,10 +47,7 @@ export default function RoomCheckIn({
                 only: ['candidates', 'open', 'flash'],
                 onStart: () => setBusy(true),
                 onFinish: () => setBusy(false),
-                onError: (errors) =>
-                    Object.values(errors).forEach((message) =>
-                        toast.error(message),
-                    ),
+                onError: (errors) => toastErrors(errors),
             }),
         [],
     );

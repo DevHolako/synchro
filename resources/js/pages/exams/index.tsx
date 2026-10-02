@@ -1,10 +1,9 @@
-import { Head, router, setLayoutProps } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { dashboard } from '@/routes';
 import { index } from '@/routes/exams';
 import { ExamFilterBar } from './components/exam-filter-bar';
 import { ExamOverlays } from './components/exam-overlays';
@@ -20,6 +19,7 @@ import type {
     ExamStats,
 } from './components/types';
 import { useExamOverlays } from './components/use-exam-overlays';
+import { useExamsBreadcrumbs } from './components/use-exams-breadcrumbs';
 
 const ExamsCalendar = lazy(() => import('./components/exams-calendar'));
 
@@ -54,14 +54,7 @@ export default function ExamsIndex({
     const overlays = useExamOverlays();
     const period = periods.find((item) => item.id === periodId) ?? null;
 
-    useEffect(() => {
-        setLayoutProps({
-            breadcrumbs: [
-                { title: t('nav.dashboard'), href: dashboard().url },
-                { title: t('nav.exams'), href: index().url },
-            ],
-        });
-    }, [t]);
+    useExamsBreadcrumbs();
 
     const visit = (id: number | null, next: ExamFilters) =>
         router.get(
@@ -80,10 +73,7 @@ export default function ExamsIndex({
     };
 
     const handleCalendarClick = (exam: Exam) => {
-        if (
-            canManage &&
-            (exam.state === 'draft' || exam.state === 'scheduled')
-        ) {
+        if (canManage && exam.is_editable) {
             overlays.editExam(exam);
         }
     };

@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { FIELD_CLASS } from '@/lib/form-classes';
-import { AllocationRoomList } from './allocation-room-list';
+import { OrderedRoomPicker } from './ordered-room-picker';
 import type { ExamAllocation } from './types';
 
 interface AllocationRoomPickerProps {
@@ -31,22 +31,14 @@ export function AllocationRoomPicker({
     );
     const [force, setForce] = useState(allocation.force_single_room);
     const [justification, setJustification] = useState('');
-    const locked =
-        allocation.state !== 'draft' && allocation.state !== 'scheduled';
-    const byId = new Map(allocation.rooms.map((room) => [room.id, room]));
-    const chosen = roomIds.flatMap((id) => byId.get(id) ?? []);
-    const seats = chosen.reduce((sum, room) => sum + room.exam_capacity, 0);
-
-    const move = (index: number, offset: number) =>
-        setRoomIds((current) => {
-            const next = [...current];
-            [next[index], next[index + offset]] = [
-                next[index + offset],
-                next[index],
-            ];
-
-            return next;
-        });
+    const locked = !allocation.rooms_editable;
+    const capacityOf = new Map(
+        allocation.rooms.map((room) => [room.id, room.exam_capacity]),
+    );
+    const seats = roomIds.reduce(
+        (sum, id) => sum + (capacityOf.get(id) ?? 0),
+        0,
+    );
 
     return (
         <section className="grid gap-3">
@@ -62,15 +54,11 @@ export function AllocationRoomPicker({
                 </span>
             </div>
 
-            <AllocationRoomList
-                rooms={chosen}
+            <OrderedRoomPicker
+                rooms={allocation.rooms}
+                roomIds={roomIds}
                 locked={locked}
-                onMove={move}
-                onRemove={(id) =>
-                    setRoomIds((current) =>
-                        current.filter((roomId) => roomId !== id),
-                    )
-                }
+                onChange={setRoomIds}
             />
 
             {locked ? (
@@ -79,37 +67,6 @@ export function AllocationRoomPicker({
                 </p>
             ) : (
                 <>
-                    <select
-                        aria-label={t('exams.add_room')}
-                        value=""
-                        onChange={(e) =>
-                            setRoomIds((current) => [
-                                ...current,
-                                Number(e.target.value),
-                            ])
-                        }
-                        className={FIELD_CLASS}
-                    >
-                        <option value="">{t('exams.add_room')}</option>
-                        {allocation.rooms
-                            .filter((room) => !roomIds.includes(room.id))
-                            .map((room) => (
-                                <option
-                                    key={room.id}
-                                    value={room.id}
-                                    disabled={room.busy}
-                                >
-                                    {room.name} · {room.building} ·{' '}
-                                    {t(
-                                        room.busy
-                                            ? 'exams.room_busy'
-                                            : 'exams.room_capacity',
-                                        { capacity: room.exam_capacity },
-                                    )}
-                                </option>
-                            ))}
-                    </select>
-
                     {canForce ? (
                         <label className="flex items-center gap-2 text-sm">
                             <Checkbox

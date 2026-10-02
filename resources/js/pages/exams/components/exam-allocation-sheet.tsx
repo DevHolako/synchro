@@ -9,17 +9,18 @@ import {
 } from '@/components/ui/sheet';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { moduleLabel } from '@/lib/module-label';
 import { Permission } from '@/lib/permissions';
 import { useSchoolClock } from '@/pages/timetable/components/use-school-clock';
 import {
     formatDay,
     timeOf,
 } from '@/pages/timetable/components/wall-clock-format';
+import { checkIn as roomCheckIn } from '@/routes/exams/rooms';
 import { AllocationRoomCard } from './allocation-room-card';
 import { AllocationRoomPicker } from './allocation-room-picker';
 import type { Exam } from './types';
 import { useExamAllocation } from './use-exam-allocation';
-import { checkIn as roomCheckIn } from '@/routes/exams/rooms';
 
 interface ExamAllocationSheetProps {
     exam: Exam;
@@ -51,7 +52,7 @@ export function ExamAllocationSheet({
                 <SheetHeader>
                     <SheetTitle>{t('exams.allocation_title')}</SheetTitle>
                     <SheetDescription>
-                        {exam.module.code} · {exam.module.name} ·{' '}
+                        {moduleLabel(exam.module)} ·{' '}
                         {formatDay(exam.start, locale, 'medium')}{' '}
                         {timeOf(exam.start)}–{timeOf(exam.end)}
                     </SheetDescription>

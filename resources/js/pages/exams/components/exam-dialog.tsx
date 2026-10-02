@@ -14,6 +14,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { moduleLabel } from '@/lib/module-label';
 import { FIELD_CLASS } from '@/lib/form-classes';
 import { timeOf } from '@/pages/timetable/components/wall-clock-format';
 import { store, update } from '@/routes/exams';
@@ -134,7 +135,7 @@ export function ExamDialog({
                             <option value="">{t('exams.pick_module')}</option>
                             {options.modules.map((module) => (
                                 <option key={module.id} value={module.id}>
-                                    {module.code} · {module.name}
+                                    {moduleLabel(module)}
                                 </option>
                             ))}
                         </select>

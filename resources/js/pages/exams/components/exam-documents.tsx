@@ -10,10 +10,7 @@ const PENDING_CLASS = 'inline-flex items-center gap-1 text-xs text-neutral-500';
 /** The exam's PDFs the viewer may download: their convocation, or the room sheets. */
 export function ExamDocuments({ exam }: { exam: Exam }) {
     const { t } = useTranslation();
-    const sitsIt =
-        exam.my_seat !== null &&
-        exam.state !== 'draft' &&
-        exam.state !== 'scheduled';
+    const sitsIt = exam.my_seat !== null && !exam.is_editable;
 
     if (!sitsIt && exam.roster === null) {
         return null;

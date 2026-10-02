@@ -1,5 +1,5 @@
 import { router, useHttp } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslation } from '@/i18n/LanguageContext';
 import type { SlotConflict } from '@/pages/timetable/components/schedule/types';
@@ -26,8 +26,6 @@ interface StaffForm {
 /** Unavailabilities found when staffing a room: saving again needs a justification. */
 export interface PendingStaffing {
     assignmentId: number;
-    leadId: number;
-    assistantIds: number[];
     conflicts: SlotConflict[];
 }
 
@@ -111,8 +109,6 @@ export function useExamAllocation(examId: number) {
                             };
                             setPending({
                                 assignmentId,
-                                leadId,
-                                assistantIds,
                                 conflicts: body.soft_conflicts,
                             });
                         } else {
@@ -124,6 +120,15 @@ export function useExamAllocation(examId: number) {
             .catch(() => undefined);
     };
 
+    // One stable function for the memoized room cards; it always runs the latest saveStaff.
+    const saveStaffRef = useRef(saveStaff);
+    saveStaffRef.current = saveStaff;
+    const stableSaveStaff = useCallback(
+        (...args: Parameters<typeof saveStaff>) =>
+            saveStaffRef.current(...args),
+        [],
+    );
+
     return {
         allocation,
         rooms: {
@@ -132,11 +137,10 @@ export function useExamAllocation(examId: number) {
             saving: roomsHttp.processing,
         },
         staff: {
-            save: saveStaff,
+            save: stableSaveStaff,
             errors: staffHttp.errors,
             saving: staffHttp.processing,
             pending,
-            dismiss: () => setPending(null),
         },
     };
 }

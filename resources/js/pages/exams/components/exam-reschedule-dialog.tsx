@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { moduleLabel } from '@/lib/module-label';
 import { FIELD_CLASS } from '@/lib/form-classes';
 import { timeOf } from '@/pages/timetable/components/wall-clock-format';
 import { emergencyReschedule } from '@/routes/exams';
@@ -66,7 +67,7 @@ export function ExamRescheduleDialog({
                     <DialogHeader>
                         <DialogTitle>{t('exams.reschedule_title')}</DialogTitle>
                         <DialogDescription>
-                            {exam.module.code} · {exam.module.name}
+                            {moduleLabel(exam.module)}
                         </DialogDescription>
                     </DialogHeader>
 

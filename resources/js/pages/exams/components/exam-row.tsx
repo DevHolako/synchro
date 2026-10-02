@@ -38,8 +38,8 @@ export const ExamRow = memo(function ExamRow({
     onConfirm,
 }: ExamRowProps) {
     const { t, locale } = useTranslation();
-    const editable = exam.state === 'draft' || exam.state === 'scheduled';
-    const upcoming = !exam.is_overdue;
+    const editable = exam.is_editable;
+    const upcoming = !exam.has_started;
 
     return (
         <tr className="align-top transition-colors hover:bg-neutral-50/50 dark:hover:bg-neutral-800/40">
