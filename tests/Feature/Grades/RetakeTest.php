@@ -2,6 +2,7 @@
 
 use App\Actions\Exams\AllocateExamRoomsAction;
 use App\Actions\Grades\ListRetakeCandidatesAction;
+use App\Actions\Grades\RenderDeliberationPvPdfAction;
 use App\Enums\ExamState;
 use App\Enums\GradeSheetStatus;
 use App\Models\Exam;
@@ -89,9 +90,9 @@ test('failing grades of a sheet not yet locked do not make retake candidates', f
 
 test('when a module was examined twice in the year, the latest locked line decides', function () {
     $resit = retakeTestExam($this->normalExam->examPeriod, $this->module, StudentGroup::factory()->create(['program_id' => $this->module->program_id]), $this->room, '2026-10-20');
-    ExamGrade::query()->create(['exam_id' => $resit->id, 'student_id' => $this->zerouali->id, 'continuous_assessment_grade' => '10.00', 'exam_grade' => '15.00', 'final_grade' => '13.00']);
-    ExamGrade::query()->create(['exam_id' => $resit->id, 'student_id' => $this->alami->id, 'continuous_assessment_grade' => '5.00', 'exam_grade' => '5.00', 'final_grade' => '5.00']);
-    ExamDeliberation::query()->create(['exam_id' => $resit->id, 'status' => GradeSheetStatus::Locked]);
+    ExamGrade::factory()->for($resit)->for($this->zerouali, 'student')->withFinal('13.00')->create();
+    ExamGrade::factory()->for($resit)->for($this->alami, 'student')->withFinal('5.00')->create();
+    ExamDeliberation::factory()->for($resit)->locked()->create();
 
     expect(app(ListRetakeCandidatesAction::class)->execute('2026-2027')->pluck('student_id')->all())->toBe([$this->alami->id]);
 });
@@ -110,7 +111,42 @@ test('locked grade lines and deliberations refuse bulk writes too', function () 
         ->and(fn () => (clone $sheet)->update(['status' => GradeSheetStatus::Draft]))->toThrow(LogicException::class)
         ->and(fn () => (clone $sheet)->update(['pv_sha256' => str_repeat('0', 64)]))->toThrow(LogicException::class)
         ->and(fn () => (clone $sheet)->delete())->toThrow(LogicException::class)
-        ->and(ExamGrade::query()->where('exam_id', $this->normalExam->id)->where('student_id', $this->zerouali->id)->value('final_grade'))->toBe('4.00');
+        ->and(fn () => (clone $sheet)->increment('continuous_assessment_weight'))->toThrow(LogicException::class)
+        ->and(fn () => (clone $lines)->increment('final_grade'))->toThrow(LogicException::class)
+        ->and(fn () => ExamGrade::factory()->for($this->normalExam)->create())->toThrow(LogicException::class)
+        ->and(fn () => ExamGrade::query()->insert(['exam_id' => $this->normalExam->id, 'student_id' => User::factory()->student()->create()->id]))->toThrow(LogicException::class)
+        ->and(fn () => ExamGrade::query()->insertOrIgnore(['exam_id' => $this->normalExam->id, 'student_id' => $this->alami->id]))->toThrow(LogicException::class)
+        ->and(ExamGrade::query()->where('exam_id', $this->normalExam->id)->where('student_id', $this->zerouali->id)->value('final_grade'))->toBe('4.00')
+        ->and(ExamGrade::query()->where('exam_id', $this->normalExam->id)->count())->toBe(2);
+});
+
+test('failing students without a group are counted on the roster', function () {
+    $this->zerouali->studentProfile->update(['student_group_id' => null]);
+
+    $this->actingAs($this->coordinator)->get(route('retakes.index'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('modules.0.ungrouped', 1)
+            ->where('modules.0.group_ids', []));
+});
+
+test('a retake PV says who failed rather than who goes to the retake', function () {
+    $retake = retakeTestExam($this->retakePeriod, $this->module, $this->group, $this->room, '2026-11-10');
+    $this->actingAs($this->teacher)->get(route('exams.grades.show', $retake));
+    $this->actingAs($this->teacher)->put(route('exams.grades.update', $retake), ['grades' => [
+        ['student_id' => $this->zerouali->id, 'continuous_assessment_grade' => null, 'exam_grade' => '2', 'is_absent' => false, 'remarks' => null],
+    ]]);
+    $this->actingAs($this->teacher)->post(route('exams.grades.submit', $retake));
+    $this->actingAs($this->coordinator)->post(route('exams.deliberation.lock', $retake))->assertSessionHasNoErrors();
+
+    $data = app(RenderDeliberationPvPdfAction::class)->viewData($retake->deliberation()->sole());
+    $html = view('pdf.deliberation-pv', $data)->render();
+
+    expect($data['retake'])->toBeTrue()
+        ->and($data['lines'][0]['passed'])->toBeFalse()
+        ->and($html)->toContain(__('documents.pv_title_retake', [], 'fr'))
+        ->and($html)->toContain(__('documents.pv_counts_retake', [], 'fr'))
+        ->and($html)->toContain(__('documents.pv_failed', [], 'fr'))
+        ->and($html)->not->toContain('>'.__('documents.pv_retake', [], 'fr').'<');
 });
 
 test('the retake roster lists each module\'s failing students for exam managers', function () {

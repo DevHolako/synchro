@@ -205,14 +205,8 @@ test('a weighting change recomputes open sheets and leaves locked ones alone', f
     ]]);
 
     $locked = Exam::factory()->completed()->create(['module_id' => $this->module->id]);
-    ExamDeliberation::query()->create(['exam_id' => $locked->id, 'status' => GradeSheetStatus::Locked]);
-    $lockedGrade = ExamGrade::query()->create([
-        'exam_id' => $locked->id,
-        'student_id' => $this->alami->id,
-        'continuous_assessment_grade' => '10.00',
-        'exam_grade' => '20.00',
-        'final_grade' => '16.00',
-    ]);
+    $lockedGrade = ExamGrade::factory()->for($locked)->for($this->alami, 'student')->withFinal('16.00')->create();
+    ExamDeliberation::factory()->for($locked)->locked()->create();
 
     app(UpdateModuleAction::class)->execute($this->module, ['continuous_assessment_weight' => 50]);
 
