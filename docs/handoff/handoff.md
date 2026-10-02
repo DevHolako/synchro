@@ -130,6 +130,11 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 3. **Ticket 03: Drag-and-Drop Rescheduling** ([`03-drag-drop-interactive-rescheduling.md`](file:///home/holako/github/synchro/docs/specs/03-interactive-course-planning/tickets/03-drag-drop-interactive-rescheduling.md), design decisions recorded in the ticket)
    - Implemented: `PATCH /course-sessions/{session}/reschedule` (`RescheduleCourseSessionRequest`, `RescheduleCourseSessionAction`, `CourseSessionRescheduleController`; JSON 200/422/409), `CourseSession::hasStarted()`; started sessions can be neither moved nor deleted (`DeleteCourseSessionAction` refuses them). `HardConflictException` JSON also carries `errors`.
    - UI: FullCalendar `interaction` plugin; `use-session-reschedule.ts` (save on drop, snap back on 422, `soft-conflict-dialog.tsx` on 409), delete with confirmation in the details dialog, `use-timetable-polling.ts` (`usePoll` every 30 s, paused while editing).
+4. **Ticket 04: Attendance Register** ([`04-course-session-attendance-register.md`](file:///home/holako/github/synchro/docs/specs/03-interactive-course-planning/tickets/04-course-session-attendance-register.md), defaults recorded in the ticket)
+   - Implemented: `SessionAttendance` (`session_attendances`, unique per session and student, restrictive foreign keys), `AttendanceStatus`, `RecordAttendance` permission (Teacher, Coordinator) and `CourseSessionPolicy::recordAttendance` (own sessions, or `ManageSchedules`); `GET`/`PUT /course-sessions/{session}/attendance` (JSON).
+   - Actions: `ShowAttendanceRegisterAction` (roster from the session's groups plus already-marked students, module absence history in one grouped query), `RecordAttendanceAction` (one upsert).
+   - UI: `resources/js/pages/timetable/components/attendance/` (side sheet, status pills, "Tous présents", counts, per-student module absence rate). The page's dialogs moved to `timetable-overlays.tsx` and its URL handling to `use-timetable-navigation.ts`.
+   - **Run `php artisan migrate`** locally: a new table.
 
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
@@ -142,7 +147,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is in progress: Tickets 01–03 are done; Ticket 04 (attendance register) is next.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is in progress: Tickets 01–04 are done; Ticket 05 (tokenized iCal feeds) is next, then the whole-Part review.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
@@ -163,6 +168,7 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 
 - **Deferred from Part 03 / Ticket 01 (decisions owed later):**
   - Sessions are not typed lecture/TP, so the syllabus widget compares against `total_hours` only. Typing them touches the conflict engine, the session requests and the batch wizard.
   - A "rooms × hours" board for the Global Campus view: either a custom component or FullCalendar's Premium resource views (paid licence). Build it only if coordinators ask.
+- **Deferred from Part 03 / Ticket 04:** students cannot see their own attendance; registers never lock; no absence alerts.
 - **Deferred from Part 03 / Ticket 03:**
   - Live updates use `usePoll` (30 s, paused while editing). Reverb was discussed on 2026-10-02 and deferred for time: it needs `laravel/reverb`, `laravel-echo`, `@laravel/echo-react`, `pusher-js`, a `reverb` Docker service, Caddy and Hestia nginx WebSocket proxying, per-subject private channels (`timetable.group|teacher|room|campus.{id}`, authorized by permission) carrying ids only, and after-commit broadcasts on the `notifications` queue. `useTimetablePolling` is the only thing to swap: the page just needs a "reload sessions" trigger. Presence indicators were also left out.
   - Past sessions can only be corrected through the full `PUT /course-sessions/{session}` route; there is no UI for it.
