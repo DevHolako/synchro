@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BookingType;
 use App\Enums\ConflictType;
 use App\Models\CourseSession;
 use App\Models\Room;
@@ -30,12 +31,13 @@ beforeEach(function () {
 function slotAt(string $start, string $end, array $overrides = []): SessionSlot
 {
     return new SessionSlot(
-        teacherId: $overrides['teacher'] ?? User::factory()->teacher()->create()->id,
-        roomId: $overrides['room'] ?? Room::factory()->create()->id,
+        type: BookingType::CourseSession,
+        teacherIds: [$overrides['teacher'] ?? User::factory()->teacher()->create()->id],
+        roomIds: [$overrides['room'] ?? Room::factory()->create()->id],
         groupIds: $overrides['groups'] ?? [StudentGroup::factory()->create()->id],
         startsAt: CarbonImmutable::parse($start),
         endsAt: CarbonImmutable::parse($end),
-        ignoreSessionId: $overrides['ignore'] ?? null,
+        ignoreId: $overrides['ignore'] ?? null,
     );
 }
 
@@ -61,7 +63,7 @@ test('each resource collision is reported with its type and name', function (str
     expect($result->hardConflicts)->toHaveCount(1)
         ->and($result->hardConflicts[0]->type)->toBe($type)
         ->and($result->hardConflicts[0]->resourceName)->toBe($name)
-        ->and($result->hardConflicts[0]->sessionId)->toBe($this->existing->id)
+        ->and($result->hardConflicts[0]->bookingId)->toBe($this->existing->id)
         ->and($result->hardConflicts[0]->toArray()['starts_at'])->toBe('2026-10-12 10:00');
 })->with([
     'room' => ['room', ConflictType::Room, 'Amphi A'],
@@ -113,7 +115,7 @@ test('a session being edited does not conflict with itself', function () {
     expect($result->hasHardConflicts())->toBeFalse();
 });
 
-test('a check runs one query per resource type and per soft rule', function () {
+test('a check runs one query per resource type and source, and per soft rule', function () {
     $slot = slotAt('2026-10-12 11:00', '2026-10-12 13:00', ['room' => $this->room->id]);
 
     DB::flushQueryLog();
@@ -122,7 +124,8 @@ test('a check runs one query per resource type and per soft rule', function () {
     $queries = DB::getQueryLog();
     DB::disableQueryLog();
 
-    expect($queries)->toHaveCount(5);
+    // Sessions: room, teacher, groups. Exams: groups. Soft rules: capacity, unavailability.
+    expect($queries)->toHaveCount(6);
 });
 
 test('the overlap lookups are backed by composite indexes', function () {

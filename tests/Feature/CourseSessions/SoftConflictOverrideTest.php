@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\CourseSessions\CreateCourseSessionAction;
+use App\Enums\BookingType;
 use App\Enums\ConflictType;
 use App\Enums\Permission;
 use App\Enums\UserRole;
@@ -38,8 +39,9 @@ beforeEach(function () {
 function softSlot(array $groupIds, string $start = '2026-10-16 18:00', string $end = '2026-10-16 20:00'): SessionSlot
 {
     return new SessionSlot(
-        teacherId: test()->teacher->id,
-        roomId: test()->room->id,
+        type: BookingType::CourseSession,
+        teacherIds: [test()->teacher->id],
+        roomIds: [test()->room->id],
         groupIds: $groupIds,
         startsAt: CarbonImmutable::parse($start),
         endsAt: CarbonImmutable::parse($end),

@@ -2,6 +2,7 @@
 
 namespace App\Actions\CourseSessions;
 
+use App\Enums\BookingType;
 use App\Models\Module;
 use App\Models\StudentGroup;
 use App\Services\Scheduling\ConflictDetectorService;
@@ -43,8 +44,9 @@ class CheckCourseSessionBatchAction
 
         foreach ($windows as $index => [$start, $end]) {
             $result = $this->detector->checkConflicts(new SessionSlot(
-                teacherId: $data['teacher_id'],
-                roomId: $data['room_id'],
+                type: BookingType::CourseSession,
+                teacherIds: [$data['teacher_id']],
+                roomIds: [$data['room_id']],
                 groupIds: $data['student_group_ids'],
                 startsAt: $start,
                 endsAt: $end,

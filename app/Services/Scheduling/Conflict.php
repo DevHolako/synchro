@@ -2,6 +2,7 @@
 
 namespace App\Services\Scheduling;
 
+use App\Enums\BookingType;
 use App\Enums\ConflictType;
 use Carbon\CarbonInterface;
 
@@ -11,7 +12,8 @@ use Carbon\CarbonInterface;
 final readonly class Conflict
 {
     /**
-     * @param  int|null  $sessionId  The colliding session, for hard conflicts.
+     * @param  BookingType|null  $bookingType  The kind of colliding booking, for hard conflicts.
+     * @param  int|null  $bookingId  The colliding booking, for hard conflicts.
      * @param  CarbonInterface  $startsAt  The colliding booking's window (hard) or the slot's own (soft).
      * @param  array<string, string|int|null>  $details  Facts behind a soft conflict, kept in the override audit.
      */
@@ -19,14 +21,15 @@ final readonly class Conflict
         public ConflictType $type,
         public int $resourceId,
         public string $resourceName,
-        public ?int $sessionId,
+        public ?BookingType $bookingType,
+        public ?int $bookingId,
         public CarbonInterface $startsAt,
         public CarbonInterface $endsAt,
         public array $details = [],
     ) {}
 
     /**
-     * @return array{type: string, resource_id: int, resource_name: string, session_id: int|null, starts_at: string, ends_at: string, details: array<string, string|int|null>}
+     * @return array{type: string, resource_id: int, resource_name: string, booking_type: string|null, booking_id: int|null, starts_at: string, ends_at: string, details: array<string, string|int|null>}
      */
     public function toArray(): array
     {
@@ -34,7 +37,8 @@ final readonly class Conflict
             'type' => $this->type->value,
             'resource_id' => $this->resourceId,
             'resource_name' => $this->resourceName,
-            'session_id' => $this->sessionId,
+            'booking_type' => $this->bookingType?->value,
+            'booking_id' => $this->bookingId,
             'starts_at' => $this->startsAt->format('Y-m-d H:i'),
             'ends_at' => $this->endsAt->format('Y-m-d H:i'),
             'details' => $this->details,
@@ -46,7 +50,9 @@ final readonly class Conflict
      */
     public function message(): string
     {
-        return __("messages.conflict_{$this->type->value}", [
+        $key = $this->bookingType === BookingType::Exam ? "conflict_{$this->type->value}_exam" : "conflict_{$this->type->value}";
+
+        return __("messages.{$key}", [
             ...$this->details,
             'name' => $this->resourceName,
             'date' => $this->startsAt->format('Y-m-d'),

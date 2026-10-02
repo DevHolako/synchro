@@ -2,38 +2,75 @@
 
 namespace App\Services\Scheduling;
 
+use App\Enums\BookingType;
 use Carbon\CarbonImmutable;
 
 /**
- * The resources and time window a session would occupy, as checked by the conflict detector.
+ * The resources and time window a booking (course session or exam) would occupy, as checked
+ * by the conflict detector.
+ *
+ * A course session holds one teacher and one room; an exam holds its groups now and, from
+ * room allocation on, several rooms and invigilators.
  */
 final readonly class SessionSlot
 {
     /**
+     * @param  list<int>  $teacherIds
+     * @param  list<int>  $roomIds
      * @param  list<int>  $groupIds
-     * @param  int|null  $ignoreSessionId  The session being edited, which must not conflict with itself.
+     * @param  int|null  $ignoreId  The booking of this type being edited, which must not conflict with itself.
      */
     public function __construct(
-        public int $teacherId,
-        public int $roomId,
+        public BookingType $type,
+        public array $teacherIds,
+        public array $roomIds,
         public array $groupIds,
         public CarbonImmutable $startsAt,
         public CarbonImmutable $endsAt,
-        public ?int $ignoreSessionId = null,
+        public ?int $ignoreId = null,
     ) {}
 
     /**
+     * A course session's slot.
+     *
      * @param  array{teacher_id: int, room_id: int, student_group_ids: list<int>, starts_at: string, ends_at: string}  $data
      */
     public static function fromPayload(array $data, ?int $ignoreSessionId = null): self
     {
         return new self(
-            teacherId: $data['teacher_id'],
-            roomId: $data['room_id'],
+            type: BookingType::CourseSession,
+            teacherIds: [$data['teacher_id']],
+            roomIds: [$data['room_id']],
             groupIds: $data['student_group_ids'],
             startsAt: CarbonImmutable::parse($data['starts_at']),
             endsAt: CarbonImmutable::parse($data['ends_at']),
-            ignoreSessionId: $ignoreSessionId,
+            ignoreId: $ignoreSessionId,
         );
+    }
+
+    /**
+     * An exam's slot: its groups for now (rooms and invigilators join with room allocation).
+     *
+     * @param  array{student_group_ids: list<int>, starts_at: string, ends_at: string}  $data
+     */
+    public static function forExam(array $data, ?int $ignoreExamId = null): self
+    {
+        return new self(
+            type: BookingType::Exam,
+            teacherIds: [],
+            roomIds: [],
+            groupIds: $data['student_group_ids'],
+            startsAt: CarbonImmutable::parse($data['starts_at']),
+            endsAt: CarbonImmutable::parse($data['ends_at']),
+            ignoreId: $ignoreExamId,
+        );
+    }
+
+    /**
+     * The id of the booking of this kind to leave out of the check, if any.
+     */
+    public function ignoredIdOf(BookingType $type): ?int
+    {
+        return $this->type === $type ? $this->ignoreId : null;
     }
 }

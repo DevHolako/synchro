@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\BookingType;
 use App\Models\Module;
 use App\Models\Room;
 use App\Models\StudentGroup;
@@ -99,8 +100,8 @@ class BenchmarkConflictsCommand extends Command
                 $rows[] = [
                     'id' => $nextId,
                     'module_id' => $module->id,
-                    'teacher_id' => $slot->teacherId,
-                    'room_id' => $slot->roomId,
+                    'teacher_id' => $slot->teacherIds[0],
+                    'room_id' => $slot->roomIds[0],
                     'starts_at' => $slot->startsAt,
                     'ends_at' => $slot->endsAt,
                     'created_at' => $now,
@@ -136,8 +137,9 @@ class BenchmarkConflictsCommand extends Command
             ->addMinutes(15 * random_int(0, 48));
 
         return new SessionSlot(
-            teacherId: $teacherIds[array_rand($teacherIds)],
-            roomId: $roomIds[array_rand($roomIds)],
+            type: BookingType::CourseSession,
+            teacherIds: [$teacherIds[array_rand($teacherIds)]],
+            roomIds: [$roomIds[array_rand($roomIds)]],
             groupIds: array_values(array_unique([$groupIds[array_rand($groupIds)], $groupIds[array_rand($groupIds)]])),
             startsAt: $start,
             endsAt: $start->addHours(2),

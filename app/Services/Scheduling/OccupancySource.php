@@ -3,7 +3,7 @@
 namespace App\Services\Scheduling;
 
 /**
- * A kind of booking that occupies teachers, rooms and groups (course sessions now, exams in Part 04).
+ * A kind of booking that occupies teachers, rooms and groups (course sessions, exams).
  */
 interface OccupancySource
 {

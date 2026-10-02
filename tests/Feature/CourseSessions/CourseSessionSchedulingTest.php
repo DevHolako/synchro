@@ -81,7 +81,8 @@ test('a hard conflict is rejected with a structured 422 for json callers', funct
             'type' => 'room',
             'resource_id' => $this->room->id,
             'resource_name' => 'Amphi A',
-            'session_id' => $existing->id,
+            'booking_type' => 'course_session',
+            'booking_id' => $existing->id,
             'starts_at' => '2026-10-12 10:00',
             'ends_at' => '2026-10-12 12:00',
         ]);

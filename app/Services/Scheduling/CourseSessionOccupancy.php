@@ -2,6 +2,7 @@
 
 namespace App\Services\Scheduling;
 
+use App\Enums\BookingType;
 use App\Enums\ConflictType;
 use App\Models\CourseSession;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,8 +15,8 @@ class CourseSessionOccupancy implements OccupancySource
     public function hardConflicts(SessionSlot $slot): array
     {
         return [
-            ...$this->collisions($slot, ConflictType::Room, 'rooms', 'course_sessions.room_id', [$slot->roomId]),
-            ...$this->collisions($slot, ConflictType::Teacher, 'users', 'course_sessions.teacher_id', [$slot->teacherId]),
+            ...$this->collisions($slot, ConflictType::Room, 'rooms', 'course_sessions.room_id', $slot->roomIds),
+            ...$this->collisions($slot, ConflictType::Teacher, 'users', 'course_sessions.teacher_id', $slot->teacherIds),
             ...$this->groupCollisions($slot),
         ];
     }
@@ -28,6 +29,10 @@ class CourseSessionOccupancy implements OccupancySource
      */
     private function collisions(SessionSlot $slot, ConflictType $type, string $table, string $column, array $resourceIds): array
     {
+        if ($resourceIds === []) {
+            return [];
+        }
+
         $rows = $this->overlapping($slot)
             ->join($table, "{$table}.id", '=', $column)
             ->whereIn($column, $resourceIds)
@@ -63,7 +68,7 @@ class CourseSessionOccupancy implements OccupancySource
     {
         return CourseSession::query()
             ->overlapping($slot->startsAt, $slot->endsAt)
-            ->when($slot->ignoreSessionId, fn (Builder $query, int $id) => $query->where('course_sessions.id', '!=', $id))
+            ->when($slot->ignoredIdOf(BookingType::CourseSession), fn (Builder $query, int $id) => $query->where('course_sessions.id', '!=', $id))
             ->orderBy('course_sessions.starts_at');
     }
 
@@ -77,7 +82,8 @@ class CourseSessionOccupancy implements OccupancySource
             type: $type,
             resourceId: (int) $row->getAttribute('resource_id'),
             resourceName: (string) $row->getAttribute('resource_name'),
-            sessionId: $row->id,
+            bookingType: BookingType::CourseSession,
+            bookingId: $row->id,
             startsAt: $row->starts_at,
             endsAt: $row->ends_at,
         ), $rows));

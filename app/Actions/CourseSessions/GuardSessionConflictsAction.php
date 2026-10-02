@@ -38,8 +38,8 @@ class GuardSessionConflictsAction
             throw new AuthorizationException;
         }
 
-        Room::query()->whereKey($slot->roomId)->lockForUpdate()->first();
-        User::query()->whereKey($slot->teacherId)->lockForUpdate()->first();
+        Room::query()->whereKey($slot->roomIds)->orderBy('id')->lockForUpdate()->get();
+        User::query()->whereKey($slot->teacherIds)->orderBy('id')->lockForUpdate()->get();
         StudentGroup::query()->whereKey($slot->groupIds)->orderBy('id')->lockForUpdate()->get();
 
         $result = $this->detector->checkConflicts($slot);

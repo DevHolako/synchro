@@ -23,10 +23,11 @@ class ConflictDetectorService
 
     public function __construct(
         CourseSessionOccupancy $courseSessions,
+        ExamOccupancy $exams,
         CapacityRule $capacity,
         TeacherUnavailabilityRule $teacherUnavailability,
     ) {
-        $this->sources = [$courseSessions];
+        $this->sources = [$courseSessions, $exams];
         $this->rules = [$capacity, $teacherUnavailability];
     }
 
