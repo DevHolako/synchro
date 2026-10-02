@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Web\AcademicStructure\AcademicStructureIndexController;
+use App\Http\Controllers\Web\AdminSettings\AdminSettingsIndexController;
+use App\Http\Controllers\Web\AdminSettings\AdminSettingsUpdateController;
 use App\Http\Controllers\Web\Attendance\AttendanceShowController;
 use App\Http\Controllers\Web\Attendance\AttendanceUpdateController;
 use App\Http\Controllers\Web\Buildings\BuildingStoreController;
@@ -106,6 +108,10 @@ Route::get('feeds/calendar/{token}.ics', CalendarFeedShowController::class)
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardIndexController::class)->name('dashboard');
+
+    // System & Appearance Administration
+    Route::get('admin/settings', AdminSettingsIndexController::class)->name('admin.settings.index');
+    Route::put('admin/settings', AdminSettingsUpdateController::class)->name('admin.settings.update');
 
     // Physical Referentials (Campuses, Buildings, Rooms)
     Route::get('rooms', RoomIndexController::class)->name('rooms.index');

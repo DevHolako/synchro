@@ -220,4 +220,5 @@ return [
     'convocation_published_mail_action' => 'Download my convocation',
     'mail_greeting' => 'Hello :name,',
     'mail_salutation' => 'Best regards, the academic team.',
+    'admin_settings_updated' => 'Appearance and system settings updated successfully.',
 ];

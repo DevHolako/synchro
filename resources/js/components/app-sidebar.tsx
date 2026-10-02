@@ -11,6 +11,7 @@ import {
     Gavel,
     GraduationCap,
     LayoutGrid,
+    Palette,
     RotateCcw,
     UsersRound,
 } from 'lucide-react';
@@ -30,6 +31,7 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { Permission } from '@/lib/permissions';
 import { dashboard } from '@/routes';
 import { index as academicStructureIndex } from '@/routes/academic-structure';
+import { index as adminSettingsIndex } from '@/routes/admin/settings';
 import { index as deliberationsIndex } from '@/routes/deliberations';
 import { index as examsIndex } from '@/routes/exams';
 import { index as importsIndex } from '@/routes/imports';
@@ -175,6 +177,15 @@ export function AppSidebar() {
                       title: t('nav.users'),
                       href: usersIndex(),
                       icon: UsersRound,
+                  },
+              ]
+            : []),
+        ...(auth.permissions.includes(Permission.ManageUsers)
+            ? [
+                  {
+                      title: t('nav.admin_settings'),
+                      href: adminSettingsIndex(),
+                      icon: Palette,
                   },
               ]
             : []),

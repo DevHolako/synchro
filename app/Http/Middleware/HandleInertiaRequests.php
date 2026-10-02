@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Enums\Permission;
 use App\Enums\UnavailabilityStatus;
+use App\Models\SystemSetting;
 use App\Models\TeacherUnavailability;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -52,6 +53,11 @@ class HandleInertiaRequests extends Middleware
                 : null,
             'unreadNotificationsCount' => fn () => $request->user()?->unreadNotifications()->count() ?? 0,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'theme' => [
+                'color' => SystemSetting::get('theme_color', 'indigo'),
+                'radius' => SystemSetting::get('theme_radius', 'md'),
+                'mode' => SystemSetting::get('theme_mode', 'system'),
+            ],
             'flash' => [
                 'toast' => $request->session()->get('toast'),
                 'status' => $request->session()->get('status'),

@@ -16,6 +16,11 @@ declare module '@inertiajs/core' {
             sidebarOpen: boolean;
             pendingUnavailabilityCount: number | null;
             unreadNotificationsCount: number;
+            theme: {
+                color: string;
+                radius: string;
+                mode: string;
+            };
             [key: string]: unknown;
         };
     }

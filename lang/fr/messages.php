@@ -220,4 +220,5 @@ return [
     'convocation_published_mail_action' => 'Télécharger ma convocation',
     'mail_greeting' => 'Bonjour :name,',
     'mail_salutation' => 'Cordialement, l\'équipe pédagogique.',
+    'admin_settings_updated' => 'Paramètres d\'apparence et du système mis à jour avec succès.',
 ];

@@ -56,6 +56,7 @@ export const en: Translations = {
         deliberations: 'Deliberations',
         my_grades: 'My grades',
         retakes: 'Retakes',
+        admin_settings: 'Appearance & Theme',
     },
     rooms: {
         title: 'Teaching Spaces & Referentials',
@@ -1097,5 +1098,55 @@ export const en: Translations = {
         groups: 'Groups',
         today: 'Today',
         badge_next: 'Next Up',
+    },
+    admin_settings: {
+        title: 'Appearance & Customization',
+        description:
+            'Configure system-wide accent colors, corner border radius, and default color mode.',
+        badge: 'System Administration',
+        theme_section_title: 'Palette & Design System',
+        theme_section_desc:
+            'Choose the primary interface color, component corner radius, and default appearance mode for all users.',
+        color_label: 'Accent Color',
+        color_desc:
+            'Primary brand color applied to action buttons, active navigation, indicators, badges, and focus rings.',
+        radius_label: 'Corner Border Radius',
+        radius_desc:
+            'Controls the roundness of cards, dialogs, buttons, inputs, and interactive components.',
+        mode_label: 'Default Display Mode',
+        mode_desc:
+            'Default theme applied to new users or unauthenticated visitors before personal preference.',
+        preview_title: 'Live Preview',
+        preview_desc:
+            'Preview how your selected theme looks in real-time before saving.',
+        save_button: 'Save Changes',
+        saving_button: 'Saving changes...',
+        reset_preview: 'Reset Preview',
+        preview_sample_button: 'Primary Action',
+        preview_sample_badge: 'Active Badge',
+        preview_sample_outline: 'Secondary Outline',
+        preview_sample_card_title: 'Component Showcase with Selected Palette',
+        preview_sample_card_desc:
+            'Buttons, active states, progress indicators, and badges automatically update to match the selected theme.',
+        colors: {
+            indigo: 'Royal Indigo',
+            ocean: 'Ocean Blue',
+            emerald: 'Vibrant Emerald',
+            violet: 'Iris Violet',
+            rose: 'Ruby Rose',
+            amber: 'Energy Amber',
+            zinc: 'Mineral Zinc',
+        },
+        radii: {
+            sm: 'Compact (6px)',
+            md: 'Balanced (10px)',
+            lg: 'Rounded (14px)',
+        },
+        modes: {
+            light: 'Light',
+            dark: 'Dark',
+            system: 'Automatic (System)',
+        },
+        save_success: 'Appearance settings updated successfully.',
     },
 };

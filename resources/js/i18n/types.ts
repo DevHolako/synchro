@@ -56,6 +56,7 @@ export interface Translations {
         deliberations: string;
         my_grades: string;
         retakes: string;
+        admin_settings: string;
     };
     rooms: {
         title: string;
@@ -1008,5 +1009,48 @@ export interface Translations {
         groups: string;
         today: string;
         badge_next: string;
+    };
+    admin_settings: {
+        title: string;
+        description: string;
+        badge: string;
+        theme_section_title: string;
+        theme_section_desc: string;
+        color_label: string;
+        color_desc: string;
+        radius_label: string;
+        radius_desc: string;
+        mode_label: string;
+        mode_desc: string;
+        preview_title: string;
+        preview_desc: string;
+        save_button: string;
+        saving_button: string;
+        reset_preview: string;
+        preview_sample_button: string;
+        preview_sample_badge: string;
+        preview_sample_outline: string;
+        preview_sample_card_title: string;
+        preview_sample_card_desc: string;
+        colors: {
+            indigo: string;
+            ocean: string;
+            emerald: string;
+            violet: string;
+            rose: string;
+            amber: string;
+            zinc: string;
+        };
+        radii: {
+            sm: string;
+            md: string;
+            lg: string;
+        };
+        modes: {
+            light: string;
+            dark: string;
+            system: string;
+        };
+        save_success: string;
     };
 }

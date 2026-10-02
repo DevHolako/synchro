@@ -56,6 +56,7 @@ export const fr: Translations = {
         deliberations: 'Délibérations',
         my_grades: 'Mes notes',
         retakes: 'Rattrapages',
+        admin_settings: 'Apparence & Thème',
     },
     rooms: {
         title: 'Espaces pédagogiques & Référentiels',
@@ -1124,5 +1125,55 @@ export const fr: Translations = {
         groups: 'Groupes',
         today: "Aujourd'hui",
         badge_next: 'À suivre',
+    },
+    admin_settings: {
+        title: 'Apparence & Personnalisation',
+        description:
+            'Configurez les couleurs d’accentuation globales, le rayon des bordures et le mode d’affichage par défaut.',
+        badge: 'Administration système',
+        theme_section_title: 'Palette & Design System',
+        theme_section_desc:
+            'Choisissez la couleur dominante de l’interface, l’arrondi des composants et le thème par défaut pour tous les utilisateurs.',
+        color_label: 'Couleur d’accentuation',
+        color_desc:
+            'Couleur primaire appliquée aux boutons, liens actifs, jauges, badges et indicateurs visuels.',
+        radius_label: 'Rayon des bordures',
+        radius_desc:
+            'Détermine l’arrondi des cartes, boutons, formulaires et boîtes de dialogue.',
+        mode_label: 'Mode d’affichage par défaut',
+        mode_desc:
+            'Thème appliqué par défaut aux nouveaux utilisateurs ou aux visiteurs non connectés.',
+        preview_title: 'Aperçu en direct',
+        preview_desc:
+            'Visualisez immédiatement le rendu de vos paramètres avant d’enregistrer.',
+        save_button: 'Enregistrer les modifications',
+        saving_button: 'Enregistrement en cours...',
+        reset_preview: 'Rétablir les valeurs initiales',
+        preview_sample_button: 'Bouton d’action principal',
+        preview_sample_badge: 'Badge actif',
+        preview_sample_outline: 'Bouton secondaire',
+        preview_sample_card_title: 'Exemple de composant avec le thème actif',
+        preview_sample_card_desc:
+            'Tous les boutons, graphiques, menus et badges adoptent automatiquement la palette sélectionnée.',
+        colors: {
+            indigo: 'Indigo Royal',
+            ocean: 'Bleu Océan',
+            emerald: 'Émeraude Végétal',
+            violet: 'Violet Iris',
+            rose: 'Rose Rubis',
+            amber: 'Ambre Énergie',
+            zinc: 'Zinc Minéral',
+        },
+        radii: {
+            sm: 'Compact (6px)',
+            md: 'Équilibré (10px)',
+            lg: 'Arrondi (14px)',
+        },
+        modes: {
+            light: 'Clair',
+            dark: 'Sombre',
+            system: 'Automatique (système)',
+        },
+        save_success: 'Paramètres d’apparence enregistrés avec succès.',
     },
 };
