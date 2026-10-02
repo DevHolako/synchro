@@ -57,6 +57,21 @@ class ExamPeriod extends Model
     }
 
     /**
+     * How the period appears in a period picker.
+     *
+     * @return array{id: int, name: string, academic_year: string, session_type: string}
+     */
+    public function toOption(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'academic_year' => $this->academic_year,
+            'session_type' => $this->session_type->value,
+        ];
+    }
+
+    /**
      * Load what status() needs in the same query as the periods.
      *
      * @param  Builder<ExamPeriod>  $query

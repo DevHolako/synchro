@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use InvalidArgumentException;
 
 /**
  * @property int $id
@@ -82,6 +83,36 @@ class Module extends Model
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    /**
+     * Whether a continuous assessment weight is allowed: a whole percent from 0 to the maximum.
+     */
+    public static function isValidContinuousAssessmentWeight(int $weight): bool
+    {
+        return $weight >= 0 && $weight <= self::MAX_CONTINUOUS_ASSESSMENT_WEIGHT;
+    }
+
+    /**
+     * The weight, once checked.
+     *
+     * @throws InvalidArgumentException When it is out of range.
+     */
+    public static function ensureValidContinuousAssessmentWeight(int $weight): int
+    {
+        if (! self::isValidContinuousAssessmentWeight($weight)) {
+            throw new InvalidArgumentException(self::continuousAssessmentWeightError());
+        }
+
+        return $weight;
+    }
+
+    /**
+     * Why a weight is refused, translated.
+     */
+    public static function continuousAssessmentWeightError(): string
+    {
+        return __('messages.module_continuous_assessment_weight_range', ['max' => self::MAX_CONTINUOUS_ASSESSMENT_WEIGHT]);
     }
 
     /**

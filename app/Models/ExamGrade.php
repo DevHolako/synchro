@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-use App\Enums\GradeSheetStatus;
+use App\Models\Builders\GradeLineBuilder;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
-use LogicException;
 
 /**
  * One candidate's line on an exam's grade sheet: continuous assessment (CC) and exam grades out
  * of 20, and the final grade the server computes from the module's weighting. Lines of a
- * locked deliberation cannot be changed or deleted through the model.
+ * locked deliberation cannot be written through Eloquent (`GradeLineBuilder`).
  *
  * @property int $id
  * @property int $exam_id
@@ -28,27 +28,10 @@ use LogicException;
  * @property-read Exam $exam
  * @property-read User $student
  */
+#[UseEloquentBuilder(GradeLineBuilder::class)]
 #[Fillable(['exam_id', 'student_id', 'continuous_assessment_grade', 'exam_grade', 'final_grade', 'previous_final_grade', 'is_absent', 'remarks'])]
 class ExamGrade extends Model
 {
-    /** The lowest passing final grade, out of 20 (spec 05: below it, the student sits the retake). */
-    public const string PASS_MARK = '10.00';
-
-    /** The highest grade, out of 20. */
-    public const int MAX_GRADE = 20;
-
-    protected static function booted(): void
-    {
-        $refuseWhenLocked = function (ExamGrade $grade): void {
-            if (ExamDeliberation::query()->where('exam_id', $grade->exam_id)->where('status', GradeSheetStatus::Locked)->exists()) {
-                throw new LogicException('Grades of a locked deliberation cannot be changed.');
-            }
-        };
-
-        static::updating($refuseWhenLocked);
-        static::deleting($refuseWhenLocked);
-    }
-
     /**
      * @return array<string, string>
      */
