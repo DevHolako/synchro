@@ -19,6 +19,7 @@ import { AllocationRoomCard } from './allocation-room-card';
 import { AllocationRoomPicker } from './allocation-room-picker';
 import type { Exam } from './types';
 import { useExamAllocation } from './use-exam-allocation';
+import { checkIn as roomCheckIn } from '@/routes/exams/rooms';
 
 interface ExamAllocationSheetProps {
     exam: Exam;
@@ -95,6 +96,16 @@ export function ExamAllocationSheet({
                                             <AllocationRoomCard
                                                 key={`${room.id}-${room.invigilators.map((invigilator) => invigilator.teacher_id).join('.')}`}
                                                 room={room}
+                                                checkInHref={
+                                                    allocation.state ===
+                                                    'published'
+                                                        ? roomCheckIn({
+                                                              exam: exam.id,
+                                                              assignment:
+                                                                  room.id,
+                                                          }).url
+                                                        : null
+                                                }
                                                 teachers={allocation.teachers}
                                                 assistantThreshold={
                                                     allocation.assistant_threshold

@@ -1,4 +1,5 @@
 import { TriangleAlert, X } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 import { memo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -10,6 +11,8 @@ import type { AllocatedRoom } from './types';
 
 interface AllocationRoomCardProps {
     room: AllocatedRoom;
+    /** The room's check-in list, once the exam is published. */
+    checkInHref: string | null;
     teachers: { id: number; name: string }[];
     assistantThreshold: number;
     /** False once the exam has started. */
@@ -28,6 +31,7 @@ interface AllocationRoomCardProps {
 /** One exam room: its alphabetical range and its invigilators. */
 export const AllocationRoomCard = memo(function AllocationRoomCard({
     room,
+    checkInHref,
     teachers,
     assistantThreshold,
     editable,
@@ -67,6 +71,14 @@ export const AllocationRoomCard = memo(function AllocationRoomCard({
                     })}
                 </span>
             </div>
+            {checkInHref ? (
+                <Link
+                    href={checkInHref}
+                    className="text-xs font-medium text-sky-700 hover:underline dark:text-sky-300"
+                >
+                    {t('check_in.open_room_list')}
+                </Link>
+            ) : null}
             {room.first_surname ? (
                 <p className="text-xs text-neutral-500">
                     {t('exams.room_range', {

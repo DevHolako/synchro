@@ -882,4 +882,18 @@ export const fr: Translations = {
         room: 'Salle attribuée',
         seat: 'Place n° {seat}',
     },
+    check_in: {
+        wrong_room: 'Mauvaise salle : candidat attendu en {room}',
+        already_present: 'Déjà présent depuis {time} (pointé par {by})',
+        closed: 'Pointage fermé : il ouvre à {time}, une heure avant l’épreuve, et se termine à sa fin.',
+        mark_present: 'Marquer présent',
+        undo: 'Annuler la présence',
+        back_to_room: 'Liste de ma salle',
+        present: 'Présent',
+        present_since: 'Présent depuis {time}',
+        room_title: 'Pointage · {room}',
+        counter_open: 'présents · pointage ouvert',
+        counter_closed: 'présents · pointage fermé',
+        open_room_list: 'Pointer les présents',
+    },
 };

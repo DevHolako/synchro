@@ -47,7 +47,11 @@ export interface Exam {
     /** The viewer's seat, when they sit the exam. */
     my_seat: { room: string; seat: number; convocation_ready: boolean } | null;
     /** The viewer's room and role, when they invigilate it. */
-    my_invigilation: { room: string; role: InvigilatorRole } | null;
+    my_invigilation: {
+        assignment_id: number;
+        room: string;
+        role: InvigilatorRole;
+    } | null;
     /** The door lists and attendance sheets; null when the viewer may not download them. */
     roster: 'ready' | 'pending' | null;
 }

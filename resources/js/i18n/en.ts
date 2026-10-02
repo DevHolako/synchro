@@ -859,4 +859,18 @@ export const en: Translations = {
         room: 'Assigned room',
         seat: 'Seat no. {seat}',
     },
+    check_in: {
+        wrong_room: 'Wrong room: candidate expected in {room}',
+        already_present: 'Already present since {time} (checked in by {by})',
+        closed: 'Check-in closed: it opens at {time}, an hour before the exam, and ends when it does.',
+        mark_present: 'Mark present',
+        undo: 'Cancel check-in',
+        back_to_room: 'My room list',
+        present: 'Present',
+        present_since: 'Present since {time}',
+        room_title: 'Check-in · {room}',
+        counter_open: 'present · check-in open',
+        counter_closed: 'present · check-in closed',
+        open_room_list: 'Check candidates in',
+    },
 };

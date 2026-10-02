@@ -787,4 +787,18 @@ export interface Translations {
         room: string;
         seat: string;
     };
+    check_in: {
+        wrong_room: string;
+        already_present: string;
+        closed: string;
+        mark_present: string;
+        undo: string;
+        back_to_room: string;
+        present: string;
+        present_since: string;
+        room_title: string;
+        counter_open: string;
+        counter_closed: string;
+        open_room_list: string;
+    };
 }
