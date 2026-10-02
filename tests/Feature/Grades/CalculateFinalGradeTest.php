@@ -2,8 +2,8 @@
 
 use App\Actions\Grades\CalculateFinalGradeAction;
 
-test('the final grade weighs CC and exam, rounded half up to two decimals', function (?string $continuousAssessment, ?string $exam, bool $absent, int $weight, ?string $expected) {
-    expect(app(CalculateFinalGradeAction::class)->execute($continuousAssessment, $exam, $absent, $weight))->toBe($expected);
+test('the final grade weighs CC and exam, rounded half up to two decimals', function (?string $continuousAssessment, ?string $exam, bool $absent, int $weight, ?string $expected, ?string $previous = null) {
+    expect(app(CalculateFinalGradeAction::class)->execute($continuousAssessment, $exam, $absent, $weight, $previous))->toBe($expected);
 })->with([
     '40% CC' => ['12.00', '15.00', false, 40, '13.80'],
     'all on the exam' => [null, '13.25', false, 0, '13.25'],
@@ -15,4 +15,7 @@ test('the final grade weighs CC and exam, rounded half up to two decimals', func
     'absent with no CC' => [null, null, true, 0, '0.00'],
     'missing exam grade' => ['14.00', null, false, 40, null],
     'missing CC grade' => [null, '14.00', false, 40, null],
+    'a better retake replaces the normal final' => ['10.00', '12.00', false, 40, '11.20', '4.00'],
+    'a worse retake keeps the normal final' => ['10.00', '0.00', false, 40, '6.00', '6.00'],
+    'a retake still missing its grade has no final' => ['10.00', null, false, 40, null, '6.00'],
 ]);

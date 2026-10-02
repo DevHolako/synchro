@@ -142,11 +142,8 @@ test('only the module teacher enters grades; exam managers read the sheet', func
     $this->actingAs($this->alami)->get(route('exams.grades.show', $this->exam))->assertForbidden();
 });
 
-test('the grid opens only once the exam is over, and not for retake sessions', function () {
+test('the grid opens only once the exam is over', function () {
     $this->exam->update(['state' => ExamState::Published]);
-    $this->actingAs($this->teacher)->get(route('exams.grades.show', $this->exam))->assertForbidden();
-
-    $this->exam->update(['state' => ExamState::Completed, 'exam_period_id' => ExamPeriod::factory()->retake()->create()->id]);
     $this->actingAs($this->teacher)->get(route('exams.grades.show', $this->exam))->assertForbidden();
 
     expect(ExamDeliberation::query()->count())->toBe(0);
