@@ -33,6 +33,11 @@ export interface Exam {
     start: string;
     end: string;
     state: ExamState;
+    /** Starts at 1; each emergency reschedule adds one. */
+    revision: number;
+    last_reschedule_reason: string | null;
+    /** By the school's clock. */
+    has_started: boolean;
     /** Still a draft or scheduled once its start has passed. */
     is_overdue: boolean;
     module: {

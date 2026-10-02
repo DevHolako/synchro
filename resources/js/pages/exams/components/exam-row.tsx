@@ -1,4 +1,5 @@
 import {
+    AlarmClock,
     CalendarCheck,
     CalendarX,
     DoorOpen,
@@ -7,6 +8,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import { memo } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/i18n/LanguageContext';
 import {
@@ -23,6 +25,7 @@ interface ExamRowProps {
     canManage: boolean;
     onEdit: (exam: Exam) => void;
     onAllocate: (exam: Exam) => void;
+    onReschedule: (exam: Exam) => void;
     onConfirm: (confirmation: ExamConfirmation) => void;
 }
 
@@ -31,6 +34,7 @@ export const ExamRow = memo(function ExamRow({
     canManage,
     onEdit,
     onAllocate,
+    onReschedule,
     onConfirm,
 }: ExamRowProps) {
     const { t, locale } = useTranslation();
@@ -74,6 +78,15 @@ export const ExamRow = memo(function ExamRow({
                         canManage && exam.rooms.some((room) => !room.has_lead)
                     }
                 />
+                {exam.revision > 1 ? (
+                    <Badge
+                        variant="outline"
+                        className="mt-1 border-rose-300 text-rose-700 dark:border-rose-900 dark:text-rose-300"
+                        title={exam.last_reschedule_reason ?? undefined}
+                    >
+                        {t('exams.revision', { revision: exam.revision })}
+                    </Badge>
+                ) : null}
             </td>
             {canManage ? (
                 <td className="px-6 py-4">
@@ -100,6 +113,17 @@ export const ExamRow = memo(function ExamRow({
                             >
                                 <Send className="mr-1 size-4" />
                                 {t('exams.publish')}
+                            </Button>
+                        ) : null}
+                        {exam.state === 'published' && !exam.has_started ? (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                aria-label={t('exams.reschedule_title')}
+                                title={t('exams.reschedule_title')}
+                                onClick={() => onReschedule(exam)}
+                            >
+                                <AlarmClock className="size-4" />
                             </Button>
                         ) : null}
                         {exam.state === 'scheduled' ? (

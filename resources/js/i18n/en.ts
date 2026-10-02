@@ -848,6 +848,14 @@ export const en: Translations = {
         convocation_pending: 'Convocation being prepared',
         download_roster: 'Attendance sheets (PDF)',
         roster_pending: 'Attendance sheets being prepared',
+        reschedule_title: 'Emergency reschedule',
+        reschedule_change_rooms: 'Change the rooms too',
+        reschedule_reason:
+            'Reason (sent to students and invigilators, kept in the audit)',
+        reschedule_confirm:
+            'I confirm the reschedule: the current convocations will be invalidated and replaced, and everyone concerned will be alerted.',
+        reschedule_action: 'Reschedule the exam',
+        revision: 'Rev. {revision}',
     },
     convocations: {
         title: 'Convocation check',
@@ -858,6 +866,13 @@ export const en: Translations = {
         when: 'Date and time',
         room: 'Assigned room',
         seat: 'Seat no. {seat}',
+        superseded_title: 'Superseded convocation',
+        superseded_desc:
+            'This exam has moved: ask the candidate for their new convocation.',
+        superseded_new_time: 'New time: {when} (revision {revision})',
+        superseded_current_room: 'Room now assigned',
+        superseded_not_seated:
+            'This candidate is no longer expected at this exam.',
     },
     check_in: {
         wrong_room: 'Wrong room: candidate expected in {room}',

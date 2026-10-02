@@ -160,6 +160,7 @@ export default function ExamsIndex({
                                 canManage={canManage}
                                 onEdit={overlays.editExam}
                                 onAllocate={overlays.allocate}
+                                onReschedule={overlays.reschedule}
                                 onConfirm={overlays.confirm}
                             />
                         )}

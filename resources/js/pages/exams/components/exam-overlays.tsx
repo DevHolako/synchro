@@ -2,6 +2,7 @@ import { ExamAllocationSheet } from './exam-allocation-sheet';
 import { ExamConfirmDialog } from './exam-confirm-dialog';
 import { ExamDialog } from './exam-dialog';
 import { ExamPeriodDialog } from './exam-period-dialog';
+import { ExamRescheduleDialog } from './exam-reschedule-dialog';
 import type { ExamOptions, ExamPeriod } from './types';
 import type { useExamOverlays } from './use-exam-overlays';
 
@@ -42,6 +43,14 @@ export function ExamOverlays({ overlays, period, options }: ExamOverlaysProps) {
                     key={overlays.allocating.id}
                     exam={overlays.allocating}
                     onClose={overlays.closeAllocation}
+                />
+            ) : null}
+            {overlays.rescheduling && period ? (
+                <ExamRescheduleDialog
+                    key={overlays.rescheduling.id}
+                    exam={overlays.rescheduling}
+                    period={period}
+                    onClose={overlays.closeReschedule}
                 />
             ) : null}
             <ExamConfirmDialog

@@ -871,6 +871,14 @@ export const fr: Translations = {
         convocation_pending: 'Convocation en préparation',
         download_roster: 'Feuilles d’émargement (PDF)',
         roster_pending: 'Feuilles d’émargement en préparation',
+        reschedule_title: 'Report d’urgence',
+        reschedule_change_rooms: 'Changer aussi de salles',
+        reschedule_reason:
+            'Motif (envoyé aux étudiants et surveillants, conservé dans l’audit)',
+        reschedule_confirm:
+            'Je confirme le report : les convocations actuelles seront invalidées et remplacées, et toutes les personnes concernées seront prévenues.',
+        reschedule_action: 'Reporter l’examen',
+        revision: 'Rév. {revision}',
     },
     convocations: {
         title: 'Vérification de convocation',
@@ -881,6 +889,12 @@ export const fr: Translations = {
         when: 'Date et horaire',
         room: 'Salle attribuée',
         seat: 'Place n° {seat}',
+        superseded_title: 'Convocation périmée',
+        superseded_desc:
+            'Cet examen a été déplacé : demandez au candidat de présenter sa nouvelle convocation.',
+        superseded_new_time: 'Nouvel horaire : {when} (révision {revision})',
+        superseded_current_room: 'Salle désormais attribuée',
+        superseded_not_seated: 'Ce candidat n’est plus attendu à cet examen.',
     },
     check_in: {
         wrong_room: 'Mauvaise salle : candidat attendu en {room}',

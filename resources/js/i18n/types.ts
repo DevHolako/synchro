@@ -776,6 +776,12 @@ export interface Translations {
         convocation_pending: string;
         download_roster: string;
         roster_pending: string;
+        reschedule_title: string;
+        reschedule_change_rooms: string;
+        reschedule_reason: string;
+        reschedule_confirm: string;
+        reschedule_action: string;
+        revision: string;
     };
     convocations: {
         title: string;
@@ -786,6 +792,11 @@ export interface Translations {
         when: string;
         room: string;
         seat: string;
+        superseded_title: string;
+        superseded_desc: string;
+        superseded_new_time: string;
+        superseded_current_room: string;
+        superseded_not_seated: string;
     };
     check_in: {
         wrong_room: string;
