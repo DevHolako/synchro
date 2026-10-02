@@ -183,6 +183,13 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
    - UI: `module-grading-section.tsx` in the module dialog, the weighting under the syllabus hours in the table, the limit from the `limits` prop.
    - **Run `php artisan migrate`** locally: one new column.
 
+2. **Ticket 02: Teacher Grade Entry Grid** ([`02-teacher-grade-entry-grid-and-draft-submission.md`](file:///home/holako/github/synchro/docs/specs/05-grade-entry-and-deliberations/tickets/02-teacher-grade-entry-grid-and-draft-submission.md), design decisions recorded in the ticket)
+   - Implemented: `ExamDeliberation` (`exam_deliberations`, `GradeSheetStatus`), `ExamGrade` (`exam_grades`, `PASS_MARK`, `MAX_GRADE`), `Exam::deliberation()`/`grades()`/`isGradable()`.
+   - Actions (`app/Actions/Grades/`): `CalculateFinalGradeAction`, `OpenGradeSheetAction`, `ShowGradeSheetAction`, `SaveGradesAction`, `SubmitGradeSheetAction`, `LockDraftGradeSheetAction`, `RecomputeOpenFinalGradesAction` (called by `UpdateModuleAction`).
+   - HTTP: `GET`/`PUT /exams/{exam}/grades`, `POST /exams/{exam}/grades/submit`; `ExamPolicy::viewGrades`/`enterGrades`; exam rows carry `grades` (status, `can_enter`).
+   - UI: `resources/js/pages/grades/` (grid, live stats, client mirror `final-grade.ts`), "Saisir les notes" link on the exams list.
+   - **Run `php artisan migrate`** locally: two new tables.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
