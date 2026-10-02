@@ -169,6 +169,11 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - HTTP: the signed `/verify/convocation/{uuid}` page is now the check-in screen; `POST`/`DELETE /exam-candidates/{candidate}/check-in`; `GET /exams/{exam}/rooms/{assignment}/check-in` (room list, `usePoll` every 10 s).
    - **Run `php artisan migrate`** locally: two new columns.
 
+5. **Ticket 05: Emergency Reschedule** ([`05-emergency-reschedule-and-convocation-reissuance.md`](file:///home/holako/github/synchro/docs/specs/04-examination-logistics-and-convocations/tickets/05-emergency-reschedule-and-convocation-reissuance.md), design decisions recorded in the ticket)
+   - Implemented: `exams.revision`, `ExamReschedule` (append-only audit), `SupersededConvocation`, `EmergencyRescheduleExamAction`, `NotifyExamRescheduledAction`, `ExamRescheduledNotification` (mail, `notifications` queue), `UrgentMessageGateway` with `LogUrgentMessageGateway` (bound in `AppServiceProvider` from `services.urgent_messages.driver`, `URGENT_MESSAGES_DRIVER=log`), `SendUrgentMessageJob`, `ShowSupersededConvocationAction`. Shared pieces extracted: `EnsureExamTimesFitAction`, `SyncExamRoomsAction`.
+   - HTTP: `POST /exams/{exam}/emergency-reschedule`; scanning a superseded convocation renders `convocations/superseded`.
+   - **Run `php artisan migrate`** locally: one column and two tables.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -180,7 +185,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is in progress: tickets 01–04 are done, ticket 05 (emergency reschedule) is next.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is complete (tickets 01–05); its whole-Part code review is next.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
