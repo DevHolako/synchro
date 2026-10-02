@@ -4,17 +4,18 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { FIELD_CLASS } from '@/lib/form-classes';
 import { WEEKDAYS } from './schedule-recurrence';
+import type { TimetableLimits } from '../types';
 import type { RecurrenceRule } from './schedule-recurrence';
 
 interface ScheduleRecurrenceFieldsProps {
     rule: RecurrenceRule;
-    maxDates: number;
+    limits: TimetableLimits;
     onChange: (patch: Partial<RecurrenceRule>) => void;
 }
 
 export function ScheduleRecurrenceFields({
     rule,
-    maxDates,
+    limits,
     onChange,
 }: ScheduleRecurrenceFieldsProps) {
     const { t } = useTranslation();
@@ -96,7 +97,7 @@ export function ScheduleRecurrenceFields({
                             id="schedule_count"
                             type="number"
                             min={1}
-                            max={maxDates}
+                            max={limits.batch_max_slots}
                             value={rule.count}
                             onChange={(e) =>
                                 onChange({ count: Number(e.target.value) })

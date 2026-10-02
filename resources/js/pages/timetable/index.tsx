@@ -14,6 +14,7 @@ import { TimetableEmptyState } from './components/timetable-empty-state';
 import { TimetableFilterBar } from './components/timetable-filter-bar';
 import { TimetableHeader } from './components/timetable-header';
 import { useTimetableNavigation } from './components/use-timetable-navigation';
+import { TimetableOverlays } from './components/timetable-overlays';
 import { useTimetableOverlays } from './components/use-timetable-overlays';
 import { useTimetablePolling } from './components/use-timetable-polling';
 import type {
@@ -59,14 +60,7 @@ export default function TimetableIndex({
     const [activeModuleId, setActiveModuleId] = useState<number | null>(null);
     const [interacting, setInteracting] = useState(false);
     const navigation = useTimetableNavigation(filters);
-    const overlays = useTimetableOverlays({
-        schedulingOptions,
-        prefill: prefillFromScope(scope, activeModuleId, filters.date),
-        canSchedule,
-        limits,
-        calendarFeed,
-        onScheduled: navigation.goToDate,
-    });
+    const overlays = useTimetableOverlays(schedulingOptions);
 
     useTimetablePolling(overlays.editing || interacting);
 
@@ -144,10 +138,13 @@ export default function TimetableIndex({
                                 view={view}
                                 activeModuleId={activeModuleId}
                                 canEdit={canSchedule}
-                                savingSessionId={overlays.savingSessionId}
+                                savingSessionId={
+                                    overlays.reschedule.pending?.session.id ??
+                                    null
+                                }
                                 onPeriodChange={navigation.goToPeriod}
                                 onSessionClick={overlays.selectSession}
-                                onMove={overlays.moveSession}
+                                onMove={overlays.reschedule.move}
                                 onInteractionChange={setInteracting}
                             />
                         </div>
@@ -162,7 +159,15 @@ export default function TimetableIndex({
                 )}
             </div>
 
-            {overlays.element}
+            <TimetableOverlays
+                overlays={overlays}
+                schedulingOptions={schedulingOptions}
+                prefill={prefillFromScope(scope, activeModuleId, filters.date)}
+                canSchedule={canSchedule}
+                limits={limits}
+                calendarFeed={calendarFeed}
+                onScheduled={navigation.goToDate}
+            />
         </>
     );
 }

@@ -84,7 +84,7 @@ export function ScheduleSessionsDialog({
                         ranges={wizard.ranges}
                         rangesValid={wizard.rangesValid}
                         slotCount={wizard.slots.length}
-                        maxSlots={wizard.maxSlots}
+                        limits={limits}
                         totalMinutes={wizard.totalMinutes}
                         onRuleChange={wizard.updateRule}
                         onRemoveDate={wizard.removeDate}
@@ -101,7 +101,7 @@ export function ScheduleSessionsDialog({
                         checking={wizard.checking}
                         errors={wizard.errors}
                         canOverride={canOverride}
-                        justificationMax={limits.justification_max}
+                        limits={limits}
                         justification={wizard.justification}
                         onJustificationChange={wizard.setJustification}
                         onRemoveSlot={wizard.removeSlot}

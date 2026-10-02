@@ -87,6 +87,8 @@ export const AttendanceRow = memo(function AttendanceRow({
                     name: student.name,
                 })}
                 onChange={(e) => onRemarks(student.student_id, e.target.value)}
+                // A remark belongs to a mark: pick a status first.
+                disabled={status === null}
                 className="h-8 text-xs"
             />
         </li>

@@ -1,6 +1,7 @@
 import { useTranslation } from '@/i18n/LanguageContext';
 import { ScheduleDateList } from './schedule-date-list';
 import { formatHours } from '../wall-clock-format';
+import type { TimetableLimits } from '../types';
 import type { RecurrenceRule, TimeRange } from './schedule-recurrence';
 import { ScheduleRecurrenceFields } from './schedule-recurrence-fields';
 import { ScheduleTimeRanges } from './schedule-time-ranges';
@@ -11,7 +12,7 @@ interface ScheduleStepDatesProps {
     ranges: TimeRange[];
     rangesValid: boolean;
     slotCount: number;
-    maxSlots: number;
+    limits: TimetableLimits;
     totalMinutes: number;
     onRuleChange: (patch: Partial<RecurrenceRule>) => void;
     onRemoveDate: (date: string) => void;
@@ -27,7 +28,7 @@ export function ScheduleStepDates({
     ranges,
     rangesValid,
     slotCount,
-    maxSlots,
+    limits,
     totalMinutes,
     onRuleChange,
     onRemoveDate,
@@ -42,7 +43,7 @@ export function ScheduleStepDates({
         <div className="grid gap-5">
             <ScheduleRecurrenceFields
                 rule={rule}
-                maxDates={maxSlots}
+                limits={limits}
                 onChange={onRuleChange}
             />
             <ScheduleDateList
@@ -63,10 +64,10 @@ export function ScheduleStepDates({
                     hours: formatHours(totalMinutes, locale),
                 })}
             </p>
-            {slotCount > maxSlots ? (
+            {slotCount > limits.batch_max_slots ? (
                 <p className="text-sm text-red-600 dark:text-red-400">
                     {t('schedule.too_many_slots', {
-                        max: maxSlots,
+                        max: limits.batch_max_slots,
                         count: slotCount,
                     })}
                 </p>

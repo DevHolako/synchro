@@ -1,5 +1,4 @@
-import { router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { usePage } from '@inertiajs/react';
 import { Permission } from '@/lib/permissions';
 import { AttendanceSheet } from './attendance/attendance-sheet';
 import { CalendarFeedDialog } from './calendar-feed-dialog';
@@ -8,10 +7,11 @@ import { ScheduleSessionsDialog } from './schedule/schedule-sessions-dialog';
 import type { SchedulingOptions, SchedulingPrefill } from './schedule/types';
 import { SessionDetailsDialog } from './session-details-dialog';
 import { SoftConflictDialog } from './soft-conflict-dialog';
-import type { TimetableLimits, TimetableSession } from './types';
-import { useSessionReschedule } from './use-session-reschedule';
+import type { TimetableLimits } from './types';
+import type { TimetableOverlayState } from './use-timetable-overlays';
 
-interface UseTimetableOverlaysArgs {
+interface TimetableOverlaysProps {
+    overlays: TimetableOverlayState;
     schedulingOptions: SchedulingOptions | null | undefined;
     prefill: SchedulingPrefill;
     canSchedule: boolean;
@@ -21,50 +21,33 @@ interface UseTimetableOverlaysArgs {
     onScheduled: (firstDate: string) => void;
 }
 
-/**
- * Everything the timetable opens on top of the calendar (the scheduling wizard, the
- * soft-conflict prompt of a drop, the session details, the register, the calendar link),
- * with the state that drives them.
- */
-export function useTimetableOverlays({
+/** The dialogs the timetable opens on top of the calendar. */
+export function TimetableOverlays({
+    overlays,
     schedulingOptions,
     prefill,
     canSchedule,
     limits,
     calendarFeed,
     onScheduled,
-}: UseTimetableOverlaysArgs) {
+}: TimetableOverlaysProps) {
     const { auth } = usePage().props;
-    const [scheduling, setScheduling] = useState(false);
-    const [subscribing, setSubscribing] = useState(false);
-    const [selectedSession, setSelectedSession] =
-        useState<TimetableSession | null>(null);
-    const [attendanceSession, setAttendanceSession] =
-        useState<TimetableSession | null>(null);
-    const reschedule = useSessionReschedule();
     const canOverride = auth.permissions.includes(
         Permission.OverrideSoftConflicts,
     );
+    const { reschedule } = overlays;
 
-    const openScheduling = () => {
-        setScheduling(true);
-
-        if (schedulingOptions === undefined) {
-            router.reload({ only: ['schedulingOptions'] });
-        }
-    };
-
-    const element = (
+    return (
         <>
-            {scheduling ? (
+            {overlays.scheduling ? (
                 <ScheduleSessionsDialog
                     options={schedulingOptions}
                     limits={limits}
                     prefill={prefill}
                     canOverride={canOverride}
-                    onClose={() => setScheduling(false)}
+                    onClose={overlays.closeScheduling}
                     onScheduled={(firstDate) => {
-                        setScheduling(false);
+                        overlays.closeScheduling();
                         onScheduled(firstDate);
                     }}
                 />
@@ -82,41 +65,27 @@ export function useTimetableOverlays({
                 />
             ) : null}
 
-            {attendanceSession ? (
+            {overlays.attendanceSession ? (
                 <AttendanceSheet
-                    key={attendanceSession.id}
-                    session={attendanceSession}
-                    onClose={() => setAttendanceSession(null)}
+                    key={overlays.attendanceSession.id}
+                    session={overlays.attendanceSession}
+                    onClose={overlays.closeAttendance}
                 />
             ) : null}
 
-            {subscribing ? (
+            {overlays.subscribing ? (
                 <CalendarFeedDialog
                     feed={calendarFeed}
-                    onClose={() => setSubscribing(false)}
+                    onClose={overlays.closeSubscription}
                 />
             ) : null}
 
             <SessionDetailsDialog
-                session={selectedSession}
+                session={overlays.selectedSession}
                 canDelete={canSchedule}
-                onOpenAttendance={setAttendanceSession}
-                onClose={() => setSelectedSession(null)}
+                onOpenAttendance={overlays.openAttendance}
+                onClose={() => overlays.selectSession(null)}
             />
         </>
     );
-
-    return {
-        element,
-        /** The user is in the middle of something polling must not redraw. */
-        editing:
-            scheduling ||
-            reschedule.pending !== null ||
-            attendanceSession !== null,
-        savingSessionId: reschedule.pending?.session.id ?? null,
-        moveSession: reschedule.move,
-        selectSession: setSelectedSession,
-        openScheduling,
-        openSubscription: () => setSubscribing(true),
-    };
 }

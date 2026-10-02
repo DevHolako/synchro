@@ -10,6 +10,8 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
+            /** The zone session times are in (config app.schedule_timezone). */
+            scheduleTimezone: string;
             auth: Auth;
             sidebarOpen: boolean;
             pendingUnavailabilityCount: number | null;

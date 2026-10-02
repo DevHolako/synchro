@@ -14,8 +14,9 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { destroy } from '@/routes/course-sessions';
-import { hasStarted, wallClockNow } from './calendar-utils';
+import { hasStarted } from './calendar-utils';
 import type { TimetableSession } from './types';
+import { useSchoolClock } from './use-school-clock';
 import { formatDay, timeOf } from './wall-clock-format';
 
 interface SessionDetailsDialogProps {
@@ -44,7 +45,8 @@ export function SessionDetailsDialog({
     const { t, locale } = useTranslation();
     const [confirming, setConfirming] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const started = session !== null && hasStarted(session, wallClockNow());
+    const schoolNow = useSchoolClock();
+    const started = session !== null && hasStarted(session, schoolNow());
     const deletable = canDelete && session !== null && !started;
     const takesAttendance =
         session !== null && started && session.can_take_attendance;

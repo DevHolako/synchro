@@ -36,18 +36,30 @@ export function readableTextColor(background: string): string {
     return luminance > LUMINANCE_THRESHOLD ? DARK_TEXT : LIGHT_TEXT;
 }
 
-const pad = (value: number) => String(value).padStart(2, '0');
-
 /**
- * The browser's local time as an offset-less ISO string.
+ * The school's current time as an offset-less ISO string, whatever the browser's zone.
  *
- * The calendar runs in UTC so wall-clock session times are never shifted; feeding it the
- * local wall clock the same way keeps "today" and the now-indicator right.
+ * Sessions are stored as the school's wall clock and the calendar runs in UTC so they are
+ * never shifted; "now" must be the school's wall clock read the same way, matching the
+ * server's SchoolClock (locks, today, the now-indicator).
  */
-export function wallClockNow(): string {
-    const now = new Date();
+export function wallClockNow(timeZone: string): string {
+    const parts = Object.fromEntries(
+        new Intl.DateTimeFormat('en-GB', {
+            timeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hourCycle: 'h23',
+        })
+            .formatToParts(new Date())
+            .map((part) => [part.type, part.value]),
+    );
 
-    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
 /**

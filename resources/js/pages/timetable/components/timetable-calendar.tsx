@@ -15,12 +15,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { GRID_END, GRID_START } from '@/lib/scheduling-grid';
-import {
-    hasStarted,
-    toCalendarEvent,
-    toWallClock,
-    wallClockNow,
-} from './calendar-utils';
+import { hasStarted, toCalendarEvent, toWallClock } from './calendar-utils';
+import { useSchoolClock } from './use-school-clock';
 import type { PendingMove } from './use-session-reschedule';
 import { SessionEventContent } from './session-event-content';
 import type {
@@ -83,6 +79,7 @@ export function TimetableCalendar({
 }: TimetableCalendarProps) {
     const { locale } = useTranslation();
     const isMobile = useIsMobile();
+    const schoolNow = useSchoolClock();
     const containerRef = useRef<HTMLDivElement>(null);
     const calendarRef = useRef<FullCalendar>(null);
 
@@ -118,7 +115,7 @@ export function TimetableCalendar({
     const editable = canEdit && !isMobile && savingSessionId === null;
 
     const events = useMemo(() => {
-        const now = wallClockNow();
+        const now = schoolNow();
 
         return sessions.map((session) =>
             toCalendarEvent(session, {
@@ -129,11 +126,11 @@ export function TimetableCalendar({
                 saving: session.id === savingSessionId,
             }),
         );
-    }, [sessions, activeModuleId, editable, savingSessionId]);
+    }, [sessions, activeModuleId, editable, savingSessionId, schoolNow]);
 
     // Sessions cannot move into the past.
     const allowDrop = (span: { start: Date }) =>
-        span.start >= new Date(`${wallClockNow()}Z`);
+        span.start >= new Date(`${schoolNow()}Z`);
 
     const handleChange = (arg: EventDropArg | EventResizeDoneArg) => {
         const { start, end } = arg.event;
@@ -185,7 +182,7 @@ export function TimetableCalendar({
                 locales={LOCALES}
                 locale={locale}
                 timeZone="UTC"
-                now={wallClockNow}
+                now={schoolNow}
                 initialView={view}
                 initialDate={date}
                 headerToolbar={isMobile ? MOBILE_TOOLBAR : DESKTOP_TOOLBAR}

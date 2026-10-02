@@ -35,6 +35,9 @@ export function useAttendanceRegister(sessionId: number, onSaved: () => void) {
     });
     const [students, setStudents] = useState<RosterStudent[] | null>(null);
     const [draft, setDraft] = useState<DraftMarks>({});
+    // What was loaded: only rows changed since then are sent, so a save never
+    // overwrites marks someone else recorded meanwhile on untouched rows.
+    const [loaded, setLoaded] = useState<DraftMarks>({});
 
     useEffect(() => {
         loader
@@ -42,6 +45,7 @@ export function useAttendanceRegister(sessionId: number, onSaved: () => void) {
                 onSuccess: (response) => {
                     setStudents(response.students);
                     setDraft(draftFrom(response.students));
+                    setLoaded(draftFrom(response.students));
                 },
                 onHttpException: () => {
                     toast.error(t('attendance.load_failed'));
@@ -80,12 +84,21 @@ export function useAttendanceRegister(sessionId: number, onSaved: () => void) {
         );
 
     const save = () => {
-        // Every row is sent: a cleared status removes a mark saved earlier.
-        const marks = Object.entries(draft).map(([id, mark]) => ({
-            student_id: Number(id),
-            status: mark.status,
-            remarks: mark.remarks.trim() || null,
-        }));
+        // Changed rows only; a cleared status removes the mark saved earlier.
+        const marks = Object.entries(draft)
+            .filter(([id, mark]) => {
+                const before = loaded[Number(id)];
+
+                return (
+                    mark.status !== before?.status ||
+                    mark.remarks.trim() !== (before?.remarks ?? '').trim()
+                );
+            })
+            .map(([id, mark]) => ({
+                student_id: Number(id),
+                status: mark.status,
+                remarks: mark.remarks.trim() || null,
+            }));
 
         saver.transform(() => ({ marks }));
         saver

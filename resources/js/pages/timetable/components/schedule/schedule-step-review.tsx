@@ -6,6 +6,7 @@ import { FIELD_CLASS } from '@/lib/form-classes';
 import { summarizeCheck } from './conflict-description';
 import { ScheduleSlotRow } from './schedule-slot-row';
 import { ScheduleSyllabusMeter } from './schedule-syllabus-meter';
+import type { TimetableLimits } from '../types';
 import type { BatchCheckResponse, BatchSlot } from './types';
 
 interface ScheduleStepReviewProps {
@@ -13,7 +14,7 @@ interface ScheduleStepReviewProps {
     checking: boolean;
     errors: string[];
     canOverride: boolean;
-    justificationMax: number;
+    limits: TimetableLimits;
     justification: string;
     onJustificationChange: (value: string) => void;
     onRemoveSlot: (startsAt: string) => void;
@@ -26,7 +27,7 @@ export function ScheduleStepReview({
     checking,
     errors,
     canOverride,
-    justificationMax,
+    limits,
     justification,
     onJustificationChange,
     onRemoveSlot,
@@ -106,7 +107,7 @@ export function ScheduleStepReview({
                             <textarea
                                 id="schedule_justification"
                                 rows={3}
-                                maxLength={justificationMax}
+                                maxLength={limits.justification_max}
                                 value={justification}
                                 placeholder={t(
                                     'schedule.justification_placeholder',

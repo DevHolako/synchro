@@ -11,6 +11,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
 import type { TimetableSession } from '../types';
+import { formatDay, timeOf } from '../wall-clock-format';
 import { AttendanceRow } from './attendance-row';
 import { ATTENDANCE_STATUSES } from './types';
 import type { AttendanceStatus } from './types';
@@ -23,7 +24,7 @@ interface AttendanceSheetProps {
 
 /** A session's attendance register: one row per student, saved in one go. */
 export function AttendanceSheet({ session, onClose }: AttendanceSheetProps) {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const register = useAttendanceRegister(session.id, onClose);
 
     const marks = Object.values(register.draft);
@@ -37,9 +38,8 @@ export function AttendanceSheet({ session, onClose }: AttendanceSheetProps) {
                     <SheetTitle>{t('attendance.title')}</SheetTitle>
                     <SheetDescription>
                         {session.module.code} · {session.module.name} ·{' '}
-                        {session.start.slice(0, 10)}{' '}
-                        {session.start.slice(11, 16)}–
-                        {session.end.slice(11, 16)}
+                        {formatDay(session.start, locale, 'medium')}{' '}
+                        {timeOf(session.start)}–{timeOf(session.end)}
                     </SheetDescription>
                 </SheetHeader>
 

@@ -210,7 +210,6 @@ export function useScheduleWizard({
 
     return {
         step,
-        maxSlots: limits.batch_max_slots,
         assignment,
         teacherId,
         groupIds,
