@@ -139,7 +139,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Whether the account anchors the timetable or its audit trail: it taught a course
      * session, overrode a scheduling conflict, appears on an attendance register, or published,
-     * sat or invigilated an exam.
+     * sat, invigilated or rescheduled an exam.
      * Such accounts must not be deleted.
      */
     public function hasSchedulingHistory(): bool
@@ -149,7 +149,8 @@ class User extends Authenticatable implements MustVerifyEmail
             || SessionAttendance::query()->where('student_id', $this->id)->orWhere('recorded_by', $this->id)->exists()
             || Exam::query()->where('published_by', $this->id)->exists()
             || ExamCandidate::query()->where('student_id', $this->id)->orWhere('checked_in_by', $this->id)->exists()
-            || ExamInvigilator::query()->where('teacher_id', $this->id)->exists();
+            || ExamInvigilator::query()->where('teacher_id', $this->id)->exists()
+            || ExamReschedule::query()->where('user_id', $this->id)->exists();
     }
 
     /**

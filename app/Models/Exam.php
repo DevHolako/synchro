@@ -34,6 +34,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $ends_at
  * @property ExamState $state
  * @property bool $force_single_room
+ * @property int $revision
  * @property Carbon|null $published_at
  * @property int|null $published_by
  * @property Carbon|null $created_at
@@ -46,8 +47,9 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, ExamRoomAssignment> $roomAssignments
  * @property-read Collection<int, ExamCandidate> $candidates
  * @property-read Collection<int, ExamInvigilator> $invigilators
+ * @property-read Collection<int, ExamReschedule> $reschedules
  */
-#[Fillable(['exam_period_id', 'module_id', 'starts_at', 'ends_at', 'state', 'force_single_room', 'published_at', 'published_by'])]
+#[Fillable(['exam_period_id', 'module_id', 'starts_at', 'ends_at', 'state', 'force_single_room', 'revision', 'published_at', 'published_by'])]
 class Exam extends Model
 {
     /** @use HasFactory<ExamFactory> */
@@ -61,6 +63,7 @@ class Exam extends Model
     protected $attributes = [
         'state' => 'draft',
         'force_single_room' => false,
+        'revision' => 1,
     ];
 
     /**
@@ -73,6 +76,7 @@ class Exam extends Model
             'ends_at' => 'datetime',
             'state' => ExamState::class,
             'force_single_room' => 'boolean',
+            'revision' => 'integer',
             'published_at' => 'datetime',
         ];
     }
@@ -143,6 +147,16 @@ class Exam extends Model
     public function invigilators(): HasMany
     {
         return $this->hasMany(ExamInvigilator::class);
+    }
+
+    /**
+     * The exam's emergency reschedules, latest first.
+     *
+     * @return HasMany<ExamReschedule, $this>
+     */
+    public function reschedules(): HasMany
+    {
+        return $this->hasMany(ExamReschedule::class)->orderByDesc('revision');
     }
 
     /**
