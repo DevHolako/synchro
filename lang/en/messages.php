@@ -3,6 +3,8 @@
 return [
     'active' => 'active',
     'inactive' => 'inactive',
+    'account_inactive' => 'This account is not active.',
+    'logged_out' => 'Logged out successfully.',
     'activated' => 'activated',
     'deactivated' => 'deactivated',
 
@@ -184,6 +186,7 @@ return [
     'exam_rescheduled_when' => ':date · :start–:end',
     'exam_outcome_with_released' => ':outcome Invigilators released, to replace: :names.',
     'exam_rescheduled_room_dropped' => 'You no longer invigilate this exam: your room is no longer used.',
+    'exam_superseded_notice' => 'This convocation was superseded by an emergency reschedule.',
 
     // Grade entry (Part 05 / Ticket 02)
     'grades_saved' => 'Grade draft saved.',

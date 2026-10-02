@@ -3,6 +3,8 @@
 return [
     'active' => 'actif',
     'inactive' => 'inactif',
+    'account_inactive' => 'Ce compte n\'est pas actif.',
+    'logged_out' => 'Déconnexion réussie.',
     'activated' => 'activé(e)',
     'deactivated' => 'désactivé(e)',
 
@@ -184,6 +186,7 @@ return [
     'exam_rescheduled_when' => ':date · :start–:end',
     'exam_outcome_with_released' => ':outcome Surveillants libérés, à remplacer : :names.',
     'exam_rescheduled_room_dropped' => 'Vous n\'êtes plus surveillant de cet examen : votre salle n\'est plus utilisée.',
+    'exam_superseded_notice' => 'Cette convocation a été remplacée suite à un report d\'urgence.',
 
     // Grade entry (Part 05 / Ticket 02)
     'grades_saved' => 'Brouillon des notes enregistré.',
