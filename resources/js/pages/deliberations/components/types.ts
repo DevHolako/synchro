@@ -1,3 +1,5 @@
+import type { ExamSessionType } from '@/pages/exams/components/types';
+
 export type DeliberationStatus =
     | 'not_started'
     | 'draft'
@@ -8,7 +10,7 @@ export interface DeliberationPeriod {
     id: number;
     name: string;
     academic_year: string;
-    session_type: 'normal' | 'rattrapage';
+    session_type: ExamSessionType;
 }
 
 export interface DeliberationSheet {
