@@ -6,8 +6,8 @@ use App\Models\CourseSession;
 use App\Models\Room;
 use App\Models\StudentGroup;
 use App\Models\User;
+use App\Services\Scheduling\BookingSlot;
 use App\Services\Scheduling\ConflictDetectorService;
-use App\Services\Scheduling\SessionSlot;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +28,9 @@ beforeEach(function () {
     $this->detector = app(ConflictDetectorService::class);
 });
 
-function slotAt(string $start, string $end, array $overrides = []): SessionSlot
+function slotAt(string $start, string $end, array $overrides = []): BookingSlot
 {
-    return new SessionSlot(
+    return new BookingSlot(
         type: BookingType::CourseSession,
         teacherIds: [$overrides['teacher'] ?? User::factory()->teacher()->create()->id],
         roomIds: [$overrides['room'] ?? Room::factory()->create()->id],

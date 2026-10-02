@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Services\Documents\QrCode;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
@@ -99,7 +100,7 @@ test('the exam invigilators and managers open a scanned convocation; a tampered 
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('convocations/verify')
-            ->where('candidate.name', $student->name)
+            ->where('candidate.name', $student->officialName())
             ->where('candidate.seat', candidateOf($student)->seat_number));
 
     $this->actingAs($this->coordinator)->get($url)->assertOk();
@@ -149,4 +150,23 @@ test('the exams list tells students when their convocation is ready', function (
 
     $this->actingAs($this->invigilator)->get(route('exams.index'))
         ->assertInertia(fn (Assert $page) => $page->where('exams.0.roster', 'ready'));
+});
+
+test('the convocation prints the official name and the QR code of its signed link', function () {
+    $student = $this->students[0];
+    $student->studentProfile->update(['last_name' => 'El Amrani', 'first_name' => 'Youssef']);
+    $student->update(['name' => 'yoyo']);
+    $candidate = candidateOf($student);
+    $render = app(RenderConvocationPdfAction::class);
+
+    $data = $render->viewData($candidate->fresh());
+
+    expect($data['name'])->toBe('EL AMRANI Youssef')
+        ->and($data['qrCode'])->toBe(QrCode::svgDataUri($render->verificationUrl($candidate)));
+});
+
+test('a signed link to an unknown convocation is not found', function () {
+    $this->actingAs($this->coordinator)
+        ->get(URL::signedRoute('convocations.verify', ['uuid' => fake()->uuid()]))
+        ->assertNotFound();
 });

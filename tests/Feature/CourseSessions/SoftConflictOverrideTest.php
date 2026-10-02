@@ -14,8 +14,8 @@ use App\Models\Room;
 use App\Models\StudentGroup;
 use App\Models\TeacherUnavailability;
 use App\Models\User;
+use App\Services\Scheduling\BookingSlot;
 use App\Services\Scheduling\ConflictDetectorService;
-use App\Services\Scheduling\SessionSlot;
 use App\Services\Scheduling\SoftConflictOverride;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -36,9 +36,9 @@ beforeEach(function () {
 });
 
 // 2026-10-16 is a Friday.
-function softSlot(array $groupIds, string $start = '2026-10-16 18:00', string $end = '2026-10-16 20:00'): SessionSlot
+function softSlot(array $groupIds, string $start = '2026-10-16 18:00', string $end = '2026-10-16 20:00'): BookingSlot
 {
-    return new SessionSlot(
+    return new BookingSlot(
         type: BookingType::CourseSession,
         teacherIds: [test()->teacher->id],
         roomIds: [test()->room->id],

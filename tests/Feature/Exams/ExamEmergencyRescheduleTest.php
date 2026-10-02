@@ -4,6 +4,7 @@ use App\Actions\Exams\AllocateExamRoomsAction;
 use App\Actions\Exams\AssignInvigilatorsAction;
 use App\Actions\Exams\PublishExamAction;
 use App\Actions\Exams\RenderConvocationPdfAction;
+use App\Actions\Exams\SendUrgentMessageAction;
 use App\Jobs\GenerateConvocationJob;
 use App\Jobs\GenerateExamRosterJob;
 use App\Jobs\SendUrgentMessageJob;
@@ -18,6 +19,7 @@ use App\Models\Room;
 use App\Models\StudentGroup;
 use App\Models\StudentProfile;
 use App\Models\SupersededConvocation;
+use App\Models\TeacherUnavailability;
 use App\Models\User;
 use App\Notifications\ExamRescheduledNotification;
 use App\Services\UrgentMessages\UrgentMessageGateway;
@@ -163,4 +165,43 @@ test('the exams list shows the revision and its reason', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->where('exams.0.revision', 2)
             ->where('exams.0.last_reschedule_reason', 'Inondation du bâtiment A.'));
+});
+
+test('invigilators of rooms the reschedule drops are released, audited and told', function () {
+    Notification::fake();
+    $roomB = Room::factory()->create(['exam_capacity' => 10]);
+
+    emergencyReschedule(['room_ids' => [$roomB->id]])->assertSessionHasNoErrors();
+
+    expect($this->exam->invigilators()->count())->toBe(0)
+        ->and(ExamReschedule::sole()->released_invigilator_ids)->toBe([$this->lead->id]);
+
+    Notification::assertSentTo($this->lead, ExamRescheduledNotification::class, fn ($notification) => $notification->place === __('messages.exam_rescheduled_released'));
+});
+
+test('invigilators who declared an unavailability at the new time are released', function () {
+    TeacherUnavailability::factory()->create([
+        'teacher_id' => $this->lead->id,
+        'type' => 'ad_hoc_date',
+        'start_date' => '2026-10-13',
+        'end_date' => '2026-10-13',
+        'start_time' => null,
+        'end_time' => null,
+        'status' => 'approved',
+    ]);
+
+    emergencyReschedule()->assertSessionHasNoErrors();
+
+    expect(ExamReschedule::sole()->released_invigilator_ids)->toBe([$this->lead->id]);
+});
+
+test('each urgent message goes out once, even when its job is delivered twice', function () {
+    $gateway = Mockery::mock(UrgentMessageGateway::class);
+    $gateway->shouldReceive('send')->once();
+    $this->app->instance(UrgentMessageGateway::class, $gateway);
+
+    $send = app(SendUrgentMessageAction::class);
+
+    expect($send->execute('exam-1-revision-1-user-1', '0612345678', 'URGENT'))->toBeTrue()
+        ->and($send->execute('exam-1-revision-1-user-1', '0612345678', 'URGENT'))->toBeFalse();
 });

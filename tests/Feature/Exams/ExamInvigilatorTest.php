@@ -16,6 +16,7 @@ use App\Models\StudentGroup;
 use App\Models\StudentProfile;
 use App\Models\TeacherUnavailability;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 
@@ -155,4 +156,63 @@ test('invigilators see the published exams they watch, with their room and role'
             ->where('exams.0.my_invigilation', ['assignment_id' => $this->roomB->id, 'room' => $this->roomB->room->name, 'role' => 'principal']));
 
     $this->actingAs($this->teachers[1])->get(route('exams.index'))->assertInertia(fn ($page) => $page->has('exams', 0));
+});
+
+test('moving a scheduled exam releases the invigilators busy or unavailable then, unless overridden', function () {
+    staff($this->roomA, $this->teachers[0]->id)->assertOk();
+    staff($this->roomB, $this->teachers[1]->id)->assertOk();
+    $this->exam->update(['state' => ExamState::Scheduled]);
+    CourseSession::factory()->between('2026-10-14 09:00', '2026-10-14 10:00')->create(['teacher_id' => $this->teachers[0]->id]);
+    $unavailable = TeacherUnavailability::factory()->create([
+        'teacher_id' => $this->teachers[1]->id,
+        'type' => 'ad_hoc_date',
+        'start_date' => '2026-10-14',
+        'end_date' => '2026-10-14',
+        'start_time' => null,
+        'end_time' => null,
+        'status' => 'approved',
+    ]);
+    ConflictOverride::create([
+        'user_id' => $this->coordinator->id,
+        'schedulable_type' => 'exam',
+        'schedulable_id' => $this->exam->id,
+        'conflict_type' => ConflictType::Unavailability,
+        'justification' => 'Remplacement accepté par le département.',
+        'details' => ['unavailability_id' => $unavailable->id],
+    ]);
+
+    $this->actingAs($this->coordinator)->put(route('exams.update', $this->exam), [
+        'exam_period_id' => $this->period->id,
+        'module_id' => $this->exam->module_id,
+        'student_group_ids' => [$this->group->id],
+        'starts_at' => '2026-10-14 09:00',
+        'ends_at' => '2026-10-14 11:00',
+    ])->assertSessionHasNoErrors();
+
+    expect($this->exam->invigilators()->pluck('teacher_id')->all())->toBe([$this->teachers[1]->id]);
+});
+
+test('the exams list runs the same number of queries however many exams an invigilator watches', function () {
+    $queriesFor = function (): int {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->actingAs($this->teachers[0]->fresh())->get(route('exams.index'))->assertOk();
+        $count = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        return $count;
+    };
+    $watchedExam = function (string $day): void {
+        $exam = Exam::factory()->published()->between("{$day} 09:00", "{$day} 11:00")->create(['exam_period_id' => $this->period->id]);
+        $room = $exam->roomAssignments()->create(['room_id' => Room::factory()->create()->id, 'position' => 0]);
+        $room->invigilators()->create(['exam_id' => $exam->id, 'teacher_id' => $this->teachers[0]->id, 'role' => InvigilatorRole::Principal]);
+    };
+
+    $watchedExam('2026-10-20');
+    $one = $queriesFor();
+
+    $watchedExam('2026-10-21');
+    $watchedExam('2026-10-22');
+
+    expect($queriesFor())->toBe($one);
 });
