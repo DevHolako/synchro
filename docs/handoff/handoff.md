@@ -205,6 +205,25 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
    - UI: `resources/js/pages/retakes/` (roster cards, retake exam dialog), the retake badge, the read-only CC and the normal-session final on the grid, the session in "Mes notes" and the deliberation period picker.
    - **Run `php artisan migrate`** locally: one new column.
 
+### Completed Tickets in Part 06 (Notifications & Mobile REST API)
+1. **Ticket 01: Swappable Emergency Notification Gateway (Manager/Driver Pattern)** ([`01-urgent-alert-manager-driver-gateway.md`](file:///home/holako/github/synchro/docs/specs/06-notifications-and-mobile-api/tickets/01-urgent-alert-manager-driver-gateway.md), design decisions recorded in the ticket)
+   - Implemented: `UrgentAlertManager extends Manager implements UrgentAlertGatewayInterface, UrgentMessageGateway`, `UrgentAlertGatewayInterface`, `UrgentAlert` model and `urgent_alerts` table, `PhoneNumber::normalize()`, `UrgentAlertDeliveryException`.
+   - Drivers in `App\Services\UrgentMessages\Drivers\`: `LogDriver`, `DatabaseDriver`, `TwilioDriver` (Twilio REST API SMS), and `WhatsAppDriver` (Meta WhatsApp Cloud API).
+   - AppServiceProvider binds `UrgentAlertManager` as a singleton to `UrgentMessageGateway` and `UrgentAlertGatewayInterface`.
+   - Backward compatible: `SendUrgentMessageAction` and `SendUrgentMessageJob` execute through the manager and benefit from phone normalization and queue retries on `UrgentAlertDeliveryException`.
+   - **Run `php artisan migrate`** locally: `urgent_alerts` table.
+2. **Ticket 02: In-App Notification Bell & Automated Schedule Emails** ([`02-in-app-notification-bell-and-automated-emails.md`](file:///home/holako/github/synchro/docs/specs/06-notifications-and-mobile-api/tickets/02-in-app-notification-bell-and-automated-emails.md), design decisions recorded in the ticket)
+   - Implemented: standard Laravel `notifications` migration and table.
+   - Queued notifications: `TimetablePublishedNotification` (queued, `notifications` queue, database + mail) and `ExamConvocationPublishedNotification` (queued, `notifications` queue, database + mail with attached PDF convocation).
+   - Actions: `ListRecentNotificationsAction`, `MarkNotificationAsReadAction`, `MarkAllNotificationsAsReadAction`, `NotifyTimetablePublishedAction`.
+   - Event triggers: `PublishScheduleAction` (via `NotifyTimetablePublishedAction`) queues schedule notifications to affected teachers and students; `QueueExamDocumentsAction` dispatches convocation notifications to student candidates.
+   - Web routes & controllers: `GET /notifications` (`NotificationIndexController`), `PATCH /notifications/{id}/read` (`NotificationReadController`), `POST /notifications/read-all` (`NotificationReadAllController`).
+   - UI: `resources/js/components/notification-bell.tsx` with popover, unread counter badge, relative dates, mark single / all as read. Mounted in `AppSidebarHeader` and `AppHeader`. Shared `unreadNotificationsCount` prop in `HandleInertiaRequests`.
+   - Localization: 100% key parity in `types.ts`, `fr.ts`, `en.ts`, and backend `messages.php`.
+   - Tests: `tests/Feature/Notifications/NotificationCenterTest.php` (6 tests).
+   - **Run `php artisan migrate`** locally: `notifications` table.
+
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -216,9 +235,13 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Parts 03 and 04 are complete and reviewed (2026-10-02). Part 05 is complete (tickets 01–04), reviewed and re-reviewed (2026-10-02).
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Parts 03, 04, and 05 are complete, reviewed and re-reviewed (2026-10-02). Part 06 (Notifications & Mobile REST API) is the active implementation frontier.
 
-### **Part 03: Interactive Course Planning** (next spec)
+### **Part 06: Notifications & Mobile REST API** (active frontier)
+- Part 05 was reviewed and re-reviewed on 2026-10-02 (`f85bfd5..HEAD`, standards + spec axes); all findings were resolved and verified.
+- Part 06 builds on the notification pipeline (`UrgentMessageGateway`, `SendUrgentMessageJob`, `notifications` queue) and exposes Sanctum-authenticated `/api/v1/` endpoints adhering to ADR 0009.
+
+### Prior Part Reviews Archive
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
 - Part 03 builds on `CourseSession`, `CreateCourseSessionAction` / `UpdateCourseSessionAction` (both delegate to `SaveCourseSessionAction`), `CheckSessionConflictsAction` (hard 422 / soft 409 with override) and `ConflictOverride`.
 - **Code reviews:** the post-Part-01 work (`2b61777..265229c`) was reviewed and all 10 findings fixed (`dcb7957..a08b416`). The review of Part 01's own tickets (`523cfbe..2b61777`, judged against current code) ran on 2026-10-01. Fixed right away:
