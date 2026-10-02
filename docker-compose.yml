@@ -52,8 +52,6 @@ services:
     command: sh -c "php artisan migrate --force && exec frankenphp run --config /etc/caddy/Caddyfile"
     expose:
       - '80'
-    ports:
-      - '${APP_PORT:-8000}:80'
     healthcheck:
       test: ['CMD', 'php', '-r', 'exit(@fsockopen("127.0.0.1", 80) ? 0 : 1);']
       interval: 5s
@@ -126,8 +124,6 @@ services:
       UPLOAD_LIMIT: 256M
     expose:
       - '80'
-    ports:
-      - '${PHPMYADMIN_PORT:-8081}:80'
     depends_on:
       mysql:
         condition: service_healthy
