@@ -5,12 +5,15 @@ import type { GradeDraft, GradeRow } from './types';
 interface GradeSheetStatsProps {
     drafts: ReadonlyArray<readonly [GradeRow, GradeDraft]>;
     continuousAssessmentWeight: number;
+    /** The CC weight a line's completeness checks: 0 on a retake, whose CC is carried over. */
+    completenessWeight: number;
 }
 
 /** Live figures over the grid as typed: complete lines, absences, average and passing finals. */
 export function GradeSheetStats({
     drafts,
     continuousAssessmentWeight,
+    completenessWeight,
 }: GradeSheetStatsProps) {
     const { t } = useTranslation();
     let complete = 0;
@@ -19,10 +22,14 @@ export function GradeSheetStats({
     let total = 0;
     let finals = 0;
 
-    for (const [, draft] of drafts) {
-        const final = computeFinalGrade(draft, continuousAssessmentWeight);
+    for (const [row, draft] of drafts) {
+        const final = computeFinalGrade(
+            draft,
+            continuousAssessmentWeight,
+            row.previous_final_grade,
+        );
 
-        complete += isComplete(draft, continuousAssessmentWeight) ? 1 : 0;
+        complete += isComplete(draft, completenessWeight) ? 1 : 0;
         absent += draft.absent ? 1 : 0;
 
         if (final !== null) {

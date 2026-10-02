@@ -8,6 +8,7 @@ export interface DeliberationPeriod {
     id: number;
     name: string;
     academic_year: string;
+    session_type: 'normal' | 'rattrapage';
 }
 
 export interface DeliberationSheet {

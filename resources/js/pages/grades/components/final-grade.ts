@@ -35,11 +35,13 @@ export function readGrade(value: string): GradeInput {
 /**
  * The final grade, as `CalculateFinalGradeAction` computes it on the server: CC × w + exam ×
  * (100 − w), over 100, rounded half up to two decimals on integer hundredths. Absent means an
- * exam grade of 0. Null while an input it needs is missing or invalid.
+ * exam grade of 0. On a retake line the better of this and the normal session's final is kept.
+ * Null while an input it needs is missing or invalid.
  */
 export function computeFinalGrade(
     draft: GradeDraft,
     continuousAssessmentWeight: number,
+    previousFinal: string | null = null,
 ): string | null {
     const continuousAssessment = readGrade(draft.continuousAssessment);
     const exam = readGrade(draft.exam);
@@ -61,12 +63,17 @@ export function computeFinalGrade(
             : 0;
     const examHundredths =
         draft.absent || exam.kind !== 'valid' ? 0 : exam.hundredths;
-    const final = Math.floor(
+    const computed = Math.floor(
         (ccHundredths * continuousAssessmentWeight +
             examHundredths * (100 - continuousAssessmentWeight) +
             50) /
             100,
     );
+    const previous = previousFinal === null ? null : readGrade(previousFinal);
+    const final =
+        previous?.kind === 'valid'
+            ? Math.max(computed, previous.hundredths)
+            : computed;
 
     return `${Math.floor(final / 100)}.${String(final % 100).padStart(2, '0')}`;
 }

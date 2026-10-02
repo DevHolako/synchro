@@ -55,6 +55,7 @@ export const en: Translations = {
         navigation_menu: 'Navigation menu',
         deliberations: 'Deliberations',
         my_grades: 'My grades',
+        retakes: 'Retakes',
     },
     rooms: {
         title: 'Teaching Spaces & Referentials',
@@ -957,6 +958,9 @@ export const en: Translations = {
         return_reason: 'Reason for sending back',
         return_reason_placeholder:
             'For example: check the CA grades of group G2.',
+        retake_badge: 'Retake session',
+        cc_carried: 'CA carried over from the normal session',
+        normal_final: 'Normal session: {grade}',
     },
     deliberations: {
         title: 'Deliberations',
@@ -976,6 +980,7 @@ export const en: Translations = {
         col_pass_rate: 'Pass rate',
         open: 'Open',
         empty: 'No grade sheets for this filter.',
+        session_retake: 'Retake',
     },
     my_grades: {
         title: 'My grades',
@@ -991,5 +996,25 @@ export const en: Translations = {
         passed: 'Passed',
         retake: 'Retake',
         weighting: 'CA {cc}% · Exam {exam}%',
+        session_retake: 'Retake',
+    },
+    retakes: {
+        title: 'Retakes',
+        description:
+            'Students who failed the normal session, by module, and their retake exams.',
+        period: 'Retake period',
+        no_period: 'No retake period. Create one from the Exams page.',
+        empty: 'No failing students in this year’s locked deliberations.',
+        students_count: '{count} failing student(s)',
+        col_student: 'Student',
+        col_group: 'Group',
+        col_final: 'Final grade',
+        create: 'Create the retake exam',
+        exam_created: 'Retake exam:',
+        open_exams: 'View in Exams',
+        dialog_title: 'Retake exam · {module}',
+        dialog_desc:
+            'A draft is created in {period} for the groups concerned. Only the failing students will be seated.',
+        save: 'Create the draft',
     },
 };

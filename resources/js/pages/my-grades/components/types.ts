@@ -4,6 +4,7 @@ export interface OwnGrade {
     module: string;
     period: string;
     academic_year: string;
+    session_type: 'normal' | 'rattrapage';
     start: string;
     continuous_assessment_weight: number;
     continuous_assessment_grade: string | null;

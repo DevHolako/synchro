@@ -54,6 +54,11 @@ export function GradeSheetHeader({
                     >
                         {t(`grades.status_${sheet.status}`)}
                     </Badge>
+                    {exam.retake ? (
+                        <Badge variant="outline">
+                            {t('grades.retake_badge')}
+                        </Badge>
+                    ) : null}
                     {editable ? null : (
                         <Badge variant="outline">{t('grades.read_only')}</Badge>
                     )}

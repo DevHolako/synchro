@@ -12,6 +12,7 @@ import {
     Gavel,
     GraduationCap,
     LayoutGrid,
+    RotateCcw,
     UsersRound,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -37,6 +38,7 @@ import { index as examsIndex } from '@/routes/exams';
 import { index as importsIndex } from '@/routes/imports';
 import { index as modulesIndex } from '@/routes/modules';
 import { index as myGradesIndex } from '@/routes/my-grades';
+import { index as retakesIndex } from '@/routes/retakes';
 import { index as roomsIndex } from '@/routes/rooms';
 import { index as timetableIndex } from '@/routes/timetable';
 import { index as unavailabilityReviewsIndex } from '@/routes/unavailability-reviews';
@@ -71,6 +73,7 @@ export function AppSidebar() {
         auth.permissions.includes(permission),
     );
     const canDeliberate = auth.permissions.includes(Permission.LockGrades);
+    const canManageExams = auth.permissions.includes(Permission.ManageExams);
     const canViewOwnGrades = auth.permissions.includes(
         Permission.ViewOwnGrades,
     );
@@ -111,6 +114,15 @@ export function AppSidebar() {
                       title: t('nav.exams'),
                       href: examsIndex(),
                       icon: ClipboardList,
+                  },
+              ]
+            : []),
+        ...(canManageExams
+            ? [
+                  {
+                      title: t('nav.retakes'),
+                      href: retakesIndex(),
+                      icon: RotateCcw,
                   },
               ]
             : []),

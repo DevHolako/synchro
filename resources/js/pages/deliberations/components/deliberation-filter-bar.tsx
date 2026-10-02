@@ -31,6 +31,9 @@ export function DeliberationFilterBar({
                 {periods.map((period) => (
                     <option key={period.id} value={period.id}>
                         {period.name} · {period.academic_year}
+                        {period.session_type === 'rattrapage'
+                            ? ` · ${t('deliberations.session_retake')}`
+                            : ''}
                     </option>
                 ))}
             </select>

@@ -55,6 +55,7 @@ export const fr: Translations = {
         navigation_menu: 'Menu de navigation',
         deliberations: 'Délibérations',
         my_grades: 'Mes notes',
+        retakes: 'Rattrapages',
     },
     rooms: {
         title: 'Espaces pédagogiques & Référentiels',
@@ -982,6 +983,9 @@ export const fr: Translations = {
         return_reason: 'Motif du renvoi',
         return_reason_placeholder:
             'Par exemple : vérifier les notes de CC du groupe G2.',
+        retake_badge: 'Session de rattrapage',
+        cc_carried: 'CC repris de la session normale',
+        normal_final: 'Session normale : {grade}',
     },
     deliberations: {
         title: 'Délibérations',
@@ -1002,6 +1006,7 @@ export const fr: Translations = {
         col_pass_rate: 'Réussite',
         open: 'Ouvrir',
         empty: 'Aucune feuille de notes pour ce filtre.',
+        session_retake: 'Rattrapage',
     },
     my_grades: {
         title: 'Mes notes',
@@ -1017,5 +1022,26 @@ export const fr: Translations = {
         passed: 'Validé',
         retake: 'Rattrapage',
         weighting: 'CC {cc} % · Examen {exam} %',
+        session_retake: 'Rattrapage',
+    },
+    retakes: {
+        title: 'Rattrapages',
+        description:
+            'Les étudiants ajournés en session normale, par module, et leurs examens de rattrapage.',
+        period: 'Période de rattrapage',
+        no_period:
+            'Aucune période de rattrapage. Créez-en une depuis la page Examens.',
+        empty: 'Aucun étudiant ajourné dans les délibérations verrouillées de cette année.',
+        students_count: '{count} étudiant(s) ajourné(s)',
+        col_student: 'Étudiant',
+        col_group: 'Groupe',
+        col_final: 'Note finale',
+        create: "Créer l'examen de rattrapage",
+        exam_created: 'Examen de rattrapage :',
+        open_exams: 'Voir dans Examens',
+        dialog_title: 'Examen de rattrapage · {module}',
+        dialog_desc:
+            'Un brouillon est créé dans {period} pour les groupes concernés. Seuls les étudiants ajournés y seront placés.',
+        save: 'Créer le brouillon',
     },
 };

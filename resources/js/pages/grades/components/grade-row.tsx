@@ -15,6 +15,7 @@ interface GradeRowProps {
     draft: GradeDraft;
     continuousAssessmentWeight: number;
     editable: boolean;
+    retake: boolean;
     onChange: (studentId: number, patch: Partial<GradeDraft>) => void;
 }
 
@@ -23,11 +24,16 @@ export const GradeRow = memo(function GradeRow({
     draft,
     continuousAssessmentWeight,
     editable,
+    retake,
     onChange,
 }: GradeRowProps) {
     const { t } = useTranslation();
     const initials = useInitials();
-    const final = computeFinalGrade(draft, continuousAssessmentWeight);
+    const final = computeFinalGrade(
+        draft,
+        continuousAssessmentWeight,
+        row.previous_final_grade,
+    );
     const remarkMissing = draft.absent && draft.remarks.trim() === '';
     const id = row.student_id;
 
@@ -56,13 +62,15 @@ export const GradeRow = memo(function GradeRow({
                         aria-label={t('grades.col_cc')}
                         aria-invalid={isInvalid(draft.continuousAssessment)}
                         title={
-                            isInvalid(draft.continuousAssessment)
-                                ? t('grades.invalid')
-                                : undefined
+                            retake
+                                ? t('grades.cc_carried')
+                                : isInvalid(draft.continuousAssessment)
+                                  ? t('grades.invalid')
+                                  : undefined
                         }
                         className={`${GRADE_INPUT_CLASS} ${isInvalid(draft.continuousAssessment) ? INVALID_CLASS : ''}`}
                         value={draft.continuousAssessment}
-                        disabled={!editable}
+                        disabled={!editable || retake}
                         onChange={(event) =>
                             onChange(id, {
                                 continuousAssessment: event.target.value,
@@ -136,6 +144,13 @@ export const GradeRow = memo(function GradeRow({
                         {final}
                     </span>
                 )}
+                {row.previous_final_grade !== null ? (
+                    <div className="text-xs font-normal text-neutral-500">
+                        {t('grades.normal_final', {
+                            grade: row.previous_final_grade,
+                        })}
+                    </div>
+                ) : null}
             </td>
         </tr>
     );

@@ -6,6 +6,7 @@ interface GradeTableProps {
     drafts: ReadonlyArray<readonly [GradeRowData, GradeDraft]>;
     continuousAssessmentWeight: number;
     editable: boolean;
+    retake: boolean;
     onChange: (studentId: number, patch: Partial<GradeDraft>) => void;
 }
 
@@ -13,6 +14,7 @@ export function GradeTable({
     drafts,
     continuousAssessmentWeight,
     editable,
+    retake,
     onChange,
 }: GradeTableProps) {
     const { t } = useTranslation();
@@ -54,6 +56,7 @@ export function GradeTable({
                                 continuousAssessmentWeight
                             }
                             editable={editable}
+                            retake={retake}
                             onChange={onChange}
                         />
                     ))}

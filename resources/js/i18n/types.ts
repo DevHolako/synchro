@@ -55,6 +55,7 @@ export interface Translations {
         navigation_menu: string;
         deliberations: string;
         my_grades: string;
+        retakes: string;
     };
     rooms: {
         title: string;
@@ -872,6 +873,9 @@ export interface Translations {
         return_desc: string;
         return_reason: string;
         return_reason_placeholder: string;
+        retake_badge: string;
+        cc_carried: string;
+        normal_final: string;
     };
     deliberations: {
         title: string;
@@ -891,6 +895,7 @@ export interface Translations {
         col_pass_rate: string;
         open: string;
         empty: string;
+        session_retake: string;
     };
     my_grades: {
         title: string;
@@ -906,5 +911,23 @@ export interface Translations {
         passed: string;
         retake: string;
         weighting: string;
+        session_retake: string;
+    };
+    retakes: {
+        title: string;
+        description: string;
+        period: string;
+        no_period: string;
+        empty: string;
+        students_count: string;
+        col_student: string;
+        col_group: string;
+        col_final: string;
+        create: string;
+        exam_created: string;
+        open_exams: string;
+        dialog_title: string;
+        dialog_desc: string;
+        save: string;
     };
 }

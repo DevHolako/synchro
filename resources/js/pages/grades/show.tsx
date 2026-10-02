@@ -40,12 +40,15 @@ export default function GradesShow({
     const { t } = useTranslation();
     const [confirming, setConfirming] = useState(false);
     const weight = weights.continuous_assessment;
+    // A retake's CC is carried over, not entered: only the retake itself must be complete.
+    const completenessWeight = exam.retake ? 0 : weight;
     const grid = useGradeSheet(exam.id, rows, weight);
     const incompleteCount = useMemo(
         () =>
-            grid.drafts.filter(([, draft]) => !isComplete(draft, weight))
-                .length,
-        [grid.drafts, weight],
+            grid.drafts.filter(
+                ([, draft]) => !isComplete(draft, completenessWeight),
+            ).length,
+        [grid.drafts, completenessWeight],
     );
     const { submitSheet } = grid;
     const handleConfirm = useCallback(
@@ -78,6 +81,7 @@ export default function GradesShow({
                     <GradeSheetStats
                         drafts={grid.drafts}
                         continuousAssessmentWeight={weight}
+                        completenessWeight={completenessWeight}
                     />
                 ) : (
                     <DeliberationPanel
@@ -89,6 +93,7 @@ export default function GradesShow({
                     drafts={grid.drafts}
                     continuousAssessmentWeight={weight}
                     editable={editable}
+                    retake={exam.retake}
                     onChange={grid.change}
                 />
                 {editable ? (

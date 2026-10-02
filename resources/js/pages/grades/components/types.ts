@@ -7,6 +7,8 @@ export interface GradeSheetExam {
     period: string;
     start: string;
     end: string;
+    /** A retake session: CC is carried over and the better final is kept. */
+    retake: boolean;
 }
 
 export interface GradeWeights {
@@ -29,6 +31,8 @@ export interface GradeRow {
     continuous_assessment_grade: string | null;
     exam_grade: string | null;
     final_grade: string | null;
+    /** On a retake line, the normal session's locked final. */
+    previous_final_grade: string | null;
     is_absent: boolean;
     remarks: string | null;
 }

@@ -24,6 +24,11 @@ export const OwnGradeRow = memo(function OwnGradeRow({
             </td>
             <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">
                 {grade.period} · {grade.academic_year}
+                {grade.session_type === 'rattrapage' ? (
+                    <Badge variant="outline" className="ml-2">
+                        {t('my_grades.session_retake')}
+                    </Badge>
+                ) : null}
             </td>
             <td className="px-4 py-3 text-right font-mono">
                 {weight > 0 ? (grade.continuous_assessment_grade ?? '—') : '—'}
