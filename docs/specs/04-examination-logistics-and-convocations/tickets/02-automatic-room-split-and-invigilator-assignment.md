@@ -42,4 +42,7 @@
 - **Invigilators**: teacher accounts only; one lead and any number of assistants per room. An assistant is recommended above 25 students (warning only). Staff may change until the exam starts, even after publication.
 - **Visibility and feed**: teachers also see the published exams they invigilate. "Mes examens" shows a student's room and seat, or an invigilator's room and role. The feed location is the student's room and seat, the invigilator's room, or otherwise the exam's rooms.
 - **UI**: a "Salles & surveillants" side sheet. It holds the room picker (ordered, busy rooms flagged, Force Single Room with justification), the split per room, and per-room lead and assistant pickers with the assistant recommendation and the unavailability override. Rows show the rooms and a "lead missing" badge. The invite dialog asks students for surname and given name.
-
+- **After the Part review**:
+  - Busy rooms are flagged in the picker, not disabled: a draft books nothing, and a booked exam's rooms are checked on save.
+  - Whenever a booked exam takes a new time (editing a scheduled exam, scheduling, emergency reschedule), invigilators who are busy then, or declared an unavailability not already overridden for this exam, are released and named in the toast (`ReleaseBusyInvigilatorsAction`, run by `GuardExamConflictsAction`). Rooms and groups still refuse the move.
+  - Publishing and staffing lock the exam row, so a lead cannot leave between the check and the publication; "publish all" runs in one transaction and queues documents only for the exams it published.

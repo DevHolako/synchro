@@ -66,3 +66,8 @@ An industrial-grade Examination Logistics module managing the complete 5-state e
 - **Emergency-reschedule alerts (ticket 05)**: a queued `ExamRescheduledNotification` by mail on the `notifications` queue, dispatched after commit, plus a minimal `UrgentMessageGateway` with only a `log` driver (ADR 0003); SMS and WhatsApp drivers come with Part 06.
 - **Exams in the iCal feed**: published exams from ticket 01; ticket 02 adds the room and invigilated exams; ticket 05 raises SEQUENCE on a reschedule.
 - **Live check-in (ticket 04)**: `usePoll` every 10 s on the room roster; Reverb stays deferred.
+
+## Review alignment (2026-10-02, Part 04 review)
+
+- **Exam capacity**: enforced by the room split itself. Rooms that seat fewer than the candidates are refused, and Force Single Room is the audited override. There is no separate `CapacityRule` for exams in the conflict engine (it stays specific to course sessions).
+- **Official names**: convocations, room sheets and check-in screens print the official "SURNAME Given name" from `student_profiles` (`User::officialName()`). The editable display name stands in only when no surname was recorded.

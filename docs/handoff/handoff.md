@@ -185,7 +185,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is complete (tickets 01–05); its whole-Part code review is next.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is complete (tickets 01–05) and reviewed (2026-10-02); the review fixes are to be re-reviewed.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
@@ -214,6 +214,21 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 
   - Controller logic moved to actions/scope (`FindCalendarFeedOwnerAction`, `CalendarFeedLinksAction`, `TimetableScope::groupId()`/`isStudentWithoutGroup()`); `session()` request helpers renamed `courseSession()`; reschedule and attendance saves answer 204; justification and batch limits come from PHP (`limits` prop); the attendance right per session comes from the policy (`can_take_attendance`); the French count labels carry their own colon.
   - Duplication removed: `SumPlannedMinutesAction`, `User::scopeOnRegisterOf()`, `User::teacherOptions()`, `ValidatesSessionSlots::overrideRules()`, `BatchConflictException` now extends `ConflictException`, `CourseSessionFactory::forGroups()`, shared `wall-clock-format.ts` and `lib/form-classes.ts`; the timetable dialogs live in `useTimetableOverlays` (page down to 168 lines).
 - **Re-review of the fixes (2026-10-02, `8725c7f..HEAD`):** fixed right away: the frontend now uses the school's clock too (shared `scheduleTimezone` prop, `useSchoolClock`); Part 02's unavailability "today" uses `SchoolClock`; attendance saves send only changed rows (no overwriting a concurrent save) and a remark needs a status; `TimetableScope` is built only through `of()`/`mine()`; `ListTeacherOptionsAction` replaces the model helper; the roster scope uses a subquery; `BatchConflictException` keeps the wrapped conflict as `previous`; the dialogs render in `TimetableOverlays` from `useTimetableOverlays` state; `limits` is passed whole everywhere; tickets 01, 03 and 04 updated to match.
+- **Part 04 review (2026-10-02, `6e0c903..HEAD`, standards + spec axes):** fixed right away:
+  - **Emergency reschedule:** the invigilators of dropped rooms are now released, audited and alerted. A booked exam that takes a new time releases invigilators who are busy or have an un-overridden unavailability (`ReleaseBusyInvigilatorsAction` inside `GuardExamConflictsAction`), on edit, scheduling and reschedule.
+  - **Concurrency and queries:** publication and staffing lock the exam row; "publish all" is transactional. The exams list no longer queries per row (the policy reads the loaded invigilators and candidates).
+  - **Permissions:** downloads need `ViewExams`, check-in needs `RecordAttendance` (or `ManageExams`).
+  - **Queues:** document jobs have `failed()`; urgent messages are idempotent (cache key per exam revision and recipient).
+  - **Documents and labels:** official names on documents and check-in screens; translated download file names and alert dates; the period and download logic moved out of controllers (`ExamPeriodResource`, `DownloadExamDocumentAction`).
+  - **Refactors:**
+    - `SessionSlot` is now `BookingSlot`;
+    - `Exam::invigilationSlot()`, `Module::label()`, `SchoolClock::WALL_CLOCK_FORMAT`, `ExamState::isVisibleToCandidates()`/`isFinished()`;
+    - `ValidatesConflictOverride::overrideFlag()` (used by Force Single Room);
+    - array shapes on the `Show*` actions;
+    - the pass-through `Create`/`Update`/`UnscheduleExamAction` were removed.
+  - **Frontend:** one `OrderedRoomPicker`, `moduleLabel()`, `toastErrors()`, `useExamsBreadcrumbs()`, a stable staff-save callback for the memoized room cards, server flags `is_editable`/`has_started`/`rooms_editable`, busy rooms flagged rather than disabled.
+  - **Other:** the logo icon no longer overrides its callers' fill. Tests were added for each fix (QR in the convocation's view data, unknown convocation 404, dropped-room invigilators, released invigilators on a move, urgent-message idempotency, query count of the exams list).
+  - **Not changed (existing deferred item):** who may invigilate is still decided by the teacher role, like the session teacher (see the Part 02 deferred list).
 - **Deferred from the Part 03 review:**
   - The PDF copy of the weekly timetable (spec 03 user story 11): reuse Part 04's queued PDF pipeline (recorded in the spec).
   - `resources/js/lib/scheduling-grid.ts` mirrors `SchedulingGrid` by hand, like `permissions.ts`.

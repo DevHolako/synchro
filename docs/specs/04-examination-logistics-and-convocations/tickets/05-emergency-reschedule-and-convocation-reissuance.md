@@ -28,4 +28,7 @@
   - an urgent message to the phone on their profile through `UrgentMessageGateway` (ADR 0003), sent by `SendUrgentMessageJob` on the `notifications` queue;
   - the only driver is `log` (`URGENT_MESSAGES_DRIVER`); SMS and WhatsApp arrive in Part 06.
 - **Everywhere else**: lists and the check-in screen read the new time; the iCal SEQUENCE grows with the exam's `updated_at`. Rows show "Rév. n" with the latest reason as a tooltip.
-
+- **After the Part review**:
+  - Invigilators of rooms the reschedule drops are released too, recorded in `released_invigilator_ids` and alerted.
+  - Invigilators with an un-overridden unavailability at the new time are released as well.
+  - Each urgent message carries a key (exam, revision, recipient) claimed in the cache before sending, so a retried or redelivered job sends it once; a failed send frees the key and is logged.

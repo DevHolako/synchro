@@ -23,4 +23,4 @@
 - **Room list**: `GET /exams/{exam}/rooms/{assignment}/check-in` (`exams/room-check-in`). It shows each candidate in seat order, present (with the time) or not yet arrived, a present/expected counter, and a manual "Marquer présent" for students without their convocation. It refreshes every 10 s (`usePoll`). It is open to managers and that room's invigilators, and linked from "Mes examens" (invigilators) and the allocation sheet (managers).
 - **Photo**: deferred, as agreed; an initials avatar stands in.
 - **After the exam**: check-ins are read-only; a candidate never checked in counts as absent (Part 05 will read this).
-
+- **After the Part review**: an invigilator also needs `RecordAttendance` to check candidates in (exam managers need `ManageExams`), so revoking the permission removes access even while assigned.

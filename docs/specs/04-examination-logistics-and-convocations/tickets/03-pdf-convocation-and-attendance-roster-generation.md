@@ -28,4 +28,7 @@
   - `GET /exams/{exam}/convocation`: the signed-in candidate, once published.
   - `GET /exams/{exam}/roster`: exam managers, and the exam's invigilators once published.
   - The exams list shows "Ma convocation (PDF)" or "Feuilles d'émargement (PDF)", or "en préparation" until the file exists; a direct request in the meantime is sent back with an info toast.
-
+- **After the Part review**:
+  - Documents print the official name (see the spec's review alignment).
+  - Downloads also need `ViewExams`; download file names are translated (`documents.*_filename`).
+  - Document jobs log a failure (`failed()`).

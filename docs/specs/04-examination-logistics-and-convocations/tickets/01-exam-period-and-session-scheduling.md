@@ -45,3 +45,6 @@
   - Retake candidates are the whole group until Part 05 grades.
   - The `/api/v1` controllers (Part 06).
   - Exams on the course timetable.
+- **Added in the round, recorded after review**:
+  - Exams still draft or scheduled once their start has passed show an "overdue" badge (round 2, Q17).
+  - Requests cap an exam at 20 rooms and a room at 10 assistants, as sanity limits.
