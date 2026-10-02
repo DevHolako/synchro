@@ -145,7 +145,7 @@ test('the exams list tells students when their convocation is ready', function (
 
     $this->actingAs($this->students[0])->get(route('exams.index'))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('exams.0.my_seat.convocation_ready', true)
+            ->where('exams.0.my_seat.convocation', 'ready')
             ->where('exams.0.roster', null));
 
     $this->actingAs($this->invigilator)->get(route('exams.index'))
@@ -154,14 +154,16 @@ test('the exams list tells students when their convocation is ready', function (
 
 test('the convocation prints the official name and the QR code of its signed link', function () {
     $student = $this->students[0];
-    $student->studentProfile->update(['last_name' => 'El Amrani', 'first_name' => 'Youssef']);
-    $student->update(['name' => 'yoyo']);
+    $lastName = fake()->lastName();
+    $firstName = fake()->firstName();
+    $student->studentProfile->update(['last_name' => $lastName, 'first_name' => $firstName]);
+    $student->update(['name' => fake()->userName()]);
     $candidate = candidateOf($student);
     $render = app(RenderConvocationPdfAction::class);
 
     $data = $render->viewData($candidate->fresh());
 
-    expect($data['name'])->toBe('EL AMRANI Youssef')
+    expect($data['name'])->toBe(mb_strtoupper($lastName).' '.$firstName)
         ->and($data['qrCode'])->toBe(QrCode::svgDataUri($render->verificationUrl($candidate)));
 });
 

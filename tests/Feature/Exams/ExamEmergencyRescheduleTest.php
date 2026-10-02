@@ -23,6 +23,7 @@ use App\Models\TeacherUnavailability;
 use App\Models\User;
 use App\Notifications\ExamRescheduledNotification;
 use App\Services\UrgentMessages\UrgentMessageGateway;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -176,7 +177,7 @@ test('invigilators of rooms the reschedule drops are released, audited and told'
     expect($this->exam->invigilators()->count())->toBe(0)
         ->and(ExamReschedule::sole()->released_invigilator_ids)->toBe([$this->lead->id]);
 
-    Notification::assertSentTo($this->lead, ExamRescheduledNotification::class, fn ($notification) => $notification->place === __('messages.exam_rescheduled_released'));
+    Notification::assertSentTo($this->lead, ExamRescheduledNotification::class, fn ($notification) => $notification->place === __('messages.exam_rescheduled_room_dropped'));
 });
 
 test('invigilators who declared an unavailability at the new time are released', function () {
@@ -204,4 +205,14 @@ test('each urgent message goes out once, even when its job is delivered twice', 
 
     expect($send->execute('exam-1-revision-1-user-1', '0612345678', 'URGENT'))->toBeTrue()
         ->and($send->execute('exam-1-revision-1-user-1', '0612345678', 'URGENT'))->toBeFalse();
+});
+
+test('an urgent message being sent by another delivery is retried, not skipped', function () {
+    Cache::add('urgent-message:exam-1-revision-1-user-1:sending', true, 120);
+    $gateway = Mockery::mock(UrgentMessageGateway::class);
+    $gateway->shouldNotReceive('send');
+    $this->app->instance(UrgentMessageGateway::class, $gateway);
+
+    expect(fn () => app(SendUrgentMessageAction::class)->execute('exam-1-revision-1-user-1', '0612345678', 'URGENT'))
+        ->toThrow(RuntimeException::class);
 });

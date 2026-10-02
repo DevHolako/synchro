@@ -144,3 +144,23 @@ test('an invigilator opens their own room list, with who is present', function (
     $this->actingAs($this->leadA)->get(route('exams.rooms.check-in', [$this->exam, $this->roomB]))->assertForbidden();
     $this->actingAs($this->coordinator)->get(route('exams.rooms.check-in', [$this->exam, $this->roomB]))->assertOk();
 });
+
+test('an invigilator without the attendance permission cannot check candidates in', function () {
+    $student = User::factory()->student()->create();
+    $this->exam->invigilators()->create(['exam_room_assignment_id' => $this->roomA->id, 'teacher_id' => $student->id, 'role' => 'adjoint']);
+
+    $this->actingAs($student)->post(route('exam-candidates.check-in.store', $this->alami))->assertForbidden();
+    $this->actingAs($student)->get(route('exams.rooms.check-in', [$this->exam, $this->roomA]))->assertForbidden();
+});
+
+test('check-in screens show the official name, whatever the display name', function () {
+    $this->alami->student->update(['name' => fake()->userName()]);
+    $official = $this->alami->student->fresh()->officialName();
+
+    expect($official)->toStartWith('ALAMI ');
+
+    $this->actingAs($this->leadA)->get(route('exams.rooms.check-in', [$this->exam, $this->roomA]))
+        ->assertInertia(fn (Assert $page) => $page->where('candidates.0.name', $official));
+    $this->actingAs($this->leadA)->get(scanUrl($this->alami))
+        ->assertInertia(fn (Assert $page) => $page->where('candidate.name', $official));
+});

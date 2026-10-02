@@ -153,7 +153,7 @@ test('invigilators see the published exams they watch, with their room and role'
     $this->actingAs($this->teachers[0])->get(route('exams.index'))
         ->assertInertia(fn ($page) => $page
             ->has('exams', 1)
-            ->where('exams.0.my_invigilation', ['assignment_id' => $this->roomB->id, 'room' => $this->roomB->room->name, 'role' => 'principal']));
+            ->where('exams.0.my_invigilation', ['assignment_id' => $this->roomB->id, 'room' => $this->roomB->room->name, 'role' => 'principal', 'can_check_in' => true]));
 
     $this->actingAs($this->teachers[1])->get(route('exams.index'))->assertInertia(fn ($page) => $page->has('exams', 0));
 });
@@ -177,7 +177,7 @@ test('moving a scheduled exam releases the invigilators busy or unavailable then
         'schedulable_type' => 'exam',
         'schedulable_id' => $this->exam->id,
         'conflict_type' => ConflictType::Unavailability,
-        'justification' => 'Remplacement accepté par le département.',
+        'justification' => fake()->sentence(),
         'details' => ['unavailability_id' => $unavailable->id],
     ]);
 
@@ -215,4 +215,35 @@ test('the exams list runs the same number of queries however many exams an invig
     $watchedExam('2026-10-22');
 
     expect($queriesFor())->toBe($one);
+});
+
+test('scheduling a draft releases the invigilators busy at its time and names them', function () {
+    staff($this->roomA, $this->teachers[0]->id)->assertOk();
+    CourseSession::factory()->between('2026-10-12 10:00', '2026-10-12 11:00')->create(['teacher_id' => $this->teachers[0]->id]);
+
+    $this->actingAs($this->coordinator)->post(route('exams.schedule', $this->exam))
+        ->assertSessionHasNoErrors()
+        ->assertInertiaFlash('toast.type', 'warning');
+
+    expect($this->exam->refresh()->state)->toBe(ExamState::Scheduled)
+        ->and($this->exam->invigilators()->count())->toBe(0);
+});
+
+test('saving the rooms of a booked exam names the invigilators it releases', function () {
+    staff($this->roomA, $this->teachers[0]->id)->assertOk();
+    $this->exam->update(['state' => ExamState::Scheduled]);
+    TeacherUnavailability::factory()->create([
+        'teacher_id' => $this->teachers[0]->id,
+        'type' => 'ad_hoc_date',
+        'start_date' => '2026-10-12',
+        'end_date' => '2026-10-12',
+        'start_time' => null,
+        'end_time' => null,
+        'status' => 'approved',
+    ]);
+
+    $this->actingAs($this->coordinator)
+        ->putJson(route('exams.rooms.update', $this->exam), ['room_ids' => [$this->roomA->room_id, $this->roomB->room_id]])
+        ->assertOk()
+        ->assertJsonPath('released', [$this->teachers[0]->name]);
 });

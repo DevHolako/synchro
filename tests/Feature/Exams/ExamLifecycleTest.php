@@ -52,7 +52,9 @@ function examFor(StudentGroup $group, string $startsAt, string $endsAt): Exam
         'module_id' => Module::factory()->create(['program_id' => test()->program->id])->id,
     ]);
 
-    return app(AllocateExamRoomsAction::class)->execute($exam, [Room::factory()->create(['exam_capacity' => 50])->id]);
+    app(AllocateExamRoomsAction::class)->execute($exam, [Room::factory()->create(['exam_capacity' => 50])->id]);
+
+    return $exam;
 }
 
 function courseSessionFor(StudentGroup $group, string $startsAt, string $endsAt): CourseSession
