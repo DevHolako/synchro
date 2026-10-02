@@ -18,11 +18,14 @@ use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\Scheduling\SoftConflictOverride;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 
 beforeEach(function () {
     $this->travelTo('2026-10-05 08:00');
     config(['app.schedule_timezone' => 'UTC']);
+    // Exam documents live on the private disk; publishing writes them through the sync queue.
+    Storage::fake('local');
 
     $this->coordinator = User::factory()->coordinator()->create();
     $program = Program::factory()->create();
@@ -176,7 +179,7 @@ test('students see their room and seat, and the feed sends them there', function
     $student = StudentProfile::sole()->user;
 
     $this->actingAs($student)->get(route('exams.index'))
-        ->assertInertia(fn ($page) => $page->where('exams.0.my_seat', ['room' => 'Amphi A', 'seat' => 1]));
+        ->assertInertia(fn ($page) => $page->where('exams.0.my_seat.room', 'Amphi A')->where('exams.0.my_seat.seat', 1));
 
     $token = app(IssueCalendarFeedTokenAction::class)->execute($student);
     $body = str_replace("\r\n ", '', $this->get(route('calendar-feeds.show', ['token' => $token]))->getContent());

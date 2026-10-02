@@ -5,10 +5,13 @@ use App\Enums\ExamState;
 use App\Models\Exam;
 use App\Models\ExamPeriod;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->travelTo('2026-10-05 08:00');
     config(['app.schedule_timezone' => 'UTC']);
+    // Exam documents live on the private disk; publishing writes them through the sync queue.
+    Storage::fake('local');
 
     $this->coordinator = User::factory()->coordinator()->create();
     $this->period = ExamPeriod::factory()->between('2026-10-01', '2026-10-31')->create();

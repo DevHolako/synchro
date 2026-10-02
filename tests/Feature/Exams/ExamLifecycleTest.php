@@ -13,11 +13,14 @@ use App\Models\Room;
 use App\Models\StudentGroup;
 use App\Models\StudentProfile;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function () {
     $this->travelTo('2026-10-05 08:00');
     config(['app.schedule_timezone' => 'UTC']);
+    // Exam documents live on the private disk; publishing writes them through the sync queue.
+    Storage::fake('local');
 
     $this->coordinator = User::factory()->coordinator()->create();
     $this->program = Program::factory()->create();
@@ -114,7 +117,7 @@ test('scheduled exams of a group collide with each other, drafts do not', functi
 });
 
 test('a scheduled exam blocks course sessions for its groups, a draft does not', function () {
-    $room = Room::factory()->create();
+    $room = Room::factory()->create(['course_capacity' => 200, 'exam_capacity' => 100]);
     $teacher = User::factory()->teacher()->create();
     $sessionPayload = fn (string $start, string $end) => [
         'module_id' => $this->module->id,

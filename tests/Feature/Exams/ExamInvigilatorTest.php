@@ -16,11 +16,14 @@ use App\Models\StudentGroup;
 use App\Models\StudentProfile;
 use App\Models\TeacherUnavailability;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 
 beforeEach(function () {
     $this->travelTo('2026-10-05 08:00');
     config(['app.schedule_timezone' => 'UTC']);
+    // Exam documents live on the private disk; publishing writes them through the sync queue.
+    Storage::fake('local');
 
     $this->coordinator = User::factory()->coordinator()->create();
     $program = Program::factory()->create();
