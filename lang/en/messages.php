@@ -165,6 +165,8 @@ return [
     'conflict_forced_single_room' => 'Room :name seats :capacity for exams; all :headcount candidates are placed in it.',
     'calendar_feed_exam_room' => ':room · seat :seat',
     'exam_document_pending' => 'The document is being prepared: try again in a few minutes.',
+    'convocation_not_found' => 'No convocation found for this exam and student.',
+    'qr_token_required' => 'The QR code token or uuid is required.',
     'exam_check_in_closed' => 'Check-in is open from an hour before a published exam starts until it ends.',
     'exam_check_in_wrong_room' => 'This candidate is expected in :room.',
     'exam_already_checked_in' => 'This candidate is already marked present.',
@@ -187,6 +189,7 @@ return [
     'exam_outcome_with_released' => ':outcome Invigilators released, to replace: :names.',
     'exam_rescheduled_room_dropped' => 'You no longer invigilate this exam: your room is no longer used.',
     'exam_superseded_notice' => 'This convocation was superseded by an emergency reschedule.',
+    'course_session_rescheduled_sms' => 'URGENT: session :session moved to :when in room :room.',
 
     // Grade entry (Part 05 / Ticket 02)
     'grades_saved' => 'Grade draft saved.',
@@ -209,6 +212,7 @@ return [
     'timetable_published_mail_subject' => 'Your timetable has been published',
     'timetable_published_mail_line' => 'The timetable for group :group (:period) has been published.',
     'timetable_published_mail_action' => 'View timetable',
+    'timetable_published_new_sessions' => 'New scheduled sessions',
     'convocation_published_title' => 'Exam convocation available',
     'convocation_published_message' => 'Your convocation for the :module exam (:starts_at) is now available.',
     'convocation_published_mail_subject' => 'Convocation for the :module exam',

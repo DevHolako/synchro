@@ -10,7 +10,10 @@ use App\Models\Module;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\StudentGroup;
+use App\Models\StudentProfile;
 use App\Models\User;
+use App\Notifications\TimetablePublishedNotification;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
@@ -254,4 +257,24 @@ test('the timetable tells the page who may schedule and loads the wizard options
         ->assertInertia(fn (Assert $page) => $page
             ->where('canSchedule', false)
             ->reloadOnly('schedulingOptions', fn (Assert $reload) => $reload->where('schedulingOptions', null)));
+});
+
+test('batch creating course sessions notifies group students via queued notification', function () {
+    Notification::fake();
+
+    $student = User::factory()->student()->create();
+    StudentProfile::factory()->create([
+        'user_id' => $student->id,
+        'student_group_id' => $this->group->id,
+    ]);
+
+    $this->actingAs($this->coordinator)
+        ->post(route('course-sessions.batch.store'), batchPayload(['slots' => [
+            ['starts_at' => '2026-10-10 08:30', 'ends_at' => '2026-10-10 10:30'],
+        ]]));
+
+    Notification::assertSentTo(
+        $student,
+        TimetablePublishedNotification::class,
+    );
 });

@@ -63,4 +63,16 @@ class UrgentAlertManager extends Manager implements UrgentAlertGatewayInterface
 
         $driver->send($normalizedPhone, $message, $metadata);
     }
+
+    /**
+     * Sends an urgent alert and returns true on success.
+     *
+     * @param  array<string, mixed>  $metadata
+     */
+    public function sendUrgentAlert(string $recipientPhone, string $message, array $metadata = []): bool
+    {
+        $this->send($recipientPhone, $message, $metadata);
+
+        return true;
+    }
 }

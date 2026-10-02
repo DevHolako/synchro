@@ -29,6 +29,8 @@ test('it resolves default driver and custom drivers via manager', function () {
 
     expect(app(UrgentMessageGateway::class))->toBeInstanceOf(UrgentAlertManager::class)
         ->and(app(UrgentAlertGatewayInterface::class))->toBeInstanceOf(UrgentAlertManager::class);
+
+    expect($manager->sendUrgentAlert('0612345678', 'Test message'))->toBeTrue();
 });
 
 test('it normalizes moroccan and international phone numbers', function () {

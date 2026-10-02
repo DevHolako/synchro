@@ -3,6 +3,7 @@
 use App\Enums\ConflictType;
 use App\Enums\Permission;
 use App\Http\Requests\CourseSessions\RescheduleCourseSessionRequest;
+use App\Jobs\SendUrgentMessageJob;
 use App\Models\ConflictOverride;
 use App\Models\CourseSession;
 use App\Models\Module;
@@ -11,6 +12,7 @@ use App\Models\Room;
 use App\Models\StudentGroup;
 use App\Models\User;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Queue;
 
 beforeEach(function () {
     $this->travelTo('2026-10-07 09:00');
@@ -142,4 +144,21 @@ test('overriding needs the override permission', function () {
 
     expect($request(['force_override' => true])->authorize())->toBeFalse()
         ->and($request([])->authorize())->toBeTrue();
+});
+
+test('rescheduling session within 2 hours of start dispatches urgent alert', function () {
+    Queue::fake();
+
+    $this->teacher->teacherProfile()->create([
+        'first_name' => 'Prof',
+        'last_name' => 'Test',
+        'phone' => '+212612345678',
+    ]);
+
+    // Session starts at 2026-10-12 10:00. Move clock to 2026-10-12 08:30 (90 min before start, within 2h)
+    $this->travelTo('2026-10-12 08:30');
+
+    reschedule(['starts_at' => '2026-10-12 14:00', 'ends_at' => '2026-10-12 16:00'])->assertNoContent();
+
+    Queue::assertPushed(SendUrgentMessageJob::class);
 });

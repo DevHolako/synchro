@@ -6,6 +6,7 @@ use App\Exceptions\HardConflictException;
 use App\Exceptions\SoftConflictException;
 use App\Models\CourseSession;
 use App\Services\Scheduling\SoftConflictOverride;
+use App\Support\SchoolClock;
 
 /**
  * Moves or resizes a session in time, keeping its module, teacher, room and groups.
@@ -15,7 +16,12 @@ use App\Services\Scheduling\SoftConflictOverride;
  */
 class RescheduleCourseSessionAction
 {
-    public function __construct(private SaveCourseSessionAction $save) {}
+    public function __construct(
+        private SaveCourseSessionAction $save,
+        private ?NotifyCourseSessionRescheduledAction $notifyAction = null,
+    ) {
+        $this->notifyAction ??= app(NotifyCourseSessionRescheduledAction::class);
+    }
 
     /**
      * @param  array{starts_at: string, ends_at: string}  $times
@@ -25,7 +31,10 @@ class RescheduleCourseSessionAction
      */
     public function execute(CourseSession $session, array $times, ?SoftConflictOverride $override = null): CourseSession
     {
-        return $this->save->execute($session, [
+        $originalStart = $session->starts_at?->copy();
+        $now = SchoolClock::now();
+
+        $savedSession = $this->save->execute($session, [
             'module_id' => $session->module_id,
             'teacher_id' => $session->teacher_id,
             'room_id' => $session->room_id,
@@ -33,5 +42,11 @@ class RescheduleCourseSessionAction
             'starts_at' => $times['starts_at'],
             'ends_at' => $times['ends_at'],
         ], $override);
+
+        if ($originalStart !== null && $originalStart->greaterThanOrEqualTo($now) && $now->diffInMinutes($originalStart) <= 120) {
+            $this->notifyAction->execute($savedSession, $originalStart->toIso8601String());
+        }
+
+        return $savedSession;
     }
 }

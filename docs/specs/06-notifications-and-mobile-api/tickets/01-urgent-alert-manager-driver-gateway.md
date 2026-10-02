@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** complete
 
-- [ ] `UrgentAlertGatewayInterface` contract defining `sendUrgentAlert(recipientPhone, message, metadata)`
-- [ ] `UrgentAlertManager` implementing driver resolution via configuration (`config/services.php`)
-- [ ] `LogDriver` implementation writing formatted JSON alerts to logs during local development
-- [ ] `DatabaseDriver` implementation storing dispatched alerts in an `urgent_alerts` table for test assertions
-- [ ] `TwilioDriver` and `WhatsAppDriver` stubs ready for live production credentials
-- [ ] Automated tests asserting driver resolution, mock execution, and graceful error handling on provider failure
+- [x] `UrgentAlertGatewayInterface` contract defining `sendUrgentAlert(recipientPhone, message, metadata)`
+- [x] `UrgentAlertManager` implementing driver resolution via configuration (`config/services.php`)
+- [x] `LogDriver` implementation writing formatted JSON alerts to logs during local development
+- [x] `DatabaseDriver` implementation storing dispatched alerts in an `urgent_alerts` table for test assertions
+- [x] `TwilioDriver` and `WhatsAppDriver` stubs ready for live production credentials
+- [x] Automated tests asserting driver resolution, mock execution, and graceful error handling on provider failure

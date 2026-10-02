@@ -2,6 +2,7 @@
 
 namespace App\Actions\CourseSessions;
 
+use App\Actions\Notifications\NotifyTimetablePublishedAction;
 use App\Exceptions\BatchConflictException;
 use App\Exceptions\ConflictException;
 use App\Models\CourseSession;
@@ -19,7 +20,12 @@ use Illuminate\Support\Facades\DB;
  */
 class BatchCreateCourseSessionsAction
 {
-    public function __construct(private SaveCourseSessionAction $save) {}
+    public function __construct(
+        private SaveCourseSessionAction $save,
+        private ?NotifyTimetablePublishedAction $notifyAction = null,
+    ) {
+        $this->notifyAction ??= app(NotifyTimetablePublishedAction::class);
+    }
 
     /**
      * @param array{
@@ -35,7 +41,7 @@ class BatchCreateCourseSessionsAction
      */
     public function execute(array $data, ?SoftConflictOverride $override = null): array
     {
-        return DB::transaction(function () use ($data, $override): array {
+        $sessions = DB::transaction(function () use ($data, $override): array {
             $sessions = [];
 
             foreach ($data['slots'] as $index => $slot) {
@@ -55,5 +61,14 @@ class BatchCreateCourseSessionsAction
 
             return $sessions;
         });
+
+        if (! empty($sessions) && ! empty($data['student_group_ids'])) {
+            $this->notifyAction->execute(
+                $data['student_group_ids'],
+                __('messages.timetable_published_new_sessions'),
+            );
+        }
+
+        return $sessions;
     }
 }

@@ -284,3 +284,17 @@ test('student without check-in permission receives 403 RFC 7807 problem details'
             'title' => 'Forbidden',
         ]);
 });
+
+test('scanning with empty QR code payload returns 422 validation problem details', function () {
+    $token = $this->leadA->createToken('mobile-scanner')->plainTextToken;
+
+    $response = $this->withHeader('Authorization', 'Bearer '.$token)
+        ->postJson('/api/v1/check-in/scan', []);
+
+    $response->assertStatus(422)
+        ->assertHeader('Content-Type', 'application/problem+json')
+        ->assertJson([
+            'status' => 422,
+            'title' => 'Validation Failed',
+        ]);
+});

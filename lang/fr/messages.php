@@ -165,6 +165,8 @@ return [
     'conflict_forced_single_room' => 'La salle :name compte :capacity places d\'examen ; les :headcount candidats y sont tous placés.',
     'calendar_feed_exam_room' => ':room · place :seat',
     'exam_document_pending' => 'Le document est en cours de préparation : réessayez dans quelques minutes.',
+    'convocation_not_found' => 'Aucune convocation trouvée pour cet examen et cet étudiant.',
+    'qr_token_required' => 'Le token ou UUID du code QR est requis.',
     'exam_check_in_closed' => 'Le pointage est ouvert d\'une heure avant le début jusqu\'à la fin de l\'examen publié.',
     'exam_check_in_wrong_room' => 'Ce candidat est attendu en :room.',
     'exam_already_checked_in' => 'Ce candidat est déjà marqué présent.',
@@ -187,6 +189,7 @@ return [
     'exam_outcome_with_released' => ':outcome Surveillants libérés, à remplacer : :names.',
     'exam_rescheduled_room_dropped' => 'Vous n\'êtes plus surveillant de cet examen : votre salle n\'est plus utilisée.',
     'exam_superseded_notice' => 'Cette convocation a été remplacée suite à un report d\'urgence.',
+    'course_session_rescheduled_sms' => 'URGENT : séance :session déplacée au :when en salle :room.',
 
     // Grade entry (Part 05 / Ticket 02)
     'grades_saved' => 'Brouillon des notes enregistré.',
@@ -209,6 +212,7 @@ return [
     'timetable_published_mail_subject' => 'Publication de votre emploi du temps',
     'timetable_published_mail_line' => 'L\'emploi du temps pour le groupe :group (:period) a été publié.',
     'timetable_published_mail_action' => 'Consulter l\'emploi du temps',
+    'timetable_published_new_sessions' => 'Nouvelles séances planifiées',
     'convocation_published_title' => 'Convocation d\'examen disponible',
     'convocation_published_message' => 'Votre convocation pour l\'examen de :module (:starts_at) est disponible.',
     'convocation_published_mail_subject' => 'Convocation à l\'examen de :module',

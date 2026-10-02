@@ -1,60 +1,16 @@
 import { router, usePage } from '@inertiajs/react';
-import { Bell, CalendarDays, CheckCheck, ClipboardList } from 'lucide-react';
+import { Bell, CheckCheck } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { cn } from '@/lib/utils';
-
-interface NotificationItem {
-    id: string;
-    data: {
-        title?: string;
-        message?: string;
-        type?: string;
-        link?: string;
-        [key: string]: unknown;
-    };
-    read_at: string | null;
-    created_at: string;
-}
-
-function formatRelativeTime(
-    dateString: string,
-    t: (key: string, params?: Record<string, string | number>) => string,
-): string {
-    const diffMs = Date.now() - new Date(dateString).getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMinutes < 1) {
-        return t('notifications.just_now');
-    }
-    if (diffMinutes < 60) {
-        return t('notifications.minutes_ago', { count: diffMinutes });
-    }
-    if (diffHours < 24) {
-        return t('notifications.hours_ago', { count: diffHours });
-    }
-    return t('notifications.days_ago', { count: diffDays });
-}
-
-function NotificationIcon({ type }: { type?: string }) {
-    if (type === 'timetable_published') {
-        return <CalendarDays className="size-4 shrink-0 text-sky-500" />;
-    }
-    if (type === 'exam_convocation_published') {
-        return <ClipboardList className="size-4 shrink-0 text-amber-500" />;
-    }
-    return <Bell className="size-4 shrink-0 text-muted-foreground" />;
-}
+import { NotificationItem } from './notifications/notification-item';
+import type { NotificationItemData } from './notifications/types';
 
 export function NotificationBell() {
     const { t } = useTranslation();
@@ -62,7 +18,9 @@ export function NotificationBell() {
     const [unreadCount, setUnreadCount] = useState<number>(
         initialUnreadCount ?? 0,
     );
-    const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+    const [notifications, setNotifications] = useState<NotificationItemData[]>(
+        [],
+    );
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -100,7 +58,7 @@ export function NotificationBell() {
         }
     };
 
-    const markAsRead = async (notification: NotificationItem) => {
+    const markAsRead = async (notification: NotificationItemData) => {
         if (!notification.read_at) {
             setNotifications((prev) =>
                 prev.map((n) =>
@@ -224,46 +182,13 @@ export function NotificationBell() {
                             <p>{t('notifications.empty')}</p>
                         </div>
                     ) : (
-                        notifications.map((notification) => {
-                            const isUnread = !notification.read_at;
-                            return (
-                                <DropdownMenuItem
-                                    key={notification.id}
-                                    onClick={() => markAsRead(notification)}
-                                    className={cn(
-                                        'flex cursor-pointer items-start gap-3 p-3 text-left transition-colors focus:bg-accent',
-                                        isUnread &&
-                                            'bg-muted/40 font-medium dark:bg-muted/20',
-                                    )}
-                                >
-                                    <div className="mt-0.5">
-                                        <NotificationIcon
-                                            type={notification.data.type}
-                                        />
-                                    </div>
-                                    <div className="min-w-0 flex-1 space-y-1">
-                                        <p className="line-clamp-1 text-xs font-semibold text-foreground">
-                                            {notification.data.title ??
-                                                t('notifications.title')}
-                                        </p>
-                                        {notification.data.message && (
-                                            <p className="line-clamp-2 text-xs text-muted-foreground">
-                                                {notification.data.message}
-                                            </p>
-                                        )}
-                                        <span className="text-[10px] text-muted-foreground/80">
-                                            {formatRelativeTime(
-                                                notification.created_at,
-                                                t,
-                                            )}
-                                        </span>
-                                    </div>
-                                    {isUnread && (
-                                        <span className="mt-1.5 size-2 shrink-0 rounded-full bg-blue-600" />
-                                    )}
-                                </DropdownMenuItem>
-                            );
-                        })
+                        notifications.map((notification) => (
+                            <NotificationItem
+                                key={notification.id}
+                                notification={notification}
+                                onSelect={markAsRead}
+                            />
+                        ))
                     )}
                 </div>
             </DropdownMenuContent>
