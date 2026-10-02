@@ -154,11 +154,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * The name to print on official exam documents: a student's official name, otherwise the display name.
+     * The name on official exam documents and at the exam door: SURNAME Given name from a
+     * student's official fields. The display name, which the student may edit, stands in only
+     * when no surname was recorded (and for everyone who is not a student).
      */
     public function officialName(): string
     {
-        return $this->studentProfile?->officialName() ?? $this->name;
+        $profile = $this->studentProfile;
+
+        if ($profile === null || blank($profile->last_name)) {
+            return $this->name;
+        }
+
+        return trim(mb_strtoupper(trim((string) $profile->last_name)).' '.trim((string) $profile->first_name));
     }
 
     /**

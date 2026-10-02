@@ -48,6 +48,7 @@ class EmergencyRescheduleExamAction
 
         return DB::transaction(function () use ($exam, $data, $reason, $user): array {
             $period = ExamPeriod::query()->whereKey($exam->exam_period_id)->lockForUpdate()->firstOrFail();
+            $exam->lockRow();
             $this->ensureTimesFit->execute($period, $data['starts_at']);
 
             $previousStart = $exam->starts_at->format('Y-m-d H:i:s');
@@ -81,7 +82,8 @@ class EmergencyRescheduleExamAction
                 ]));
             }
 
-            $released = $dropped + $this->guardConflicts->execute($exam);
+            $busy = $this->guardConflicts->execute($exam);
+            $released = $dropped + $busy;
             $releasedIds = array_keys($released);
 
             $exam->update(['revision' => $exam->revision + 1]);
@@ -104,7 +106,7 @@ class EmergencyRescheduleExamAction
                 Storage::disk('local')->delete($oldFiles);
             });
             $this->queueDocuments->execute([$exam->id]);
-            DB::afterCommit(fn () => $this->notify->execute($exam, $reason, $releasedIds));
+            DB::afterCommit(fn () => $this->notify->execute($exam, $reason, array_keys($busy), array_keys($dropped)));
 
             return ['exam' => $exam, 'released' => $released];
         });

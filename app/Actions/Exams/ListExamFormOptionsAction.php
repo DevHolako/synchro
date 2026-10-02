@@ -14,7 +14,7 @@ class ListExamFormOptionsAction
     /**
      * @return array{
      *     programs: list<array{id: int, code: string, name: string}>,
-     *     modules: list<array{id: int, program_id: int, code: string, name: string}>,
+     *     modules: list<array{id: int, program_id: int, code: string, name: string, label: string}>,
      *     groups: list<array{id: int, program_id: int, name: string}>
      * }
      */
@@ -36,6 +36,7 @@ class ListExamFormOptionsAction
                     'program_id' => $module->program_id,
                     'code' => $module->code,
                     'name' => $module->name,
+                    'label' => $module->label(),
                 ])
                 ->all()),
             'groups' => array_values(StudentGroup::query()

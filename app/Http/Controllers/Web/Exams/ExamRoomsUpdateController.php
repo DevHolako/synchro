@@ -10,7 +10,8 @@ use App\Models\Exam;
 use Illuminate\Http\JsonResponse;
 
 /**
- * Saves an exam's rooms and answers with its new split (JSON).
+ * Saves an exam's rooms and answers with its new split, naming any invigilators released
+ * because they are busy or unavailable at the exam's time (JSON).
  */
 class ExamRoomsUpdateController extends Controller
 {
@@ -20,8 +21,8 @@ class ExamRoomsUpdateController extends Controller
         AllocateExamRoomsAction $allocate,
         ShowExamAllocationAction $show,
     ): JsonResponse {
-        $allocate->execute($exam, $request->roomIds(), $request->softConflictOverride());
+        $released = $allocate->execute($exam, $request->roomIds(), $request->softConflictOverride());
 
-        return new JsonResponse($show->execute($exam->refresh()));
+        return new JsonResponse([...$show->execute($exam->refresh()), 'released' => array_values($released)]);
     }
 }

@@ -25,8 +25,8 @@ class PublishExamAction
     public function execute(Exam $exam, User $publisher): Exam
     {
         return DB::transaction(function () use ($exam, $publisher): Exam {
-            // Staffing changes lock the exam too, so no lead can leave between this check and the move.
-            Exam::query()->whereKey($exam->id)->lockForUpdate()->first();
+            // Staffing and releases lock the exam too, so no lead can leave between this check and the move.
+            $exam->lockRow();
 
             if (Exam::query()->whereKey($exam->id)->missingLead()->exists()) {
                 throw ValidationException::withMessages(['exam' => __('messages.exam_lead_missing')]);

@@ -43,6 +43,7 @@ class ExamResource extends JsonResource
                 'program_id' => $exam->module->program_id,
                 'code' => $exam->module->code,
                 'name' => $exam->module->name,
+                'label' => $exam->module->label(),
                 'color_code' => $exam->module->color_code,
             ],
             'groups' => $exam->studentGroups
@@ -62,24 +63,33 @@ class ExamResource extends JsonResource
                 ->all(),
             // The viewer's own place: their seat as a candidate, their room as an invigilator.
             'my_seat' => $this->seat($exam, $exam->candidates->first()),
-            'my_invigilation' => $this->invigilation($exam->invigilators->first()),
+            'my_invigilation' => $this->invigilation($request, $exam, $exam->invigilators->first()),
             // The door lists and attendance sheets: null when the viewer may not download them.
             'roster' => $this->roster($request, $exam),
         ];
     }
 
     /**
-     * The file check runs only for published exams, the only ones with a convocation.
+     * The convocation exists only once the exam is published (null before).
      *
-     * @return array{room: string, seat: int, convocation_ready: bool}|null
+     * @return array{room: string, seat: int, convocation: 'ready'|'pending'|null}|null
      */
     private function seat(Exam $exam, ?ExamCandidate $candidate): ?array
     {
-        return $candidate === null ? null : [
+        if ($candidate === null) {
+            return null;
+        }
+
+        $convocation = null;
+
+        if ($exam->state->isVisibleToCandidates()) {
+            $convocation = Storage::disk('local')->exists($candidate->convocationPath()) ? 'ready' : 'pending';
+        }
+
+        return [
             'room' => $candidate->roomAssignment->room->name,
             'seat' => $candidate->seat_number,
-            'convocation_ready' => $exam->state->isVisibleToCandidates()
-                && Storage::disk('local')->exists($candidate->convocationPath()),
+            'convocation' => $convocation,
         ];
     }
 
@@ -98,14 +108,16 @@ class ExamResource extends JsonResource
     }
 
     /**
-     * @return array{assignment_id: int, room: string, role: string}|null
+     * @return array{assignment_id: int, room: string, role: string, can_check_in: bool}|null
      */
-    private function invigilation(?ExamInvigilator $invigilator): ?array
+    private function invigilation(Request $request, Exam $exam, ?ExamInvigilator $invigilator): ?array
     {
         return $invigilator === null ? null : [
             'assignment_id' => $invigilator->exam_room_assignment_id,
             'room' => $invigilator->roomAssignment->room->name,
             'role' => $invigilator->role->value,
+            // Assigned is not enough: checking in also takes the RecordAttendance permission.
+            'can_check_in' => $request->user()?->can('checkIn', $exam) ?? false,
         ];
     }
 }

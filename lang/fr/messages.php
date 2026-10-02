@@ -180,6 +180,7 @@ return [
     'exam_rescheduled_invigilation' => 'Vous surveillez :room.',
     'exam_rescheduled_released' => 'Vous n\'êtes plus surveillant de cet examen (indisponible au nouvel horaire).',
     'exam_rescheduled_sms' => 'URGENT : examen :exam déplacé au :when. :place',
-    'exam_invigilators_released' => 'Surveillants libérés (occupés ou indisponibles à cet horaire), à remplacer : :names.',
     'exam_rescheduled_when' => ':date · :start–:end',
+    'exam_outcome_with_released' => ':outcome Surveillants libérés, à remplacer : :names.',
+    'exam_rescheduled_room_dropped' => 'Vous n\'êtes plus surveillant de cet examen : votre salle n\'est plus utilisée.',
 ];

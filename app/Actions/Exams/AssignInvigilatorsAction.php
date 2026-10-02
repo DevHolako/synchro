@@ -55,8 +55,7 @@ class AssignInvigilatorsAction
         $teacherIds = [$leadId, ...$assistantIds];
 
         return DB::transaction(function () use ($exam, $room, $leadId, $teacherIds, $override): ExamRoomAssignment {
-            // The exam first (publication checks leads under the same lock), then the teachers.
-            Exam::query()->whereKey($exam->id)->lockForUpdate()->first();
+            $exam->lockRow();
             User::query()->whereKey($teacherIds)->orderBy('id')->lockForUpdate()->get();
 
             $elsewhere = ExamInvigilator::query()

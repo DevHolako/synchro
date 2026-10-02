@@ -35,13 +35,14 @@ class AllocateExamRoomsAction
     /**
      * @param  list<int>  $roomIds  In the coordinator's order.
      * @param  SoftConflictOverride|null  $forceSingleRoom  The justified override, to seat everyone in the one room given.
+     * @return array<int, string> The invigilators released because they are busy or unavailable then, by id.
      *
      * @throws ValidationException
      * @throws AuthorizationException
      * @throws SoftConflictException
      * @throws HardConflictException
      */
-    public function execute(Exam $exam, array $roomIds, ?SoftConflictOverride $forceSingleRoom = null): Exam
+    public function execute(Exam $exam, array $roomIds, ?SoftConflictOverride $forceSingleRoom = null): array
     {
         if (! $exam->state->isEditable()) {
             throw ValidationException::withMessages(['exam' => __('messages.exam_locked')]);
@@ -57,15 +58,14 @@ class AllocateExamRoomsAction
             }
         }
 
-        return DB::transaction(function () use ($exam, $roomIds, $forceSingleRoom): Exam {
+        return DB::transaction(function () use ($exam, $roomIds, $forceSingleRoom): array {
+            $exam->lockRow();
             $this->syncRooms->execute($exam, $roomIds);
 
             $exam->update(['force_single_room' => $forceSingleRoom !== null]);
             $seated = $this->resplit->execute($exam);
 
-            if ($exam->state->occupiesResources()) {
-                $this->guardConflicts->execute($exam);
-            }
+            $released = $exam->state->occupiesResources() ? $this->guardConflicts->execute($exam) : [];
 
             if ($forceSingleRoom !== null) {
                 $this->recordOverrides->execute($exam, $this->forcedResult($exam, $roomIds[0], $seated), $forceSingleRoom);
@@ -73,7 +73,7 @@ class AllocateExamRoomsAction
 
             $exam->touch();
 
-            return $exam;
+            return $released;
         });
     }
 

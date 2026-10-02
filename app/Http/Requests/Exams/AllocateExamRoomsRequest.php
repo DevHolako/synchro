@@ -40,7 +40,7 @@ class AllocateExamRoomsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'room_ids' => ['required', 'array', 'min:1', $this->boolean('force_single_room') ? 'max:1' : 'max:20'],
+            'room_ids' => ['required', 'array', 'min:1', $this->boolean($this->overrideFlag()) ? 'max:1' : 'max:20'],
             'room_ids.*' => ['integer', 'distinct', Rule::exists('rooms', 'id')->where('is_active', true)],
             ...$this->overrideRules(),
         ];

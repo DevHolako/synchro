@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\Exams;
 
 use App\Actions\Exams\DownloadExamDocumentAction;
-use App\Http\Controllers\Concerns\FlashesExamOutcome;
+use App\Http\Controllers\Concerns\FlashesExamToasts;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use Illuminate\Http\RedirectResponse;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ExamRosterDownloadController extends Controller
 {
-    use FlashesExamOutcome;
+    use FlashesExamToasts;
 
     public function __invoke(Exam $exam, DownloadExamDocumentAction $download): StreamedResponse|RedirectResponse
     {

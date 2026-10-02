@@ -18,7 +18,7 @@ class CandidateCheckInDestroyController extends Controller
 
         $action->execute($candidate, $request->user());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('messages.exam_check_in_undone', ['name' => $candidate->student->name])]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('messages.exam_check_in_undone', ['name' => $candidate->student->officialName()])]);
 
         return back();
     }

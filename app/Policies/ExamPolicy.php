@@ -86,7 +86,9 @@ class ExamPolicy
     }
 
     /**
-     * Uses the invigilators already loaded (the exams list loads the viewer's own), else one query.
+     * Uses the invigilators already loaded, else one query. A loaded relation holds either all of
+     * the exam's invigilators or (on the exams list) only the viewer's, and the list only ever
+     * asks about its viewer, so `contains()` gives the same answer as the query.
      */
     private function invigilates(User $user, Exam $exam): bool
     {
@@ -96,7 +98,7 @@ class ExamPolicy
     }
 
     /**
-     * Uses the candidates already loaded (the exams list loads the viewer's own), else one query.
+     * Uses the candidates already loaded, else one query (same reasoning as invigilates()).
      */
     private function sits(User $user, Exam $exam): bool
     {

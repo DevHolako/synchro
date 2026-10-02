@@ -32,6 +32,8 @@ class ScheduleExamAction
         $this->changeState->ensureAllowed($exam, ExamState::Scheduled);
 
         return DB::transaction(function () use ($exam): array {
+            $exam->lockRow();
+
             if ($exam->roomAssignments()->doesntExist()) {
                 throw ValidationException::withMessages(['exam' => __('messages.exam_rooms_missing')]);
             }

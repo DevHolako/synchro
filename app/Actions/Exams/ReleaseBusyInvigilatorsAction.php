@@ -10,11 +10,12 @@ use App\Services\Scheduling\Conflict;
 use App\Services\Scheduling\ConflictDetectorService;
 
 /**
- * When a booked exam takes a new time, frees the invigilators who can no longer watch it: those
- * teaching or invigilating elsewhere then, and those who declared an unavailability then that
- * was not knowingly overridden for this exam. They are named so they can be replaced.
+ * Whenever a booked exam's resources are checked (a new time, scheduling, new rooms), frees the
+ * invigilators who can no longer watch it: those teaching or invigilating elsewhere then, and
+ * those who declared an unavailability then that was not knowingly overridden for this exam.
+ * They are named so they can be replaced.
  *
- * Runs inside the caller's transaction, before the exam's conflict guard.
+ * Runs inside the caller's transaction, under the exam's row lock, from the conflict guard.
  */
 class ReleaseBusyInvigilatorsAction
 {

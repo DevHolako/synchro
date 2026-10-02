@@ -16,9 +16,10 @@ use App\Notifications\ExamRescheduledNotification;
 class NotifyExamRescheduledAction
 {
     /**
-     * @param  list<int>  $releasedTeacherIds  Invigilators the reschedule freed from the exam.
+     * @param  list<int>  $busyTeacherIds  Invigilators released because they are busy or unavailable at the new time.
+     * @param  list<int>  $droppedTeacherIds  Invigilators released because their room is no longer used.
      */
-    public function execute(Exam $exam, string $reason, array $releasedTeacherIds): void
+    public function execute(Exam $exam, string $reason, array $busyTeacherIds, array $droppedTeacherIds = []): void
     {
         $exam->loadMissing('module:id,code,name');
         $details = new RescheduledExam(
@@ -49,8 +50,10 @@ class NotifyExamRescheduledAction
             ]));
         }
 
-        foreach (User::query()->whereKey($releasedTeacherIds)->with('teacherProfile:id,user_id,phone')->get() as $teacher) {
-            $this->alert($teacher, $teacher->teacherProfile?->phone, $details, __('messages.exam_rescheduled_released'));
+        foreach (User::query()->whereKey([...$busyTeacherIds, ...$droppedTeacherIds])->with('teacherProfile:id,user_id,phone')->get() as $teacher) {
+            $this->alert($teacher, $teacher->teacherProfile?->phone, $details, in_array($teacher->id, $droppedTeacherIds, true)
+                ? __('messages.exam_rescheduled_room_dropped')
+                : __('messages.exam_rescheduled_released'));
         }
     }
 

@@ -42,6 +42,10 @@ class SaveExamAction
             // Shared with period edits, so the period's dates cannot change under this exam.
             $period = ExamPeriod::query()->whereKey($data['exam_period_id'])->lockForUpdate()->firstOrFail();
 
+            if ($existed) {
+                $exam->lockRow();
+            }
+
             $this->ensureTimesFit->execute($period, $data['starts_at']);
             $this->ensureModuleNotExaminedTwice($exam, $data);
 

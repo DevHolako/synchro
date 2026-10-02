@@ -184,6 +184,16 @@ class Exam extends Model
     }
 
     /**
+     * Lock this exam's row for the rest of the transaction. Every exam write takes it first
+     * (after its period, before rooms, users and groups), so staffing, scheduling and publishing
+     * one exam queue up instead of interleaving or deadlocking.
+     */
+    public function lockRow(): void
+    {
+        static::query()->whereKey($this->id)->lockForUpdate()->first();
+    }
+
+    /**
      * The room this user invigilates in the exam, if any.
      */
     public function invigilatedAssignmentId(User $user): ?int

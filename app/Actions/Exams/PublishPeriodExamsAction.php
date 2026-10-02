@@ -26,13 +26,16 @@ class PublishPeriodExamsAction
     public function execute(ExamPeriod $period, User $publisher): array
     {
         return DB::transaction(function () use ($period, $publisher): array {
-            $upcoming = fn () => $period->exams()
+            // Lock every upcoming scheduled exam first: staffing and releases take the same row
+            // lock, so the leads read below cannot change before the update.
+            $upcoming = array_values(array_map('intval', $period->exams()
                 ->where('state', ExamState::Scheduled)
-                ->where('starts_at', '>', SchoolClock::now());
-
-            $skipped = $upcoming()->missingLead()->count();
-            // Locked, so every exam read here is the one published and given documents.
-            $ready = array_values(array_map('intval', $upcoming()->staffed()->lockForUpdate()->pluck('id')->all()));
+                ->where('starts_at', '>', SchoolClock::now())
+                ->lockForUpdate()
+                ->pluck('id')
+                ->all()));
+            $ready = array_values(array_map('intval', Exam::query()->whereKey($upcoming)->staffed()->pluck('id')->all()));
+            $skipped = count($upcoming) - count($ready);
 
             $published = Exam::query()->whereKey($ready)->update([
                 'state' => ExamState::Published,

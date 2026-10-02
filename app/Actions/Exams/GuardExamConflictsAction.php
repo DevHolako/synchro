@@ -15,9 +15,10 @@ use App\Services\Scheduling\ConflictResult;
  * are released (and named), and the exam goes through only when none of its rooms or groups is
  * taken.
  *
- * Must run inside the caller's transaction, after the exam's rooms, invigilators and groups are
- * written: it locks those rows (rooms → users → groups, each by id, the order course sessions
- * use) so two concurrent bookings cannot both pass.
+ * Must run inside the caller's transaction, after the caller locked the exam row
+ * (`Exam::lockRow()`) and wrote its rooms, invigilators and groups: it then locks those rows
+ * (rooms → users → groups, each by id, the order course sessions use) so two concurrent
+ * bookings cannot both pass.
  */
 class GuardExamConflictsAction
 {

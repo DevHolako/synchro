@@ -18,7 +18,7 @@ class CandidateCheckInStoreController extends Controller
 
         $action->execute($candidate, $request->user());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('messages.exam_checked_in', ['name' => $candidate->student->name])]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('messages.exam_checked_in', ['name' => $candidate->student->officialName()])]);
 
         return back();
     }

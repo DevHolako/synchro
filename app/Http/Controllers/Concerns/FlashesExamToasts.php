@@ -9,7 +9,7 @@ use Inertia\Inertia;
  * The toasts exam controllers share: the outcome of a write (naming any invigilators it
  * released), and "still being prepared" for a document not generated yet.
  */
-trait FlashesExamOutcome
+trait FlashesExamToasts
 {
     /**
      * @param  array<int, string>  $released  The released invigilators' names, by id.
@@ -18,7 +18,10 @@ trait FlashesExamOutcome
     {
         Inertia::flash('toast', $released === []
             ? ['type' => 'success', 'message' => $successMessage]
-            : ['type' => 'warning', 'message' => $successMessage.' '.__('messages.exam_invigilators_released', ['names' => implode(', ', $released)])]);
+            : ['type' => 'warning', 'message' => __('messages.exam_outcome_with_released', [
+                'outcome' => $successMessage,
+                'names' => implode(', ', $released),
+            ])]);
     }
 
     /**
