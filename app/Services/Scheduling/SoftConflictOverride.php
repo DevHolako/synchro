@@ -9,6 +9,11 @@ use App\Models\User;
  */
 final readonly class SoftConflictOverride
 {
+    /** Bounds of a justification, in characters (mirrored by the timetable's `limits` prop). */
+    public const int MIN_JUSTIFICATION = 10;
+
+    public const int MAX_JUSTIFICATION = 1000;
+
     public function __construct(
         public User $user,
         public string $justification,

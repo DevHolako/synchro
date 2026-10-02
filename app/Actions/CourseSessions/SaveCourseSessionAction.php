@@ -36,7 +36,8 @@ class SaveCourseSessionAction
     public function execute(CourseSession $session, array $data, ?SoftConflictOverride $override = null): CourseSession
     {
         return DB::transaction(function () use ($session, $data, $override): CourseSession {
-            $slot = SessionSlot::fromPayload($data, $session->exists ? $session->id : null);
+            $existed = $session->exists;
+            $slot = SessionSlot::fromPayload($data, $existed ? $session->id : null);
             $result = $this->guardConflicts->execute($slot, $override);
 
             $session->fill([
@@ -47,7 +48,12 @@ class SaveCourseSessionAction
                 'ends_at' => $data['ends_at'],
             ])->save();
 
-            $session->studentGroups()->sync($data['student_group_ids']);
+            $changes = $session->studentGroups()->sync($data['student_group_ids']);
+
+            // A change to the groups alone is still a change to the session (iCal SEQUENCE, LAST-MODIFIED).
+            if ($existed && ! $session->wasChanged() && array_filter($changes) !== []) {
+                $session->touch();
+            }
 
             if ($override !== null) {
                 $this->recordOverrides->execute($session, $result, $override);

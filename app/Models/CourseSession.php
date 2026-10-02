@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\SchoolClock;
 use Carbon\CarbonInterface;
 use Database\Factories\CourseSessionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -103,11 +104,12 @@ class CourseSession extends Model
     }
 
     /**
-     * Whether the session has begun: from then on it is part of the record and no longer moves.
+     * Whether the session has begun, by the school's clock: from then on it is part of the record
+     * and no longer moves.
      */
     public function hasStarted(): bool
     {
-        return $this->starts_at->lessThanOrEqualTo(now());
+        return $this->starts_at->lessThanOrEqualTo(SchoolClock::now());
     }
 
     /**

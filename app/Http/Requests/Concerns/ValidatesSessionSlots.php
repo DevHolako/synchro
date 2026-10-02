@@ -30,14 +30,39 @@ trait ValidatesSessionSlots
     }
 
     /**
+     * A justification only counts alongside `force_override`.
+     */
+    protected function prepareOverrideInput(): void
+    {
+        if (! $this->boolean('force_override')) {
+            $this->merge(['justification' => null]);
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function overrideRules(): array
+    {
+        return [
+            'force_override' => ['sometimes', 'boolean'],
+            'justification' => [
+                'nullable',
+                'required_if_accepted:force_override',
+                'string',
+                'min:'.SoftConflictOverride::MIN_JUSTIFICATION,
+                'max:'.SoftConflictOverride::MAX_JUSTIFICATION,
+            ],
+        ];
+    }
+
+    /**
      * The teacher defaults to the module's assigned teacher; a justification only counts
      * alongside `force_override`.
      */
     protected function prepareSessionInput(): void
     {
-        if (! $this->boolean('force_override')) {
-            $this->merge(['justification' => null]);
-        }
+        $this->prepareOverrideInput();
 
         if (! $this->filled('teacher_id') && $this->filled('module_id')) {
             $this->merge(['teacher_id' => Module::query()->whereKey($this->integer('module_id'))->value('teacher_id')]);
@@ -55,8 +80,7 @@ trait ValidatesSessionSlots
             'room_id' => ['required', 'integer', Rule::exists('rooms', 'id')->where('is_active', true)],
             'student_group_ids' => ['required', 'array', 'min:1'],
             'student_group_ids.*' => ['integer', 'distinct', Rule::exists('student_groups', 'id')->where('is_active', true)],
-            'force_override' => ['sometimes', 'boolean'],
-            'justification' => ['nullable', 'required_if_accepted:force_override', 'string', 'min:10', 'max:1000'],
+            ...$this->overrideRules(),
         ];
     }
 

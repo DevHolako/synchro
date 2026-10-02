@@ -8,6 +8,7 @@ use App\Http\Requests\Concerns\ReadsTypedInput;
 use App\Models\Campus;
 use App\Models\CourseSession;
 use App\Services\Scheduling\TimetableScope;
+use App\Support\SchoolClock;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -86,7 +87,7 @@ class TimetableRequest extends FormRequest
     }
 
     /**
-     * The first day of the displayed period: the requested date (today by default) snapped to the view.
+     * The first day of the displayed period: the requested date (the school's today by default) snapped to the view.
      */
     public function anchorDate(): CarbonImmutable
     {
@@ -94,7 +95,7 @@ class TimetableRequest extends FormRequest
             ? CarbonImmutable::createFromFormat(self::DATE_FORMAT, $this->string('date')->value())
             : null;
 
-        return $this->effectiveView()->anchor($date ?? CarbonImmutable::today());
+        return $this->effectiveView()->anchor($date ?? SchoolClock::today());
     }
 
     /**

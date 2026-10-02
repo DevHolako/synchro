@@ -4,6 +4,7 @@ namespace App\Http\Requests\CourseSessions;
 
 use App\Http\Requests\Concerns\ValidatesSessionSlots;
 use App\Models\CourseSession;
+use App\Support\SchoolClock;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -17,14 +18,12 @@ class RescheduleCourseSessionRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return ($this->user()?->can('update', $this->session()) ?? false) && $this->mayOverride();
+        return ($this->user()?->can('update', $this->courseSession()) ?? false) && $this->mayOverride();
     }
 
     protected function prepareForValidation(): void
     {
-        if (! $this->boolean('force_override')) {
-            $this->merge(['justification' => null]);
-        }
+        $this->prepareOverrideInput();
     }
 
     /**
@@ -35,15 +34,14 @@ class RescheduleCourseSessionRequest extends FormRequest
         return [
             'starts_at' => ['required', 'date_format:'.self::DATETIME_FORMAT],
             'ends_at' => ['required', 'date_format:'.self::DATETIME_FORMAT, 'after:starts_at'],
-            'force_override' => ['sometimes', 'boolean'],
-            'justification' => ['nullable', 'required_if_accepted:force_override', 'string', 'min:10', 'max:1000'],
+            ...$this->overrideRules(),
         ];
     }
 
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            if ($this->session()->hasStarted()) {
+            if ($this->courseSession()->hasStarted()) {
                 $validator->errors()->add('starts_at', __('messages.course_session_started'));
 
                 return;
@@ -55,13 +53,18 @@ class RescheduleCourseSessionRequest extends FormRequest
 
             $this->validateSlotTimes($validator, 'starts_at', 'ends_at');
 
-            if (CarbonImmutable::createFromFormat(self::DATETIME_FORMAT, $this->string('starts_at')->value())?->isPast()) {
+            $startsAt = CarbonImmutable::createFromFormat(self::DATETIME_FORMAT, $this->string('starts_at')->value());
+
+            if ($startsAt !== null && $startsAt->lessThan(SchoolClock::now())) {
                 $validator->errors()->add('starts_at', __('messages.course_session_in_past'));
             }
         });
     }
 
-    public function session(): CourseSession
+    /**
+     * The session being moved (named so as not to shadow `Request::session()`, the session store).
+     */
+    public function courseSession(): CourseSession
     {
         /** @var CourseSession $session */
         $session = $this->route('session');

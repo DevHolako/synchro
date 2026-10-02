@@ -8,6 +8,7 @@ use App\Models\StudentGroup;
 use App\Models\User;
 use App\Services\Calendar\ICalendarWriter;
 use App\Services\Scheduling\TimetableScope;
+use App\Support\SchoolClock;
 use Carbon\CarbonImmutable;
 
 /**
@@ -26,7 +27,7 @@ class BuildCalendarFeedAction
 
     public function execute(User $user): string
     {
-        $today = CarbonImmutable::today();
+        $today = SchoolClock::today();
         $sessions = $this->listSessions->execute(
             TimetableScope::mine($user),
             $today->subDays(self::PAST_DAYS),
