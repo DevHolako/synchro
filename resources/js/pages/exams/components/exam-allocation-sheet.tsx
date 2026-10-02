@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/sheet';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { moduleLabel } from '@/lib/module-label';
 import { Permission } from '@/lib/permissions';
 import { useSchoolClock } from '@/pages/timetable/components/use-school-clock';
 import {
@@ -52,7 +51,7 @@ export function ExamAllocationSheet({
                 <SheetHeader>
                     <SheetTitle>{t('exams.allocation_title')}</SheetTitle>
                     <SheetDescription>
-                        {moduleLabel(exam.module)} ·{' '}
+                        {exam.module.label} ·{' '}
                         {formatDay(exam.start, locale, 'medium')}{' '}
                         {timeOf(exam.start)}–{timeOf(exam.end)}
                     </SheetDescription>

@@ -19,7 +19,7 @@ import type {
     ExamStats,
 } from './components/types';
 import { useExamOverlays } from './components/use-exam-overlays';
-import { useExamsBreadcrumbs } from './components/use-exams-breadcrumbs';
+import { useExamsBreadcrumbs } from '@/hooks/use-exams-breadcrumbs';
 
 const ExamsCalendar = lazy(() => import('./components/exams-calendar'));
 

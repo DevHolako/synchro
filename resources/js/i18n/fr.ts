@@ -879,6 +879,8 @@ export const fr: Translations = {
             'Je confirme le report : les convocations actuelles seront invalidées et remplacées, et toutes les personnes concernées seront prévenues.',
         reschedule_action: 'Reporter l’examen',
         revision: 'Rév. {revision}',
+        invigilators_released:
+            'Surveillants libérés (occupés ou indisponibles à cet horaire), à remplacer : {names}.',
     },
     convocations: {
         title: 'Vérification de convocation',

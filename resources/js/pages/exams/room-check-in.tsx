@@ -12,7 +12,7 @@ import {
 import { toastErrors } from '@/lib/toast-errors';
 import { RoomCheckInRow } from './components/check-in/room-check-in-row';
 import type { CheckInRoom, RoomCandidate } from './components/check-in/types';
-import { useExamsBreadcrumbs } from './components/use-exams-breadcrumbs';
+import { useExamsBreadcrumbs } from '@/hooks/use-exams-breadcrumbs';
 
 const POLL_INTERVAL_MS = 10_000;
 

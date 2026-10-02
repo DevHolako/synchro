@@ -17,7 +17,7 @@ import type {
     CheckInExam,
     CheckInState,
 } from './components/types';
-import { useExamsBreadcrumbs } from '@/pages/exams/components/use-exams-breadcrumbs';
+import { useExamsBreadcrumbs } from '@/hooks/use-exams-breadcrumbs';
 
 interface ConvocationVerifyProps {
     candidate: CheckInCandidate;

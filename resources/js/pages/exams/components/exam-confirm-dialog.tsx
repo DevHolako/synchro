@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { moduleLabel } from '@/lib/module-label';
 import {
     archive as archivePeriod,
     destroy as destroyPeriod,
@@ -52,7 +51,7 @@ function routeOf(confirmation: ExamConfirmation) {
 
 function subjectOf(confirmation: ExamConfirmation): string {
     return 'exam' in confirmation
-        ? moduleLabel(confirmation.exam.module)
+        ? confirmation.exam.module.label
         : confirmation.period.name;
 }
 

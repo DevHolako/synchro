@@ -782,6 +782,7 @@ export interface Translations {
         reschedule_confirm: string;
         reschedule_action: string;
         revision: string;
+        invigilators_released: string;
     };
     convocations: {
         title: string;

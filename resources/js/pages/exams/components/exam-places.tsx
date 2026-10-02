@@ -30,7 +30,8 @@ export function ExamPlaces({
                 {t(`exams.my_invigilation_${exam.my_invigilation.role}`, {
                     room: exam.my_invigilation.room,
                 })}
-                {exam.state === 'published' ? (
+                {exam.state === 'published' &&
+                exam.my_invigilation.can_check_in ? (
                     <Link
                         href={
                             roomCheckIn({

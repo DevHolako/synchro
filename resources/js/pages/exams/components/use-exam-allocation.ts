@@ -75,7 +75,19 @@ export function useExamAllocation(examId: number) {
             justification: justification ?? '',
         }));
         roomsHttp
-            .put(updateRooms.url(examId), { onSuccess: saved })
+            .put(updateRooms.url(examId), {
+                onSuccess: (next) => {
+                    saved(next);
+
+                    if (next.released && next.released.length > 0) {
+                        toast.warning(
+                            t('exams.invigilators_released', {
+                                names: next.released.join(', '),
+                            }),
+                        );
+                    }
+                },
+            })
             .catch(() => undefined);
     };
 
@@ -122,7 +134,10 @@ export function useExamAllocation(examId: number) {
 
     // One stable function for the memoized room cards; it always runs the latest saveStaff.
     const saveStaffRef = useRef(saveStaff);
-    saveStaffRef.current = saveStaff;
+
+    useEffect(() => {
+        saveStaffRef.current = saveStaff;
+    });
     const stableSaveStaff = useCallback(
         (...args: Parameters<typeof saveStaff>) =>
             saveStaffRef.current(...args),

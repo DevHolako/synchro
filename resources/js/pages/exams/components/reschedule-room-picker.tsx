@@ -9,8 +9,8 @@ interface RescheduleRoomPickerProps {
 }
 
 /**
- * New rooms for a rescheduled exam, in order. Busy flags describe the current time; the server
- * checks the rooms are free at the new one.
+ * New rooms for a rescheduled exam, in order. Busy flags are left out (they describe the current
+ * time); the server checks the rooms are free at the new one.
  */
 export function RescheduleRoomPicker({
     examId,
@@ -28,6 +28,7 @@ export function RescheduleRoomPicker({
             rooms={allocation.rooms}
             roomIds={roomIds}
             locked={false}
+            flagBusy={false}
             onChange={onChange}
         />
     );

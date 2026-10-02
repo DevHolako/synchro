@@ -5,7 +5,7 @@ import {
     formatDay,
     timeOf,
 } from '@/pages/timetable/components/wall-clock-format';
-import { useExamsBreadcrumbs } from '@/pages/exams/components/use-exams-breadcrumbs';
+import { useExamsBreadcrumbs } from '@/hooks/use-exams-breadcrumbs';
 
 interface SupersededProps {
     student: string;

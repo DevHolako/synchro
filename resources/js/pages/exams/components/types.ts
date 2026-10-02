@@ -47,17 +47,26 @@ export interface Exam {
         program_id: number;
         code: string;
         name: string;
+        /** Code, then name, as `Module::label()` gives it. */
+        label: string;
         color_code: string;
     };
     groups: { id: number; name: string }[];
     rooms: ExamRoom[];
     /** The viewer's seat, when they sit the exam. */
-    my_seat: { room: string; seat: number; convocation_ready: boolean } | null;
+    my_seat: {
+        room: string;
+        seat: number;
+        /** Null until the exam is published. */
+        convocation: 'ready' | 'pending' | null;
+    } | null;
     /** The viewer's room and role, when they invigilate it. */
     my_invigilation: {
         assignment_id: number;
         room: string;
         role: InvigilatorRole;
+        /** Assigned is not enough: checking in also takes the attendance permission. */
+        can_check_in: boolean;
     } | null;
     /** The door lists and attendance sheets; null when the viewer may not download them. */
     roster: 'ready' | 'pending' | null;
@@ -92,6 +101,8 @@ export interface ExamAllocation {
         busy: boolean;
     }[];
     teachers: { id: number; name: string }[];
+    /** After saving rooms: invigilators released because they are busy or unavailable then. */
+    released?: string[];
 }
 
 export interface AllocatedRoom {
@@ -116,7 +127,13 @@ export interface ExamFilters {
 
 export interface ExamOptions {
     programs: { id: number; code: string; name: string }[];
-    modules: { id: number; program_id: number; code: string; name: string }[];
+    modules: {
+        id: number;
+        program_id: number;
+        code: string;
+        name: string;
+        label: string;
+    }[];
     groups: { id: number; program_id: number; name: string }[];
 }
 

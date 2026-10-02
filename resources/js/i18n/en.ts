@@ -856,6 +856,8 @@ export const en: Translations = {
             'I confirm the reschedule: the current convocations will be invalidated and replaced, and everyone concerned will be alerted.',
         reschedule_action: 'Reschedule the exam',
         revision: 'Rev. {revision}',
+        invigilators_released:
+            'Invigilators released (busy or unavailable at that time), to replace: {names}.',
     },
     convocations: {
         title: 'Convocation check',

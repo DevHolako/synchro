@@ -9,6 +9,8 @@ interface OrderedRoomPickerProps {
     /** The chosen rooms, in the order students are seated. */
     roomIds: number[];
     locked: boolean;
+    /** Whether the busy flags apply: they describe the exam's current time. */
+    flagBusy?: boolean;
     onChange: (roomIds: number[]) => void;
 }
 
@@ -17,6 +19,7 @@ export function OrderedRoomPicker({
     rooms,
     roomIds,
     locked,
+    flagBusy = true,
     onChange,
 }: OrderedRoomPickerProps) {
     const { t } = useTranslation();
@@ -59,7 +62,9 @@ export function OrderedRoomPicker({
                                 {t('exams.room_capacity', {
                                     capacity: room.exam_capacity,
                                 })}
-                                {room.busy ? ` · ${t('exams.room_busy')}` : ''}
+                                {flagBusy && room.busy
+                                    ? ` · ${t('exams.room_busy')}`
+                                    : ''}
                             </option>
                         ))}
                 </select>

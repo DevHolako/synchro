@@ -10,21 +10,21 @@ const PENDING_CLASS = 'inline-flex items-center gap-1 text-xs text-neutral-500';
 /** The exam's PDFs the viewer may download: their convocation, or the room sheets. */
 export function ExamDocuments({ exam }: { exam: Exam }) {
     const { t } = useTranslation();
-    const sitsIt = exam.my_seat !== null && !exam.is_editable;
+    const convocationStatus = exam.my_seat?.convocation ?? null;
 
-    if (!sitsIt && exam.roster === null) {
+    if (convocationStatus === null && exam.roster === null) {
         return null;
     }
 
     return (
         <div className="mt-1 flex flex-wrap gap-3">
-            {sitsIt && exam.my_seat?.convocation_ready ? (
+            {convocationStatus === 'ready' ? (
                 <a href={convocation.url(exam.id)} className={LINK_CLASS}>
                     <FileDown className="size-3.5" />
                     {t('exams.download_convocation')}
                 </a>
             ) : null}
-            {sitsIt && !exam.my_seat?.convocation_ready ? (
+            {convocationStatus === 'pending' ? (
                 <span className={PENDING_CLASS}>
                     <Hourglass className="size-3.5" />
                     {t('exams.convocation_pending')}
