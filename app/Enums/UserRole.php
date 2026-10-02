@@ -73,6 +73,7 @@ enum UserRole: string
                 Permission::RecordAttendance,
                 Permission::ViewExams,
                 Permission::ManageExams,
+                Permission::LockGrades,
                 Permission::ReviewUnavailability,
                 Permission::ImportReferentials,
             ],
@@ -96,6 +97,7 @@ enum UserRole: string
             self::Student => [
                 Permission::ViewSchedules,
                 Permission::ViewExams,
+                Permission::ViewOwnGrades,
             ],
         };
     }

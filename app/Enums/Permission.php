@@ -70,6 +70,7 @@ enum Permission: string
     // Grade deliberation permissions
     case EnterGrades = 'enter:grades';
     case LockGrades = 'lock:grades';
+    case ViewOwnGrades = 'view:own-grades';
 
     // Bulk spreadsheet import permissions
     case ImportReferentials = 'import:referentials';
