@@ -60,9 +60,25 @@ export function defaultView(
     return isMobile || perspective === 'campus' ? 'listWeek' : 'timeGridWeek';
 }
 
+/** Whether a session has begun; wall-clock ISO strings compare correctly as text. */
+export function hasStarted(session: TimetableSession, now: string): boolean {
+    return session.start <= now;
+}
+
+/** A calendar date (UTC-coerced wall clock) in the server's `Y-m-d H:i` format. */
+export function toWallClock(date: Date): string {
+    return date.toISOString().slice(0, 16).replace('T', ' ');
+}
+
+interface EventState {
+    dimmed: boolean;
+    editable: boolean;
+    saving: boolean;
+}
+
 export function toCalendarEvent(
     session: TimetableSession,
-    dimmed: boolean,
+    { dimmed, editable, saving }: EventState,
 ): EventInput {
     const color = session.module.color_code;
 
@@ -74,7 +90,11 @@ export function toCalendarEvent(
         backgroundColor: color,
         borderColor: color,
         textColor: readableTextColor(color),
-        classNames: dimmed ? ['opacity-30'] : [],
+        classNames: [
+            ...(dimmed ? ['opacity-30'] : []),
+            ...(saving ? ['opacity-50', 'animate-pulse'] : []),
+        ],
+        editable,
         extendedProps: { session },
     };
 }

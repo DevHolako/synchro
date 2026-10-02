@@ -513,6 +513,18 @@ export interface Translations {
         syllabus_hours: string;
         syllabus_over: string;
         syllabus_empty: string;
+        rescheduled: string;
+        reschedule_refused: string;
+        reschedule_failed: string;
+        soft_title: string;
+        soft_desc: string;
+        soft_no_permission: string;
+        soft_confirm: string;
+        soft_cancel: string;
+        delete_button: string;
+        delete_confirm: string;
+        delete_confirm_button: string;
+        delete_cancel: string;
     };
     schedule: {
         open_button: string;

@@ -9,11 +9,14 @@ import { defaultView } from './components/calendar-utils';
 import { ScheduleSessionsDialog } from './components/schedule/schedule-sessions-dialog';
 import type { SchedulingOptions } from './components/schedule/types';
 import { SessionDetailsDialog } from './components/session-details-dialog';
+import { SoftConflictDialog } from './components/soft-conflict-dialog';
 import { SyllabusProgressPanel } from './components/syllabus-progress-panel';
 import { TimetableCalendar } from './components/timetable-calendar';
 import { TimetableEmptyState } from './components/timetable-empty-state';
 import { TimetableFilterBar } from './components/timetable-filter-bar';
 import { TimetableHeader } from './components/timetable-header';
+import { useSessionReschedule } from './components/use-session-reschedule';
+import { useTimetablePolling } from './components/use-timetable-polling';
 import type {
     ScopePerspective,
     SyllabusProgress,
@@ -64,6 +67,15 @@ export default function TimetableIndex({
         useState<TimetableSession | null>(null);
     const [activeModuleId, setActiveModuleId] = useState<number | null>(null);
     const [scheduling, setScheduling] = useState(false);
+    const [interacting, setInteracting] = useState(false);
+    const reschedule = useSessionReschedule();
+    const canOverride = auth.permissions.includes(
+        Permission.OverrideSoftConflicts,
+    );
+
+    useTimetablePolling(
+        scheduling || interacting || reschedule.pending !== null,
+    );
 
     useEffect(() => {
         setLayoutProps({
@@ -160,8 +172,14 @@ export default function TimetableIndex({
                                 date={filters.date}
                                 view={view}
                                 activeModuleId={activeModuleId}
+                                canEdit={canSchedule}
+                                savingSessionId={
+                                    reschedule.pending?.session.id ?? null
+                                }
                                 onPeriodChange={handlePeriodChange}
                                 onSessionClick={setSelectedSession}
+                                onMove={reschedule.move}
+                                onInteractionChange={setInteracting}
                             />
                         </div>
                         {syllabus ? (
@@ -187,15 +205,25 @@ export default function TimetableIndex({
                         roomId: scope.perspective === 'room' ? scope.id : null,
                         date: filters.date,
                     }}
-                    canOverride={auth.permissions.includes(
-                        Permission.OverrideSoftConflicts,
-                    )}
+                    canOverride={canOverride}
                     onClose={() => setScheduling(false)}
                     onScheduled={handleScheduled}
                 />
             ) : null}
 
+            {reschedule.pending?.softConflicts ? (
+                <SoftConflictDialog
+                    key={`${reschedule.pending.session.id}-${reschedule.pending.startsAt}`}
+                    conflicts={reschedule.pending.softConflicts}
+                    canOverride={canOverride}
+                    saving={reschedule.saving}
+                    onConfirm={reschedule.confirm}
+                    onCancel={reschedule.cancel}
+                />
+            ) : null}
+
             <SessionDetailsDialog
+                canDelete={canSchedule}
                 session={selectedSession}
                 onClose={() => setSelectedSession(null)}
             />

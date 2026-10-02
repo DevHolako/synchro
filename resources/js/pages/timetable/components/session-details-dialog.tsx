@@ -1,3 +1,6 @@
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -8,11 +11,16 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { destroy } from '@/routes/course-sessions';
+import { hasStarted, wallClockNow } from './calendar-utils';
 import type { TimetableSession } from './types';
 
 interface SessionDetailsDialogProps {
     session: TimetableSession | null;
+    /** Whether the user may delete sessions that have not started. */
+    canDelete: boolean;
     onClose: () => void;
 }
 
@@ -37,14 +45,40 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 export function SessionDetailsDialog({
     session,
+    canDelete,
     onClose,
 }: SessionDetailsDialogProps) {
     const { t, locale } = useTranslation();
+    const [confirming, setConfirming] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const deletable =
+        canDelete && session !== null && !hasStarted(session, wallClockNow());
+
+    const handleClose = () => {
+        setConfirming(false);
+        onClose();
+    };
+
+    const handleDelete = () => {
+        if (!session) {
+            return;
+        }
+
+        router.delete(destroy.url(session.id), {
+            preserveScroll: true,
+            preserveState: true,
+            only: ['sessions', 'syllabus', 'flash'],
+            onStart: () => setDeleting(true),
+            onFinish: () => setDeleting(false),
+            onSuccess: handleClose,
+            onError: (errors) => toast.error(Object.values(errors)[0]),
+        });
+    };
 
     return (
         <Dialog
             open={session !== null}
-            onOpenChange={(open) => !open && onClose()}
+            onOpenChange={(open) => !open && handleClose()}
         >
             <DialogContent className="sm:max-w-md">
                 {session ? (
@@ -106,12 +140,49 @@ export function SessionDetailsDialog({
                             </div>
                         ) : null}
 
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="outline">
-                                    {t('timetable.details_close')}
-                                </Button>
-                            </DialogClose>
+                        {confirming ? (
+                            <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                                {t('timetable.delete_confirm')}
+                            </p>
+                        ) : null}
+
+                        <DialogFooter className="gap-2">
+                            {deletable && confirming ? (
+                                <>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setConfirming(false)}
+                                        disabled={deleting}
+                                    >
+                                        {t('timetable.delete_cancel')}
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={handleDelete}
+                                        disabled={deleting}
+                                    >
+                                        {deleting ? <Spinner /> : null}
+                                        {t('timetable.delete_confirm_button')}
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    {deletable ? (
+                                        <Button
+                                            variant="outline"
+                                            className="text-red-700 dark:text-red-400"
+                                            onClick={() => setConfirming(true)}
+                                        >
+                                            {t('timetable.delete_button')}
+                                        </Button>
+                                    ) : null}
+                                    <DialogClose asChild>
+                                        <Button variant="outline">
+                                            {t('timetable.details_close')}
+                                        </Button>
+                                    </DialogClose>
+                                </>
+                            )}
                         </DialogFooter>
                     </>
                 ) : null}

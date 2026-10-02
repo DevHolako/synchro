@@ -2,9 +2,12 @@ import type {
     DatesSetArg,
     EventClickArg,
     EventContentArg,
+    EventDropArg,
 } from '@fullcalendar/core';
 import frLocale from '@fullcalendar/core/locales/fr';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import type { EventResizeDoneArg } from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -12,7 +15,13 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { GRID_END, GRID_START } from '@/lib/scheduling-grid';
-import { toCalendarEvent, wallClockNow } from './calendar-utils';
+import {
+    hasStarted,
+    toCalendarEvent,
+    toWallClock,
+    wallClockNow,
+} from './calendar-utils';
+import type { PendingMove } from './use-session-reschedule';
 import { SessionEventContent } from './session-event-content';
 import type {
     ScopePerspective,
@@ -20,7 +29,10 @@ import type {
     TimetableView,
 } from './types';
 
-const PLUGINS = [dayGridPlugin, timeGridPlugin, listPlugin];
+const PLUGINS = [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin];
+/** Moving keeps a month cell's times; resizing only makes sense on a time grid. */
+const VIEW_OPTIONS = { dayGridMonth: { eventDurationEditable: false } };
+const SNAP = '00:15:00';
 const LOCALES = [frLocale];
 
 const DESKTOP_TOOLBAR = {
@@ -42,8 +54,14 @@ interface TimetableCalendarProps {
     date: string;
     view: TimetableView;
     activeModuleId: number | null;
+    /** Whether the user may drag and resize sessions. */
+    canEdit: boolean;
+    /** The session whose move is being saved; nothing else moves meanwhile. */
+    savingSessionId: number | null;
     onPeriodChange: (date: string, view: TimetableView) => void;
     onSessionClick: (session: TimetableSession) => void;
+    onMove: (move: PendingMove) => void;
+    onInteractionChange: (interacting: boolean) => void;
 }
 
 function sessionOf(event: { extendedProps: Record<string, unknown> }) {
@@ -56,8 +74,12 @@ export function TimetableCalendar({
     date,
     view,
     activeModuleId,
+    canEdit,
+    savingSessionId,
     onPeriodChange,
     onSessionClick,
+    onMove,
+    onInteractionChange,
 }: TimetableCalendarProps) {
     const { locale } = useTranslation();
     const isMobile = useIsMobile();
@@ -92,17 +114,43 @@ export function TimetableCalendar({
         }
     }, [date]);
 
-    const events = useMemo(
-        () =>
-            sessions.map((session) =>
-                toCalendarEvent(
-                    session,
+    // Editing stays off on phones, where a scroll could turn into a move.
+    const editable = canEdit && !isMobile && savingSessionId === null;
+
+    const events = useMemo(() => {
+        const now = wallClockNow();
+
+        return sessions.map((session) =>
+            toCalendarEvent(session, {
+                dimmed:
                     activeModuleId !== null &&
-                        session.module.id !== activeModuleId,
-                ),
-            ),
-        [sessions, activeModuleId],
-    );
+                    session.module.id !== activeModuleId,
+                editable: editable && !hasStarted(session, now),
+                saving: session.id === savingSessionId,
+            }),
+        );
+    }, [sessions, activeModuleId, editable, savingSessionId]);
+
+    // Sessions cannot move into the past.
+    const allowDrop = (span: { start: Date }) =>
+        span.start >= new Date(`${wallClockNow()}Z`);
+
+    const handleChange = (arg: EventDropArg | EventResizeDoneArg) => {
+        const { start, end } = arg.event;
+
+        if (!start || !end) {
+            arg.revert();
+
+            return;
+        }
+
+        onMove({
+            session: sessionOf(arg.event),
+            startsAt: toWallClock(start),
+            endsAt: toWallClock(end),
+            revert: arg.revert,
+        });
+    };
 
     const renderEvent = (arg: EventContentArg) => (
         <SessionEventContent
@@ -153,6 +201,16 @@ export function TimetableCalendar({
                 eventContent={renderEvent}
                 eventClick={handleEventClick}
                 datesSet={handleDatesSet}
+                editable={editable}
+                views={VIEW_OPTIONS}
+                snapDuration={SNAP}
+                eventAllow={allowDrop}
+                eventDragStart={() => onInteractionChange(true)}
+                eventDragStop={() => onInteractionChange(false)}
+                eventResizeStart={() => onInteractionChange(true)}
+                eventResizeStop={() => onInteractionChange(false)}
+                eventDrop={handleChange}
+                eventResize={handleChange}
             />
         </div>
     );
