@@ -28,6 +28,8 @@ export interface TimetableSession {
     room: { id: number; name: string; building: string };
     groups: { id: number; name: string; code: string | null }[];
     overrides: { id: number; type: OverrideType; justification: string }[];
+    /** Whether the viewer may take this session's register once it has started. */
+    can_take_attendance: boolean;
 }
 
 export interface TimetableFilters {
@@ -67,6 +69,13 @@ export interface SyllabusProgress {
     color_code: string;
     total_hours: number;
     planned_minutes: number;
+}
+
+/** Server-side limits the UI enforces early (StoreCourseSessionBatchRequest, SoftConflictOverride). */
+export interface TimetableLimits {
+    batch_max_slots: number;
+    justification_min: number;
+    justification_max: number;
 }
 
 export const BROWSE_PERSPECTIVES: ScopePerspective[] = [

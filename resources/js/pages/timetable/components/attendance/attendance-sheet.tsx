@@ -46,13 +46,15 @@ export function AttendanceSheet({ session, onClose }: AttendanceSheetProps) {
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-y border-neutral-200 px-4 py-2 text-xs dark:border-neutral-800">
                     {ATTENDANCE_STATUSES.map((status) => (
                         <span key={status}>
-                            {t(`attendance.count_${status}`)}:{' '}
-                            <strong>{countOf(status)}</strong>
+                            {t(`attendance.count_${status}`, {
+                                count: countOf(status),
+                            })}
                         </span>
                     ))}
                     <span className="text-neutral-500">
-                        {t('attendance.count_unmarked')}:{' '}
-                        <strong>{countOf(null)}</strong>
+                        {t('attendance.count_unmarked', {
+                            count: countOf(null),
+                        })}
                     </span>
                 </div>
 

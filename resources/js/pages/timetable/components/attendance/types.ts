@@ -16,11 +16,14 @@ export interface RosterStudent {
     remarks: string | null;
     module_absences: number;
     module_recorded: number;
+    /** Absences as a whole percentage of the module's recorded sessions. */
+    module_absence_rate: number;
 }
 
 export type AttendanceMark = {
     student_id: number;
-    status: AttendanceStatus;
+    /** Null removes the student's mark. */
+    status: AttendanceStatus | null;
     remarks: string | null;
 };
 

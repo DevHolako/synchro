@@ -30,7 +30,7 @@ function draftFrom(students: RosterStudent[]): DraftMarks {
 export function useAttendanceRegister(sessionId: number, onSaved: () => void) {
     const { t } = useTranslation();
     const loader = useHttp<Record<string, never>, RegisterResponse>({});
-    const saver = useHttp<{ marks: AttendanceMark[] }, RegisterResponse>({
+    const saver = useHttp<{ marks: AttendanceMark[] }>({
         marks: [],
     });
     const [students, setStudents] = useState<RosterStudent[] | null>(null);
@@ -52,7 +52,7 @@ export function useAttendanceRegister(sessionId: number, onSaved: () => void) {
     }, [sessionId]);
 
     const setStatus = useCallback(
-        (studentId: number, status: AttendanceStatus) =>
+        (studentId: number, status: AttendanceStatus | null) =>
             setDraft((current) => ({
                 ...current,
                 [studentId]: { ...current[studentId], status },
@@ -80,17 +80,12 @@ export function useAttendanceRegister(sessionId: number, onSaved: () => void) {
         );
 
     const save = () => {
-        const marks = Object.entries(draft).flatMap(([id, mark]) =>
-            mark.status === null
-                ? []
-                : [
-                      {
-                          student_id: Number(id),
-                          status: mark.status,
-                          remarks: mark.remarks.trim() || null,
-                      },
-                  ],
-        );
+        // Every row is sent: a cleared status removes a mark saved earlier.
+        const marks = Object.entries(draft).map(([id, mark]) => ({
+            student_id: Number(id),
+            status: mark.status,
+            remarks: mark.remarks.trim() || null,
+        }));
 
         saver.transform(() => ({ marks }));
         saver
@@ -113,7 +108,6 @@ export function useAttendanceRegister(sessionId: number, onSaved: () => void) {
     return {
         students,
         draft,
-        loading: loader.processing,
         saving: saver.processing,
         setStatus,
         setRemarks,

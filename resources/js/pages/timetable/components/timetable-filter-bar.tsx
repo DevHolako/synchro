@@ -1,10 +1,8 @@
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { FIELD_CLASS } from '@/lib/form-classes';
 import { BROWSE_PERSPECTIVES } from './types';
 import type { ScopePerspective, TimetableOptions } from './types';
-
-const SELECT_CLASS =
-    'w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900';
 
 interface SubjectOption {
     id: number;
@@ -85,7 +83,7 @@ export function TimetableFilterBar({
                                 : Number(e.target.value),
                         )
                     }
-                    className={SELECT_CLASS}
+                    className={FIELD_CLASS}
                 >
                     <option value="">
                         {t(`timetable.pick_${perspective}`)}

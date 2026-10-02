@@ -1,8 +1,7 @@
-import { Head, router, setLayoutProps, usePage } from '@inertiajs/react';
+import { Head, setLayoutProps } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { Permission } from '@/lib/permissions';
 import { dashboard } from '@/routes';
 import { index } from '@/routes/timetable';
 import { defaultView } from './components/calendar-utils';
@@ -14,14 +13,14 @@ import { TimetableCalendar } from './components/timetable-calendar';
 import { TimetableEmptyState } from './components/timetable-empty-state';
 import { TimetableFilterBar } from './components/timetable-filter-bar';
 import { TimetableHeader } from './components/timetable-header';
-import { TimetableOverlays } from './components/timetable-overlays';
-import { useSessionReschedule } from './components/use-session-reschedule';
 import { useTimetableNavigation } from './components/use-timetable-navigation';
+import { useTimetableOverlays } from './components/use-timetable-overlays';
 import { useTimetablePolling } from './components/use-timetable-polling';
 import type {
     ScopePerspective,
     SyllabusProgress,
     TimetableFilters,
+    TimetableLimits,
     TimetableOptions,
     TimetableScope,
     TimetableSession,
@@ -39,6 +38,7 @@ interface TimetableIndexProps {
     /** Absent until the scheduling wizard first asks for it. */
     schedulingOptions?: SchedulingOptions | null;
     calendarFeed: CalendarFeedLinks | null;
+    limits: TimetableLimits;
 }
 
 export default function TimetableIndex({
@@ -52,34 +52,23 @@ export default function TimetableIndex({
     canSchedule,
     schedulingOptions,
     calendarFeed,
+    limits,
 }: TimetableIndexProps) {
     const { t } = useTranslation();
-    const { auth } = usePage().props;
     const isMobile = useIsMobile();
-    const [selectedSession, setSelectedSession] =
-        useState<TimetableSession | null>(null);
     const [activeModuleId, setActiveModuleId] = useState<number | null>(null);
-    const [scheduling, setScheduling] = useState(false);
-    const [subscribing, setSubscribing] = useState(false);
     const [interacting, setInteracting] = useState(false);
-    const [attendanceSession, setAttendanceSession] =
-        useState<TimetableSession | null>(null);
-    const reschedule = useSessionReschedule();
-    const canOverride = auth.permissions.includes(
-        Permission.OverrideSoftConflicts,
-    );
+    const navigation = useTimetableNavigation(filters);
+    const overlays = useTimetableOverlays({
+        schedulingOptions,
+        prefill: prefillFromScope(scope, activeModuleId, filters.date),
+        canSchedule,
+        limits,
+        calendarFeed,
+        onScheduled: navigation.goToDate,
+    });
 
-    const canRecordAttendance = (session: TimetableSession) =>
-        auth.permissions.includes(Permission.RecordAttendance) &&
-        (session.teacher.id === auth.user.id ||
-            auth.permissions.includes(Permission.ManageSchedules));
-
-    useTimetablePolling(
-        scheduling ||
-            interacting ||
-            reschedule.pending !== null ||
-            attendanceSession !== null,
-    );
+    useTimetablePolling(overlays.editing || interacting);
 
     useEffect(() => {
         setLayoutProps({
@@ -92,8 +81,6 @@ export default function TimetableIndex({
 
     const view = filters.view ?? defaultView(scope.perspective, isMobile);
 
-    const navigation = useTimetableNavigation(filters);
-
     const handlePerspectiveChange = (perspective: ScopePerspective) => {
         setActiveModuleId(null);
         navigation.changePerspective(perspective);
@@ -102,19 +89,6 @@ export default function TimetableIndex({
     const handleSubjectChange = (id: number | null) => {
         setActiveModuleId(null);
         navigation.changeSubject(id);
-    };
-
-    const handleOpenScheduling = () => {
-        setScheduling(true);
-
-        if (schedulingOptions === undefined) {
-            router.reload({ only: ['schedulingOptions'] });
-        }
-    };
-
-    const handleScheduled = (firstDate: string) => {
-        setScheduling(false);
-        navigation.goToDate(firstDate);
     };
 
     const handleToggleModule = useCallback(
@@ -133,8 +107,8 @@ export default function TimetableIndex({
                 <TimetableHeader
                     canBrowse={canBrowse}
                     canSchedule={canSchedule}
-                    onSchedule={handleOpenScheduling}
-                    onSubscribe={() => setSubscribing(true)}
+                    onSchedule={overlays.openScheduling}
+                    onSubscribe={overlays.openSubscription}
                 />
 
                 {canBrowse && options ? (
@@ -170,12 +144,10 @@ export default function TimetableIndex({
                                 view={view}
                                 activeModuleId={activeModuleId}
                                 canEdit={canSchedule}
-                                savingSessionId={
-                                    reschedule.pending?.session.id ?? null
-                                }
+                                savingSessionId={overlays.savingSessionId}
                                 onPeriodChange={navigation.goToPeriod}
-                                onSessionClick={setSelectedSession}
-                                onMove={reschedule.move}
+                                onSessionClick={overlays.selectSession}
+                                onMove={overlays.moveSession}
                                 onInteractionChange={setInteracting}
                             />
                         </div>
@@ -190,25 +162,7 @@ export default function TimetableIndex({
                 )}
             </div>
 
-            <TimetableOverlays
-                scheduling={scheduling}
-                schedulingOptions={schedulingOptions}
-                prefill={prefillFromScope(scope, activeModuleId, filters.date)}
-                canSchedule={canSchedule}
-                canOverride={canOverride}
-                canRecordAttendance={canRecordAttendance}
-                reschedule={reschedule}
-                selectedSession={selectedSession}
-                attendanceSession={attendanceSession}
-                onCloseScheduling={() => setScheduling(false)}
-                onScheduled={handleScheduled}
-                onCloseDetails={() => setSelectedSession(null)}
-                onOpenAttendance={setAttendanceSession}
-                onCloseAttendance={() => setAttendanceSession(null)}
-                subscribing={subscribing}
-                calendarFeed={calendarFeed}
-                onCloseSubscription={() => setSubscribing(false)}
-            />
+            {overlays.element}
         </>
     );
 }

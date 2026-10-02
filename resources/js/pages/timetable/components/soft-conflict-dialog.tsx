@@ -11,16 +11,15 @@ import {
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { FIELD_CLASS } from '@/lib/form-classes';
 import { describeConflict } from './schedule/conflict-description';
 import type { SlotConflict } from './schedule/types';
-
-const FIELD_CLASS =
-    'w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900';
-const MIN_JUSTIFICATION = 10;
+import type { TimetableLimits } from './types';
 
 interface SoftConflictDialogProps {
     conflicts: SlotConflict[] | null;
     canOverride: boolean;
+    limits: TimetableLimits;
     saving: boolean;
     onConfirm: (justification: string) => void;
     onCancel: () => void;
@@ -30,6 +29,7 @@ interface SoftConflictDialogProps {
 export function SoftConflictDialog({
     conflicts,
     canOverride,
+    limits,
     saving,
     onConfirm,
     onCancel,
@@ -66,7 +66,7 @@ export function SoftConflictDialog({
                         <textarea
                             id="reschedule_justification"
                             rows={3}
-                            maxLength={1000}
+                            maxLength={limits.justification_max}
                             value={justification}
                             placeholder={t(
                                 'schedule.justification_placeholder',
@@ -99,7 +99,8 @@ export function SoftConflictDialog({
                             onClick={() => onConfirm(justification.trim())}
                             disabled={
                                 saving ||
-                                justification.trim().length < MIN_JUSTIFICATION
+                                justification.trim().length <
+                                    limits.justification_min
                             }
                         >
                             {saving ? <Spinner /> : null}

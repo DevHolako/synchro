@@ -16,26 +16,15 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { destroy } from '@/routes/course-sessions';
 import { hasStarted, wallClockNow } from './calendar-utils';
 import type { TimetableSession } from './types';
+import { formatDay, timeOf } from './wall-clock-format';
 
 interface SessionDetailsDialogProps {
     session: TimetableSession | null;
     /** Whether the user may delete sessions that have not started. */
     canDelete: boolean;
-    /** Whether the user may take this session's attendance once it has started. */
-    canRecordAttendance: (session: TimetableSession) => boolean;
     onOpenAttendance: (session: TimetableSession) => void;
     onClose: () => void;
 }
-
-/** Session times are wall-clock values; reading them as UTC keeps them unshifted. */
-function formatDay(value: string, locale: string): string {
-    return new Intl.DateTimeFormat(locale, {
-        dateStyle: 'full',
-        timeZone: 'UTC',
-    }).format(new Date(`${value}Z`));
-}
-
-const timeOf = (value: string) => value.slice(11, 16);
 
 function DetailRow({ label, value }: { label: string; value: string }) {
     return (
@@ -49,7 +38,6 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 export function SessionDetailsDialog({
     session,
     canDelete,
-    canRecordAttendance,
     onOpenAttendance,
     onClose,
 }: SessionDetailsDialogProps) {
@@ -59,7 +47,7 @@ export function SessionDetailsDialog({
     const started = session !== null && hasStarted(session, wallClockNow());
     const deletable = canDelete && session !== null && !started;
     const takesAttendance =
-        session !== null && started && canRecordAttendance(session);
+        session !== null && started && session.can_take_attendance;
 
     const handleClose = () => {
         setConfirming(false);

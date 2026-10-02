@@ -2,19 +2,18 @@ import { useMemo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { FIELD_CLASS } from '@/lib/form-classes';
 import { summarizeCheck } from './conflict-description';
 import { ScheduleSlotRow } from './schedule-slot-row';
 import { ScheduleSyllabusMeter } from './schedule-syllabus-meter';
 import type { BatchCheckResponse, BatchSlot } from './types';
-
-const FIELD_CLASS =
-    'w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900';
 
 interface ScheduleStepReviewProps {
     response: BatchCheckResponse | null;
     checking: boolean;
     errors: string[];
     canOverride: boolean;
+    justificationMax: number;
     justification: string;
     onJustificationChange: (value: string) => void;
     onRemoveSlot: (startsAt: string) => void;
@@ -27,6 +26,7 @@ export function ScheduleStepReview({
     checking,
     errors,
     canOverride,
+    justificationMax,
     justification,
     onJustificationChange,
     onRemoveSlot,
@@ -106,7 +106,7 @@ export function ScheduleStepReview({
                             <textarea
                                 id="schedule_justification"
                                 rows={3}
-                                maxLength={1000}
+                                maxLength={justificationMax}
                                 value={justification}
                                 placeholder={t(
                                     'schedule.justification_placeholder',

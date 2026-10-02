@@ -1,8 +1,5 @@
 import type { BatchSlot } from './types';
 
-/** Mirrors StoreCourseSessionBatchRequest::MAX_SLOTS. */
-export const MAX_BATCH_SLOTS = 60;
-
 export interface RecurrenceRule {
     /** ISO weekdays: 1 is Monday, 7 is Sunday. */
     weekdays: number[];
@@ -40,15 +37,18 @@ export function isoWeekday(date: string): number {
 /**
  * The dates matching the rule, in order, never more than the batch can hold.
  */
-export function generateDates(rule: RecurrenceRule): string[] {
+export function generateDates(
+    rule: RecurrenceRule,
+    maxDates: number,
+): string[] {
     if (!rule.startDate || rule.weekdays.length === 0) {
         return [];
     }
 
     const limit =
         rule.endMode === 'count'
-            ? Math.min(Math.max(rule.count, 0), MAX_BATCH_SLOTS)
-            : MAX_BATCH_SLOTS;
+            ? Math.min(Math.max(rule.count, 0), maxDates)
+            : maxDates;
     const last =
         rule.endMode === 'until' && rule.until
             ? parseDay(rule.until)

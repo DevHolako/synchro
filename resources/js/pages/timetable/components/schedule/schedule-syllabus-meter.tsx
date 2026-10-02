@@ -1,5 +1,5 @@
 import { useTranslation } from '@/i18n/LanguageContext';
-import { formatHours } from './schedule-format';
+import { formatHours } from '../wall-clock-format';
 import type { BatchCheckResponse } from './types';
 
 interface ScheduleSyllabusMeterProps {

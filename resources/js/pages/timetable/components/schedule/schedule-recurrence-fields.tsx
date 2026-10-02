@@ -2,19 +2,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { MAX_BATCH_SLOTS, WEEKDAYS } from './schedule-recurrence';
+import { FIELD_CLASS } from '@/lib/form-classes';
+import { WEEKDAYS } from './schedule-recurrence';
 import type { RecurrenceRule } from './schedule-recurrence';
-
-const SELECT_CLASS =
-    'w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900';
 
 interface ScheduleRecurrenceFieldsProps {
     rule: RecurrenceRule;
+    maxDates: number;
     onChange: (patch: Partial<RecurrenceRule>) => void;
 }
 
 export function ScheduleRecurrenceFields({
     rule,
+    maxDates,
     onChange,
 }: ScheduleRecurrenceFieldsProps) {
     const { t } = useTranslation();
@@ -77,7 +77,7 @@ export function ScheduleRecurrenceFields({
                                     .value as RecurrenceRule['endMode'],
                             })
                         }
-                        className={SELECT_CLASS}
+                        className={FIELD_CLASS}
                     >
                         <option value="count">
                             {t('schedule.end_mode_count')}
@@ -96,7 +96,7 @@ export function ScheduleRecurrenceFields({
                             id="schedule_count"
                             type="number"
                             min={1}
-                            max={MAX_BATCH_SLOTS}
+                            max={maxDates}
                             value={rule.count}
                             onChange={(e) =>
                                 onChange({ count: Number(e.target.value) })

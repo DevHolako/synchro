@@ -16,7 +16,8 @@ interface AttendanceRowProps {
     student: RosterStudent;
     status: AttendanceStatus | null;
     remarks: string;
-    onStatus: (studentId: number, status: AttendanceStatus) => void;
+    /** Clicking the active status again clears it. */
+    onStatus: (studentId: number, status: AttendanceStatus | null) => void;
     onRemarks: (studentId: number, remarks: string) => void;
 }
 
@@ -28,12 +29,6 @@ export const AttendanceRow = memo(function AttendanceRow({
     onRemarks,
 }: AttendanceRowProps) {
     const { t } = useTranslation();
-    const percent =
-        student.module_recorded > 0
-            ? Math.round(
-                  (student.module_absences / student.module_recorded) * 100,
-              )
-            : 0;
 
     return (
         <li className="grid gap-2 py-3">
@@ -57,7 +52,7 @@ export const AttendanceRow = memo(function AttendanceRow({
                     ? t('attendance.absence_rate', {
                           absences: student.module_absences,
                           recorded: student.module_recorded,
-                          percent,
+                          percent: student.module_absence_rate,
                       })
                     : t('attendance.absence_none')}
             </p>
@@ -67,7 +62,12 @@ export const AttendanceRow = memo(function AttendanceRow({
                         key={item}
                         type="button"
                         aria-pressed={status === item}
-                        onClick={() => onStatus(student.student_id, item)}
+                        onClick={() =>
+                            onStatus(
+                                student.student_id,
+                                status === item ? null : item,
+                            )
+                        }
                         className={cn(
                             'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
                             status === item

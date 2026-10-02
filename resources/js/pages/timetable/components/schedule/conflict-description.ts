@@ -1,11 +1,10 @@
+import { timeOf } from '../wall-clock-format';
 import type { SlotConflict } from './types';
 
 type Translate = (
     key: string,
     params?: Record<string, string | number>,
 ) => string;
-
-const timeOf = (value: string) => value.slice(11, 16);
 
 /** A conflict in the UI language (the server's own messages follow APP_LOCALE). */
 export function describeConflict(conflict: SlotConflict, t: Translate): string {

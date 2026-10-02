@@ -12,12 +12,14 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { ScheduleStepAssignment } from './schedule-step-assignment';
 import { ScheduleStepDates } from './schedule-step-dates';
 import { ScheduleStepReview } from './schedule-step-review';
+import type { TimetableLimits } from '../types';
 import type { SchedulingOptions, SchedulingPrefill } from './types';
 import { WIZARD_STEPS, useScheduleWizard } from './use-schedule-wizard';
 
 interface ScheduleSessionsDialogProps {
     /** Undefined while the options load. */
     options: SchedulingOptions | null | undefined;
+    limits: TimetableLimits;
     prefill: SchedulingPrefill;
     canOverride: boolean;
     onClose: () => void;
@@ -28,6 +30,7 @@ interface ScheduleSessionsDialogProps {
 /** The batch scheduling wizard: module and resources, dates and times, then review. */
 export function ScheduleSessionsDialog({
     options,
+    limits,
     prefill,
     canOverride,
     onClose,
@@ -36,6 +39,7 @@ export function ScheduleSessionsDialog({
     const { t } = useTranslation();
     const wizard = useScheduleWizard({
         options,
+        limits,
         prefill,
         canOverride,
         onScheduled,
@@ -80,6 +84,7 @@ export function ScheduleSessionsDialog({
                         ranges={wizard.ranges}
                         rangesValid={wizard.rangesValid}
                         slotCount={wizard.slots.length}
+                        maxSlots={wizard.maxSlots}
                         totalMinutes={wizard.totalMinutes}
                         onRuleChange={wizard.updateRule}
                         onRemoveDate={wizard.removeDate}
@@ -96,6 +101,7 @@ export function ScheduleSessionsDialog({
                         checking={wizard.checking}
                         errors={wizard.errors}
                         canOverride={canOverride}
+                        justificationMax={limits.justification_max}
                         justification={wizard.justification}
                         onJustificationChange={wizard.setJustification}
                         onRemoveSlot={wizard.removeSlot}

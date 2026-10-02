@@ -7,7 +7,6 @@ import {
 } from '@/routes/course-sessions/batch';
 import { summarizeCheck } from './conflict-description';
 import {
-    MAX_BATCH_SLOTS,
     buildSlots,
     generateDates,
     isoWeekday,
@@ -23,10 +22,10 @@ import type {
     SchedulingOptions,
     SchedulingPrefill,
 } from './types';
+import type { TimetableLimits } from '../types';
 
 export const WIZARD_STEPS = ['assignment', 'dates', 'review'] as const;
 
-const MIN_JUSTIFICATION = 10;
 const DEFAULT_RANGES: TimeRange[] = [{ id: 1, start: '08:30', end: '12:30' }];
 const EMPTY_PAYLOAD: BatchPayload = {
     module_id: null,
@@ -50,6 +49,7 @@ const slotsKey = (slots: BatchSlot[]) => JSON.stringify(slots);
 
 interface UseScheduleWizardArgs {
     options: SchedulingOptions | null | undefined;
+    limits: TimetableLimits;
     prefill: SchedulingPrefill;
     canOverride: boolean;
     onScheduled: (firstDate: string) => void;
@@ -63,6 +63,7 @@ interface UseScheduleWizardArgs {
  */
 export function useScheduleWizard({
     options,
+    limits,
     prefill,
     canOverride,
     onScheduled,
@@ -77,7 +78,7 @@ export function useScheduleWizard({
     }));
     const [rule, setRule] = useState(() => initialRule(prefill.date));
     const [dates, setDates] = useState(() =>
-        generateDates(initialRule(prefill.date)),
+        generateDates(initialRule(prefill.date), limits.batch_max_slots),
     );
     const [ranges, setRanges] = useState(DEFAULT_RANGES);
     const [removed, setRemoved] = useState<string[]>([]);
@@ -129,7 +130,7 @@ export function useScheduleWizard({
               roomId !== null
             : rangesValid &&
               slots.length > 0 &&
-              slots.length <= MAX_BATCH_SLOTS;
+              slots.length <= limits.batch_max_slots;
     const canSubmit =
         summary !== null &&
         slots.length > 0 &&
@@ -137,7 +138,8 @@ export function useScheduleWizard({
         !submitting &&
         !check.processing &&
         (!summary.needsJustification ||
-            (canOverride && justification.trim().length >= MIN_JUSTIFICATION));
+            (canOverride &&
+                justification.trim().length >= limits.justification_min));
 
     const runCheck = (nextSlots: BatchSlot[]) => {
         const key = slotsKey(nextSlots);
@@ -154,7 +156,7 @@ export function useScheduleWizard({
         const next = { ...rule, ...patch };
 
         setRule(next);
-        setDates(generateDates(next));
+        setDates(generateDates(next, limits.batch_max_slots));
     };
 
     const next = () => {
@@ -208,6 +210,7 @@ export function useScheduleWizard({
 
     return {
         step,
+        maxSlots: limits.batch_max_slots,
         assignment,
         teacherId,
         groupIds,

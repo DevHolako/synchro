@@ -2,7 +2,7 @@ import { CircleCheck, CircleX, TriangleAlert, X } from 'lucide-react';
 import { memo } from 'react';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { describeConflict } from './conflict-description';
-import { formatDay } from './schedule-format';
+import { formatDay, timeOf } from '../wall-clock-format';
 import type { BatchSlot, CheckedSlot } from './types';
 
 interface ScheduleSlotRowProps {
@@ -11,8 +11,6 @@ interface ScheduleSlotRowProps {
     overlapping: BatchSlot[];
     onRemove: (startsAt: string) => void;
 }
-
-const timeOf = (value: string) => value.slice(11, 16);
 
 export const ScheduleSlotRow = memo(function ScheduleSlotRow({
     slot,
@@ -24,7 +22,7 @@ export const ScheduleSlotRow = memo(function ScheduleSlotRow({
     const problems = [
         ...overlapping.map((other) =>
             t('schedule.slot_overlap', {
-                date: formatDay(other.starts_at.slice(0, 10), locale, 'medium'),
+                date: formatDay(other.starts_at, locale, 'medium'),
                 start: timeOf(other.starts_at),
                 end: timeOf(other.ends_at),
             }),
@@ -46,7 +44,7 @@ export const ScheduleSlotRow = memo(function ScheduleSlotRow({
             )}
             <div className="min-w-0 flex-1 text-sm">
                 <p className="font-medium">
-                    {formatDay(slot.starts_at.slice(0, 10), locale)} ·{' '}
+                    {formatDay(slot.starts_at, locale)} ·{' '}
                     {timeOf(slot.starts_at)}–{timeOf(slot.ends_at)}
                 </p>
                 {problems.length === 0 && warnings.length === 0 ? (

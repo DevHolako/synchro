@@ -2,10 +2,8 @@ import { TriangleAlert } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
+import { FIELD_CLASS } from '@/lib/form-classes';
 import type { Assignment, SchedulingOptions } from './types';
-
-const SELECT_CLASS =
-    'w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900';
 
 interface ScheduleStepAssignmentProps {
     options: SchedulingOptions;
@@ -62,7 +60,7 @@ export function ScheduleStepAssignment({
                             teacherId: null,
                         })
                     }
-                    className={SELECT_CLASS}
+                    className={FIELD_CLASS}
                 >
                     <option value="">{t('schedule.pick_module')}</option>
                     {options.modules.map((item) => (
@@ -122,7 +120,7 @@ export function ScheduleStepAssignment({
                     onChange={(e) =>
                         onChange({ teacherId: toId(e.target.value) })
                     }
-                    className={SELECT_CLASS}
+                    className={FIELD_CLASS}
                 >
                     <option value="">{t('schedule.pick_teacher')}</option>
                     {options.teachers.map((teacher) => (
@@ -144,7 +142,7 @@ export function ScheduleStepAssignment({
                     id="schedule_room"
                     value={assignment.roomId ?? ''}
                     onChange={(e) => onChange({ roomId: toId(e.target.value) })}
-                    className={SELECT_CLASS}
+                    className={FIELD_CLASS}
                 >
                     <option value="">{t('schedule.pick_room')}</option>
                     {options.rooms.map((item) => (
