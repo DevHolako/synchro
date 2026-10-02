@@ -282,6 +282,10 @@ export interface Translations {
         dialog_desc: string;
         dialog_name: string;
         dialog_name_placeholder: string;
+        dialog_last_name: string;
+        dialog_last_name_placeholder: string;
+        dialog_first_name: string;
+        dialog_first_name_placeholder: string;
         dialog_email: string;
         dialog_email_placeholder: string;
         dialog_role: string;
@@ -363,6 +367,8 @@ export interface Translations {
         hint_campus_code: string;
         hint_building: string;
         hint_name: string;
+        hint_last_name: string;
+        hint_first_name: string;
         hint_code: string;
         hint_floor: string;
         hint_course_capacity: string;

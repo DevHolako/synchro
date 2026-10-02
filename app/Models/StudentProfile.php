@@ -12,6 +12,8 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property int $user_id
+ * @property string|null $last_name
+ * @property string|null $first_name
  * @property int|null $student_group_id
  * @property string|null $student_number
  * @property string|null $phone
@@ -20,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property-read User $user
  * @property-read StudentGroup|null $studentGroup
  */
-#[Fillable(['user_id', 'student_group_id', 'student_number', 'phone'])]
+#[Fillable(['user_id', 'last_name', 'first_name', 'student_group_id', 'student_number', 'phone'])]
 class StudentProfile extends Model
 {
     /** @use HasFactory<StudentProfileFactory> */
@@ -32,6 +34,14 @@ class StudentProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The display name given to a student account: given name, then surname in capitals.
+     */
+    public static function displayName(string $firstName, string $lastName): string
+    {
+        return trim(trim($firstName).' '.mb_strtoupper(trim($lastName)));
     }
 
     /**

@@ -50,14 +50,15 @@ test('provisioning a teacher creates an invited account, teacher profile, and em
     });
 });
 
-test('provisioning a student creates a student profile linked to the group', function () {
+test('provisioning a student creates a student profile linked to the group, named officially', function () {
     $group = StudentGroup::factory()->create();
 
     $this->actingAs($this->admin)->post(route('users.store'), [
-        'name' => 'Youssef Student',
         'email' => 'youssef@example.com',
         'role' => UserRole::Student->value,
         'student_profile' => [
+            'last_name' => 'El Amrani',
+            'first_name' => 'Youssef',
             'student_group_id' => $group->id,
             'student_number' => 'ETU-123456',
         ],
@@ -65,9 +66,21 @@ test('provisioning a student creates a student profile linked to the group', fun
 
     $user = User::where('email', 'youssef@example.com')->firstOrFail();
 
-    expect($user->studentProfile->student_group_id)->toBe($group->id)
+    expect($user->name)->toBe('Youssef EL AMRANI')
+        ->and($user->studentProfile->last_name)->toBe('El Amrani')
+        ->and($user->studentProfile->first_name)->toBe('Youssef')
+        ->and($user->studentProfile->student_group_id)->toBe($group->id)
         ->and($user->studentProfile->student_number)->toBe('ETU-123456')
         ->and($user->teacherProfile)->toBeNull();
+});
+
+test('a student needs a surname and a given name', function () {
+    $this->actingAs($this->admin)->post(route('users.store'), [
+        'name' => 'Youssef',
+        'email' => 'youssef@example.com',
+        'role' => UserRole::Student->value,
+        'student_profile' => ['student_number' => 'ETU-1'],
+    ])->assertSessionHasErrors(['student_profile.last_name', 'student_profile.first_name']);
 });
 
 test('provisioning a coordinator creates no role profile', function () {

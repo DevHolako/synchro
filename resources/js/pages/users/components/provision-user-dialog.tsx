@@ -18,12 +18,15 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { store } from '@/routes/users';
 import type { Department, StudentGroup, UserRole } from './types';
 import { USER_ROLES } from './types';
+import { UserNameFields } from './user-name-fields';
 
 const SELECT_CLASS =
     'w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-800 dark:bg-neutral-900';
 
 const INITIAL_DATA = {
     name: '',
+    last_name: '',
+    first_name: '',
     email: '',
     role: 'student' as UserRole,
     department_id: '',
@@ -39,7 +42,7 @@ function toPayload(data: ProvisionFormData) {
     const optionalId = (value: string) => (value ? Number(value) : null);
 
     return {
-        name: data.name,
+        name: data.role === 'student' ? null : data.name,
         email: data.email,
         role: data.role,
         teacher_profile:
@@ -53,6 +56,8 @@ function toPayload(data: ProvisionFormData) {
         student_profile:
             data.role === 'student'
                 ? {
+                      last_name: data.last_name,
+                      first_name: data.first_name,
                       student_group_id: optionalId(data.student_group_id),
                       student_number: data.student_number || null,
                       phone: data.phone || null,
@@ -109,21 +114,16 @@ export function ProvisionUserDialog({
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="user_name">
-                                {t('users.dialog_name')}
-                            </Label>
-                            <Input
-                                id="user_name"
-                                value={form.data.name}
-                                onChange={(e) =>
-                                    form.setData('name', e.target.value)
-                                }
-                                placeholder={t('users.dialog_name_placeholder')}
-                                required
-                            />
-                            <InputError message={errors.name} />
-                        </div>
+                        <UserNameFields
+                            official={form.data.role === 'student'}
+                            name={form.data.name}
+                            lastName={form.data.last_name}
+                            firstName={form.data.first_name}
+                            errors={errors}
+                            onChange={(field, value) =>
+                                form.setData(field, value)
+                            }
+                        />
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="grid gap-2">

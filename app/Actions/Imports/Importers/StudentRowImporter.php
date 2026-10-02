@@ -10,7 +10,7 @@ use App\Models\StudentProfile;
 use App\Models\User;
 
 /**
- * @implements RowImporter<array{name: string, email: string, role: UserRole, student_profile: array{student_group_id: int|null, student_number: string|null, phone: string|null}}>
+ * @implements RowImporter<array{email: string, role: UserRole, student_profile: array{last_name: string, first_name: string, student_group_id: int|null, student_number: string|null, phone: string|null}}>
  */
 class StudentRowImporter implements RowImporter
 {
@@ -19,7 +19,8 @@ class StudentRowImporter implements RowImporter
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:100'],
+            'first_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255'],
             'group_code' => ['required', 'string', 'max:50'],
             'student_number' => ['nullable', 'string', 'max:50'],
@@ -58,10 +59,11 @@ class StudentRowImporter implements RowImporter
         }
 
         return [
-            'name' => $row['name'],
             'email' => $email,
             'role' => UserRole::Student,
             'student_profile' => [
+                'last_name' => trim((string) $row['last_name']),
+                'first_name' => trim((string) $row['first_name']),
                 'student_group_id' => $groupIds->first(),
                 'student_number' => $row['student_number'] ?? null,
                 'phone' => $row['phone'] ?? null,

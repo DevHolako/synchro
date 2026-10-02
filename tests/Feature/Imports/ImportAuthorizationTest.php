@@ -53,7 +53,7 @@ test('coordinators may import referentials but not user accounts', function () {
 
     $this->actingAs($coordinator)->get(route('imports.template', 'teachers'))->assertForbidden();
     $this->actingAs($coordinator)->post(route('imports.store', 'students'), [
-        'file' => UploadedFile::fake()->createWithContent('students.csv', "name,email,group_code\nA,a@example.com,G1\n"),
+        'file' => UploadedFile::fake()->createWithContent('students.csv', "last_name,first_name,email,group_code\nA,B,a@example.com,G1\n"),
     ])->assertForbidden();
 
     expect(User::where('email', 'a@example.com')->exists())->toBeFalse();

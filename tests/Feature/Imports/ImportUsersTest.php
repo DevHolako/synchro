@@ -47,13 +47,17 @@ test('students are imported with their group assignment', function () {
     $group = StudentGroup::factory()->create(['code' => '1CI-G1']);
 
     $this->actingAs($this->admin)->post(route('imports.store', 'students'), ['file' => usersCsv([
-        ['name', 'email', 'group_code', 'student_number'],
-        ['Youssef Benali', 'youssef@isga.ma', '1CI-G1', 'ETU-1'],
-        ['Sara Tazi', 'sara@isga.ma', '1CI-G1', 'ETU-2'],
+        ['last_name', 'first_name', 'email', 'group_code', 'student_number'],
+        ['Benali', 'Youssef', 'youssef@isga.ma', '1CI-G1', 'ETU-1'],
+        ['El Tazi', 'Sara', 'sara@isga.ma', '1CI-G1', 'ETU-2'],
     ])])->assertRedirect();
 
+    $sara = User::where('email', 'sara@isga.ma')->sole();
+
     expect(User::where('role', UserRole::Student)->count())->toBe(2)
-        ->and(User::where('email', 'sara@isga.ma')->sole()->studentProfile->student_group_id)->toBe($group->id);
+        ->and($sara->name)->toBe('Sara EL TAZI')
+        ->and($sara->studentProfile->only(['last_name', 'first_name', 'student_group_id']))
+        ->toBe(['last_name' => 'El Tazi', 'first_name' => 'Sara', 'student_group_id' => $group->id]);
 
     Notification::assertCount(2);
 });
@@ -63,12 +67,12 @@ test('a failing user import creates no accounts and sends no invitations', funct
     User::factory()->create(['email' => 'taken@isga.ma']);
 
     $this->actingAs($this->admin)->post(route('imports.store', 'students'), ['file' => usersCsv([
-        ['name', 'email', 'group_code', 'student_number'],
-        ['Valid Student', 'valid@isga.ma', '1CI-G1', 'ETU-1'],
-        ['Unknown Group', 'unknown@isga.ma', 'NOPE', ''],
-        ['Taken Email', 'taken@isga.ma', '1CI-G1', ''],
-        ['Duplicate Number', 'dup@isga.ma', '1CI-G1', 'etu-1'],
-        ['', 'not-an-email', '1CI-G1', ''],
+        ['last_name', 'first_name', 'email', 'group_code', 'student_number'],
+        ['Student', 'Valid', 'valid@isga.ma', '1CI-G1', 'ETU-1'],
+        ['Group', 'Unknown', 'unknown@isga.ma', 'NOPE', ''],
+        ['Email', 'Taken', 'taken@isga.ma', '1CI-G1', ''],
+        ['Number', 'Duplicate', 'dup@isga.ma', '1CI-G1', 'etu-1'],
+        ['', 'Nameless', 'not-an-email', '1CI-G1', ''],
     ])])->assertRedirect();
 
     $errors = collect(SpreadsheetImport::query()->latest('id')->sole()->errors)
@@ -79,7 +83,7 @@ test('a failing user import creates no accounts and sends no invitations', funct
         [3, 'group_code'],
         [4, 'email'],
         [5, 'student_number'],
-        [6, 'name'],
+        [6, 'last_name'],
         [6, 'email'],
     ])->and(User::whereIn('email', ['valid@isga.ma', 'unknown@isga.ma', 'dup@isga.ma'])->exists())->toBeFalse();
 

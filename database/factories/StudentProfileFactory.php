@@ -21,6 +21,8 @@ class StudentProfileFactory extends Factory
     {
         return [
             'user_id' => User::factory()->student(),
+            'last_name' => fake()->lastName(),
+            'first_name' => fake()->firstName(),
             'student_group_id' => StudentGroup::factory(),
             'student_number' => fake()->unique()->bothify('ETU-######'),
             'phone' => fake()->numerify('06########'),
