@@ -813,9 +813,9 @@ export const en: Translations = {
         save_staff: 'Save invigilators',
         save_staff_anyway: 'Save anyway',
         lead_missing: 'Lead missing',
-        my_seat: 'Room {room} · seat {seat}',
-        my_invigilation_principal: 'Lead invigilator · room {room}',
-        my_invigilation_adjoint: 'Assistant invigilator · room {room}',
+        my_seat: '{room} · seat {seat}',
+        my_invigilation_principal: 'Lead invigilator · {room}',
+        my_invigilation_adjoint: 'Assistant invigilator · {room}',
         room_line: '{room} · {count} students',
         confirm_schedule_title: 'Schedule the exam?',
         confirm_schedule_desc:
@@ -844,5 +844,19 @@ export const en: Translations = {
         confirm_delete_period_desc:
             '"{subject}" holds no exams and will be permanently deleted.',
         confirm_delete_period_action: 'Delete',
+        download_convocation: 'My convocation (PDF)',
+        convocation_pending: 'Convocation being prepared',
+        download_roster: 'Attendance sheets (PDF)',
+        roster_pending: 'Attendance sheets being prepared',
+    },
+    convocations: {
+        title: 'Convocation check',
+        valid: 'Genuine convocation',
+        student_number: 'Student number',
+        group: 'Group',
+        exam: 'Exam',
+        when: 'Date and time',
+        room: 'Assigned room',
+        seat: 'Seat no. {seat}',
     },
 };

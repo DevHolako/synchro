@@ -836,9 +836,9 @@ export const fr: Translations = {
         save_staff: 'Enregistrer les surveillants',
         save_staff_anyway: 'Enregistrer malgré tout',
         lead_missing: 'Surveillant manquant',
-        my_seat: 'Salle {room} · place {seat}',
-        my_invigilation_principal: 'Surveillant principal · salle {room}',
-        my_invigilation_adjoint: 'Surveillant adjoint · salle {room}',
+        my_seat: '{room} · place {seat}',
+        my_invigilation_principal: 'Surveillant principal · {room}',
+        my_invigilation_adjoint: 'Surveillant adjoint · {room}',
         room_line: '{room} · {count} étudiants',
         confirm_schedule_title: "Programmer l'examen ?",
         confirm_schedule_desc:
@@ -867,5 +867,19 @@ export const fr: Translations = {
         confirm_delete_period_desc:
             '« {subject} » ne contient aucun examen et sera définitivement supprimée.',
         confirm_delete_period_action: 'Supprimer',
+        download_convocation: 'Ma convocation (PDF)',
+        convocation_pending: 'Convocation en préparation',
+        download_roster: 'Feuilles d’émargement (PDF)',
+        roster_pending: 'Feuilles d’émargement en préparation',
+    },
+    convocations: {
+        title: 'Vérification de convocation',
+        valid: 'Convocation authentique',
+        student_number: 'Matricule',
+        group: 'Groupe',
+        exam: 'Épreuve',
+        when: 'Date et horaire',
+        room: 'Salle attribuée',
+        seat: 'Place n° {seat}',
     },
 };

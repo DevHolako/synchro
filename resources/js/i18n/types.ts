@@ -772,5 +772,19 @@ export interface Translations {
         confirm_delete_period_title: string;
         confirm_delete_period_desc: string;
         confirm_delete_period_action: string;
+        download_convocation: string;
+        convocation_pending: string;
+        download_roster: string;
+        roster_pending: string;
+    };
+    convocations: {
+        title: string;
+        valid: string;
+        student_number: string;
+        group: string;
+        exam: string;
+        when: string;
+        room: string;
+        seat: string;
     };
 }

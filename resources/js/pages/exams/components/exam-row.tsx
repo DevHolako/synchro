@@ -13,6 +13,7 @@ import {
     formatDay,
     timeOf,
 } from '@/pages/timetable/components/wall-clock-format';
+import { ExamDocuments } from './exam-documents';
 import { ExamPlaces } from './exam-places';
 import { ExamStateBadge } from './exam-state-badge';
 import type { Exam, ExamConfirmation } from './types';
@@ -63,6 +64,7 @@ export const ExamRow = memo(function ExamRow({
             <td className="px-6 py-4 text-neutral-600 dark:text-neutral-300">
                 {exam.groups.map((group) => group.name).join(', ')}
                 <ExamPlaces exam={exam} canManage={canManage} />
+                <ExamDocuments exam={exam} />
             </td>
             <td className="px-6 py-4">
                 <ExamStateBadge
