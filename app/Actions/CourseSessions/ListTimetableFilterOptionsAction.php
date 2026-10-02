@@ -2,11 +2,11 @@
 
 namespace App\Actions\CourseSessions;
 
+use App\Actions\Users\ListTeacherOptionsAction;
 use App\Enums\TimetablePerspective;
 use App\Models\Campus;
 use App\Models\Room;
 use App\Models\StudentGroup;
-use App\Models\User;
 use App\Services\Scheduling\TimetableScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ListTimetableFilterOptionsAction
 {
+    public function __construct(private ListTeacherOptionsAction $listTeachers) {}
+
     /**
      * @return array{groups: list<array{id: int, name: string, code: string|null, academic_year: string}>, teachers: list<array{id: int, name: string}>, rooms: list<array{id: int, name: string, code: string|null, building: string}>, campuses: list<array{id: int, name: string, code: string}>}
      */
@@ -35,7 +37,7 @@ class ListTimetableFilterOptionsAction
                     'academic_year' => $group->academic_year,
                 ])
                 ->all()),
-            'teachers' => User::teacherOptions(),
+            'teachers' => $this->listTeachers->execute(),
             'rooms' => array_values($this->activeOrSelected(Room::query(), $scope, TimetablePerspective::Room)
                 ->with('building:id,name')
                 ->orderBy('name')

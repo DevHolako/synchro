@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use RuntimeException;
+use Throwable;
 
 /**
  * A scheduling write refused because of conflicts (ADR 0002).
@@ -16,9 +17,9 @@ use RuntimeException;
  */
 abstract class ConflictException extends RuntimeException
 {
-    public function __construct(public readonly ConflictResult $result, string $message)
+    public function __construct(public readonly ConflictResult $result, string $message, ?Throwable $previous = null)
     {
-        parent::__construct($message);
+        parent::__construct($message, previous: $previous);
     }
 
     abstract protected function status(): int;

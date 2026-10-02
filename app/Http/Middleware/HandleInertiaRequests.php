@@ -41,6 +41,8 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // Session times are the school's wall clock; the UI compares them with the school's "now".
+            'scheduleTimezone' => config('app.schedule_timezone'),
             'auth' => [
                 'user' => $request->user(),
                 'permissions' => $request->user()?->permissionValues() ?? [],

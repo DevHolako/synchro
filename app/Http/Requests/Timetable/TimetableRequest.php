@@ -75,7 +75,7 @@ class TimetableRequest extends FormRequest
             $subjectId = Campus::query()->active()->orderBy('name')->value('id');
         }
 
-        return new TimetableScope($perspective, $subjectId);
+        return TimetableScope::of($perspective, $subjectId);
     }
 
     /**

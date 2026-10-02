@@ -15,16 +15,24 @@ use InvalidArgumentException;
 final readonly class TimetableScope
 {
     /**
-     * @param  bool  $ownTimetable  Resolved from the viewer's "mine" perspective.
+     * @param  bool  $ownTimetable  Resolved from the viewer's "mine" perspective; only mine() sets it.
      */
-    public function __construct(
+    private function __construct(
         public TimetablePerspective $perspective,
         public ?int $subjectId,
-        public bool $ownTimetable = false,
+        public bool $ownTimetable,
     ) {
         if ($perspective === TimetablePerspective::Mine) {
             throw new InvalidArgumentException('Resolve the "mine" perspective with TimetableScope::mine().');
         }
+    }
+
+    /**
+     * One group's, teacher's, room's or campus's timetable, browsed by someone allowed to.
+     */
+    public static function of(TimetablePerspective $perspective, ?int $subjectId): self
+    {
+        return new self($perspective, $subjectId, ownTimetable: false);
     }
 
     /**

@@ -2,16 +2,18 @@
 
 namespace App\Actions\CourseSessions;
 
+use App\Actions\Users\ListTeacherOptionsAction;
 use App\Models\Module;
 use App\Models\Room;
 use App\Models\StudentGroup;
-use App\Models\User;
 
 /**
  * What the scheduling wizard lets a coordinator pick: active modules, groups and rooms, and teachers.
  */
 class ListSchedulingOptionsAction
 {
+    public function __construct(private ListTeacherOptionsAction $listTeachers) {}
+
     /**
      * @return array{
      *     modules: list<array{id: int, program_id: int, teacher_id: int|null, code: string, name: string, color_code: string, total_hours: int}>,
@@ -62,7 +64,7 @@ class ListSchedulingOptionsAction
                     'course_capacity' => $room->course_capacity,
                 ])
                 ->all()),
-            'teachers' => User::teacherOptions(),
+            'teachers' => $this->listTeachers->execute(),
         ];
     }
 }

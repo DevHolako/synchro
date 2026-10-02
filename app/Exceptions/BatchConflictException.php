@@ -22,7 +22,7 @@ class BatchConflictException extends ConflictException
         public readonly array $slot,
         public readonly ConflictException $conflict,
     ) {
-        parent::__construct($conflict->result, __('messages.course_session_batch_conflict', $this->slotParameters()));
+        parent::__construct($conflict->result, __('messages.course_session_batch_conflict', $this->slotParameters()), $conflict);
     }
 
     protected function status(): int
@@ -35,7 +35,7 @@ class BatchConflictException extends ConflictException
         return [
             'slot' => ['index' => $this->slotIndex, ...$this->slot],
             ...$this->result->toArray(),
-            'errors' => $this->errors(),
+            'errors' => array_filter($this->errors()),
         ];
     }
 

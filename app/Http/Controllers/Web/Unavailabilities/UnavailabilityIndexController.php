@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Unavailabilities;
 
 use App\Http\Controllers\Controller;
 use App\Models\TeacherUnavailability;
+use App\Support\SchoolClock;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -20,7 +21,7 @@ class UnavailabilityIndexController extends Controller
         Gate::authorize('declare', TeacherUnavailability::class);
 
         $past = $request->string('period')->value() === 'past';
-        $today = today()->toDateString();
+        $today = SchoolClock::today()->toDateString();
 
         $unavailabilities = $request->user()->unavailabilities()
             ->with('reviewer:id,name')

@@ -72,11 +72,13 @@ class RecordAttendanceRequest extends FormRequest
         $marks = [];
 
         foreach (array_keys((array) $this->input('marks', [])) as $index) {
-            $remarks = $this->string("marks.{$index}.remarks")->trim()->value();
+            $status = $this->input("marks.{$index}.status") === null ? null : $this->string("marks.{$index}.status")->value();
+            // A remark belongs to a mark: removing the mark removes it too.
+            $remarks = $status === null ? '' : $this->string("marks.{$index}.remarks")->trim()->value();
 
             $marks[] = [
                 'student_id' => $this->integer("marks.{$index}.student_id"),
-                'status' => $this->input("marks.{$index}.status") === null ? null : $this->string("marks.{$index}.status")->value(),
+                'status' => $status,
                 'remarks' => $remarks === '' ? null : $remarks,
             ];
         }

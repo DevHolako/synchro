@@ -6,6 +6,7 @@ use App\Enums\UnavailabilityType;
 use App\Http\Requests\Concerns\ReadsTypedInput;
 use App\Models\TeacherUnavailability;
 use App\Support\SchedulingGrid;
+use App\Support\SchoolClock;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -30,7 +31,7 @@ class StoreUnavailabilityRequest extends FormRequest
         return [
             'type' => ['required', Rule::enum(UnavailabilityType::class)],
             'day_of_week' => ["required_if:type,{$recurring}", "prohibited_if:type,{$adHoc}", 'nullable', 'integer', 'between:1,7'],
-            'start_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
+            'start_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:'.SchoolClock::today()->toDateString()],
             'end_date' => ["required_if:type,{$adHoc}", 'nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
             'start_time' => ["required_if:type,{$recurring}", 'required_with:end_time', 'nullable', $this->gridTime()],
             'end_time' => ["required_if:type,{$recurring}", 'required_with:start_time', 'nullable', $this->gridTime(), 'after:start_time'],

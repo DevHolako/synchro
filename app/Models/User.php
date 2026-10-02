@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property int $id
@@ -165,7 +166,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function scopeOnRegisterOf(Builder $query, CourseSession $session): void
     {
-        $groupIds = $session->studentGroups()->pluck('student_groups.id');
+        $groupIds = DB::table('course_session_student_group')
+            ->where('course_session_id', $session->id)
+            ->select('student_group_id');
 
         $query->where(fn (Builder $query) => $query
             ->whereHas('studentProfile', fn (Builder $profiles) => $profiles->whereIn('student_group_id', $groupIds))
@@ -178,20 +181,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public static function hashCalendarFeedToken(string $token): string
     {
         return hash('sha256', $token);
-    }
-
-    /**
-     * Every teacher as a picker option, by name.
-     *
-     * @return list<array{id: int, name: string}>
-     */
-    public static function teacherOptions(): array
-    {
-        return array_values(self::teachers()
-            ->orderBy('name')
-            ->get(['id', 'name'])
-            ->map(fn (User $teacher): array => ['id' => $teacher->id, 'name' => $teacher->name])
-            ->all());
     }
 
     /**
