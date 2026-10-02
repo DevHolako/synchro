@@ -8,9 +8,9 @@ use App\Exceptions\SoftConflictException;
 use App\Models\Room;
 use App\Models\StudentGroup;
 use App\Models\User;
+use App\Services\Scheduling\BookingSlot;
 use App\Services\Scheduling\ConflictDetectorService;
 use App\Services\Scheduling\ConflictResult;
-use App\Services\Scheduling\SessionSlot;
 use App\Services\Scheduling\SoftConflictOverride;
 use Illuminate\Auth\Access\AuthorizationException;
 
@@ -32,7 +32,7 @@ class GuardSessionConflictsAction
      * @throws SoftConflictException
      * @throws AuthorizationException
      */
-    public function execute(SessionSlot $slot, ?SoftConflictOverride $override = null): ConflictResult
+    public function execute(BookingSlot $slot, ?SoftConflictOverride $override = null): ConflictResult
     {
         if ($override !== null && ! $override->user->hasPermission(Permission::OverrideSoftConflicts)) {
             throw new AuthorizationException;

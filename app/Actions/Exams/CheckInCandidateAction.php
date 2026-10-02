@@ -47,7 +47,7 @@ class CheckInCandidateAction
             throw ValidationException::withMessages(['check_in' => __('messages.exam_check_in_closed')]);
         }
 
-        $roomId = $exam->invigilatedRoomId($user);
+        $roomId = $exam->invigilatedAssignmentId($user);
 
         if ($roomId !== null && $roomId !== $candidate->exam_room_assignment_id) {
             throw ValidationException::withMessages(['check_in' => __('messages.exam_check_in_wrong_room', [

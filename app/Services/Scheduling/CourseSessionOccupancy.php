@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class CourseSessionOccupancy implements OccupancySource
 {
-    public function hardConflicts(SessionSlot $slot): array
+    public function hardConflicts(BookingSlot $slot): array
     {
         return [
             ...$this->collisions($slot, ConflictType::Room, 'rooms', 'course_sessions.room_id', $slot->roomIds),
@@ -27,7 +27,7 @@ class CourseSessionOccupancy implements OccupancySource
      * @param  list<int>  $resourceIds
      * @return list<Conflict>
      */
-    private function collisions(SessionSlot $slot, ConflictType $type, string $table, string $column, array $resourceIds): array
+    private function collisions(BookingSlot $slot, ConflictType $type, string $table, string $column, array $resourceIds): array
     {
         if ($resourceIds === []) {
             return [];
@@ -46,7 +46,7 @@ class CourseSessionOccupancy implements OccupancySource
      *
      * @return list<Conflict>
      */
-    private function groupCollisions(SessionSlot $slot): array
+    private function groupCollisions(BookingSlot $slot): array
     {
         if ($slot->groupIds === []) {
             return [];
@@ -64,7 +64,7 @@ class CourseSessionOccupancy implements OccupancySource
     /**
      * @return Builder<CourseSession>
      */
-    private function overlapping(SessionSlot $slot): Builder
+    private function overlapping(BookingSlot $slot): Builder
     {
         return CourseSession::query()
             ->overlapping($slot->startsAt, $slot->endsAt)

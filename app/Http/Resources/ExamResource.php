@@ -2,13 +2,13 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\ExamState;
 use App\Enums\InvigilatorRole;
 use App\Models\Exam;
 use App\Models\ExamCandidate;
 use App\Models\ExamInvigilator;
 use App\Models\ExamRoomAssignment;
 use App\Models\StudentGroup;
+use App\Support\SchoolClock;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -20,8 +20,6 @@ use Illuminate\Support\Facades\Storage;
  */
 class ExamResource extends JsonResource
 {
-    private const string WALL_CLOCK_FORMAT = 'Y-m-d\TH:i:s';
-
     /**
      * @return array<string, mixed>
      */
@@ -32,11 +30,12 @@ class ExamResource extends JsonResource
         return [
             'id' => $exam->id,
             'exam_period_id' => $exam->exam_period_id,
-            'start' => $exam->starts_at->format(self::WALL_CLOCK_FORMAT),
-            'end' => $exam->ends_at->format(self::WALL_CLOCK_FORMAT),
+            'start' => $exam->starts_at->format(SchoolClock::WALL_CLOCK_FORMAT),
+            'end' => $exam->ends_at->format(SchoolClock::WALL_CLOCK_FORMAT),
             'state' => $exam->state->value,
             'revision' => $exam->revision,
             'last_reschedule_reason' => $exam->reschedules->first()?->reason,
+            'is_editable' => $exam->state->isEditable(),
             'is_overdue' => $exam->isOverdue(),
             'has_started' => $exam->hasStarted(),
             'module' => [
@@ -51,18 +50,18 @@ class ExamResource extends JsonResource
                 ->values()
                 ->all(),
             'rooms' => $exam->roomAssignments
-                ->map(fn (ExamRoomAssignment $room): array => [
-                    'id' => $room->id,
-                    'name' => $room->room->name,
-                    'students_count' => $room->allocated_students_count,
-                    'first_surname' => $room->first_surname,
-                    'last_surname' => $room->last_surname,
-                    'has_lead' => $room->invigilators->contains('role', InvigilatorRole::Principal),
+                ->map(fn (ExamRoomAssignment $assignment): array => [
+                    'id' => $assignment->id,
+                    'name' => $assignment->room->name,
+                    'students_count' => $assignment->allocated_students_count,
+                    'first_surname' => $assignment->first_surname,
+                    'last_surname' => $assignment->last_surname,
+                    'has_lead' => $assignment->invigilators->contains('role', InvigilatorRole::Principal),
                 ])
                 ->values()
                 ->all(),
             // The viewer's own place: their seat as a candidate, their room as an invigilator.
-            'my_seat' => $this->seat($exam->candidates->first()),
+            'my_seat' => $this->seat($exam, $exam->candidates->first()),
             'my_invigilation' => $this->invigilation($exam->invigilators->first()),
             // The door lists and attendance sheets: null when the viewer may not download them.
             'roster' => $this->roster($request, $exam),
@@ -70,23 +69,28 @@ class ExamResource extends JsonResource
     }
 
     /**
+     * The file check runs only for published exams, the only ones with a convocation.
+     *
      * @return array{room: string, seat: int, convocation_ready: bool}|null
      */
-    private function seat(?ExamCandidate $candidate): ?array
+    private function seat(Exam $exam, ?ExamCandidate $candidate): ?array
     {
         return $candidate === null ? null : [
             'room' => $candidate->roomAssignment->room->name,
             'seat' => $candidate->seat_number,
-            'convocation_ready' => Storage::disk('local')->exists($candidate->convocationPath()),
+            'convocation_ready' => $exam->state->isVisibleToCandidates()
+                && Storage::disk('local')->exists($candidate->convocationPath()),
         ];
     }
 
     /**
+     * The permission check reads the loaded invigilators, so it adds no query per row.
+     *
      * @return 'ready'|'pending'|null
      */
     private function roster(Request $request, Exam $exam): ?string
     {
-        if (! in_array($exam->state, ExamState::visibleToCandidates(), true) || ! ($request->user()?->can('downloadRoster', $exam) ?? false)) {
+        if (! $exam->state->isVisibleToCandidates() || ! ($request->user()?->can('downloadRoster', $exam) ?? false)) {
             return null;
         }
 

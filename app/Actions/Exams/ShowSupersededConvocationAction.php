@@ -4,16 +4,19 @@ namespace App\Actions\Exams;
 
 use App\Models\ExamCandidate;
 use App\Models\SupersededConvocation;
+use App\Support\SchoolClock;
 
 /**
  * What scanning a superseded convocation shows: a warning, and where the student now sits.
  */
 class ShowSupersededConvocationAction
 {
-    private const string WALL_CLOCK_FORMAT = 'Y-m-d\TH:i:s';
-
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     student: string,
+     *     exam: array{module: string, start: string, end: string, revision: int},
+     *     current: array{room: string, building: string, seat: int}|null
+     * }
      */
     public function execute(SupersededConvocation $superseded): array
     {
@@ -25,11 +28,11 @@ class ShowSupersededConvocationAction
             ->first();
 
         return [
-            'student' => $superseded->student()->value('name'),
+            'student' => $superseded->student->officialName(),
             'exam' => [
-                'module' => "{$exam->module->code} · {$exam->module->name}",
-                'start' => $exam->starts_at->format(self::WALL_CLOCK_FORMAT),
-                'end' => $exam->ends_at->format(self::WALL_CLOCK_FORMAT),
+                'module' => $exam->module->label(),
+                'start' => $exam->starts_at->format(SchoolClock::WALL_CLOCK_FORMAT),
+                'end' => $exam->ends_at->format(SchoolClock::WALL_CLOCK_FORMAT),
                 'revision' => $exam->revision,
             ],
             // Null when the student no longer sits the exam.

@@ -169,7 +169,6 @@ return [
     'exam_check_in_undone' => 'La présence de :name est annulée.',
     'exam_reschedule_not_allowed' => 'Seul un examen publié qui n\'a pas encore commencé peut être reporté d\'urgence.',
     'exam_rescheduled' => 'Examen reporté : les nouvelles convocations sont en préparation et les personnes concernées sont prévenues.',
-    'exam_rescheduled_released_invigilators' => 'Examen reporté. Surveillants libérés (indisponibles au nouvel horaire), à remplacer : :names.',
     'exam_rescheduled_mail_subject' => 'Urgent : l\'examen :exam est déplacé',
     'exam_rescheduled_mail_greeting' => 'Bonjour :name,',
     'exam_rescheduled_mail_intro' => 'L\'examen :exam a été déplacé en urgence.',
@@ -181,4 +180,6 @@ return [
     'exam_rescheduled_invigilation' => 'Vous surveillez :room.',
     'exam_rescheduled_released' => 'Vous n\'êtes plus surveillant de cet examen (indisponible au nouvel horaire).',
     'exam_rescheduled_sms' => 'URGENT : examen :exam déplacé au :when. :place',
+    'exam_invigilators_released' => 'Surveillants libérés (occupés ou indisponibles à cet horaire), à remplacer : :names.',
+    'exam_rescheduled_when' => ':date · :start–:end',
 ];

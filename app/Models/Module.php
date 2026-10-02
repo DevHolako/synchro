@@ -74,6 +74,14 @@ class Module extends Model
     }
 
     /**
+     * How the module is named on screens and documents: code, then name.
+     */
+    public function label(): string
+    {
+        return "{$this->code} · {$this->name}";
+    }
+
+    /**
      * Scope a query to only include active modules.
      *
      * @param  Builder<Module>  $query

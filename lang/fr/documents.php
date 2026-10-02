@@ -33,4 +33,6 @@ return [
     'invigilators' => 'Surveillants (nom et signature)',
     'present_count' => 'Présents : ____  Absents : ____',
     'no_students' => 'Aucun étudiant dans cette salle.',
+    'convocation_filename' => 'convocation-:code.pdf',
+    'roster_filename' => 'emargement-:code.pdf',
 ];

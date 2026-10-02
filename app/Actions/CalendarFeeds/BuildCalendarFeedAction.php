@@ -47,7 +47,7 @@ class BuildCalendarFeedAction
                 uid: "course-session-{$session->id}@{$host}",
                 startsAt: $this->toUtc($session->starts_at->format('Y-m-d H:i:s')),
                 endsAt: $this->toUtc($session->ends_at->format('Y-m-d H:i:s')),
-                summary: "{$session->module->code} · {$session->module->name}",
+                summary: $session->module->label(),
                 location: "{$session->room->name} · {$session->room->building->name}",
                 description: $this->description($session),
                 sequence: $this->sequence($session),

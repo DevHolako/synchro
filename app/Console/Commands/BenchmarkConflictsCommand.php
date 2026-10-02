@@ -7,8 +7,8 @@ use App\Models\Module;
 use App\Models\Room;
 use App\Models\StudentGroup;
 use App\Models\User;
+use App\Services\Scheduling\BookingSlot;
 use App\Services\Scheduling\ConflictDetectorService;
-use App\Services\Scheduling\SessionSlot;
 use Carbon\CarbonImmutable;
 use Faker\Factory as FakerFactory;
 use Illuminate\Console\Command;
@@ -129,14 +129,14 @@ class BenchmarkConflictsCommand extends Command
      * @param  array<int, int>  $teacherIds
      * @param  array<int, int>  $groupIds
      */
-    private function randomSlot(array $roomIds, array $teacherIds, array $groupIds): SessionSlot
+    private function randomSlot(array $roomIds, array $teacherIds, array $groupIds): BookingSlot
     {
         $start = CarbonImmutable::parse('next monday 08:00')
             ->addWeeks(random_int(0, self::WEEKS - 1))
             ->addDays(random_int(0, 5))
             ->addMinutes(15 * random_int(0, 48));
 
-        return new SessionSlot(
+        return new BookingSlot(
             type: BookingType::CourseSession,
             teacherIds: [$teacherIds[array_rand($teacherIds)]],
             roomIds: [$roomIds[array_rand($roomIds)]],

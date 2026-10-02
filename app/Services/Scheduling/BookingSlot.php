@@ -9,10 +9,10 @@ use Carbon\CarbonImmutable;
  * The resources and time window a booking (course session or exam) would occupy, as checked
  * by the conflict detector.
  *
- * A course session holds one teacher and one room; an exam holds its groups now and, from
- * room allocation on, several rooms and invigilators.
+ * A course session holds one teacher and one room; an exam holds its groups, rooms and
+ * invigilators.
  */
-final readonly class SessionSlot
+final readonly class BookingSlot
 {
     /**
      * @param  list<int>  $teacherIds

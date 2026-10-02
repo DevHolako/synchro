@@ -5,8 +5,8 @@ namespace App\Actions\CourseSessions;
 use App\Enums\BookingType;
 use App\Models\Module;
 use App\Models\StudentGroup;
+use App\Services\Scheduling\BookingSlot;
 use App\Services\Scheduling\ConflictDetectorService;
-use App\Services\Scheduling\SessionSlot;
 use Carbon\CarbonImmutable;
 
 /**
@@ -43,7 +43,7 @@ class CheckCourseSessionBatchAction
         $slots = [];
 
         foreach ($windows as $index => [$start, $end]) {
-            $result = $this->detector->checkConflicts(new SessionSlot(
+            $result = $this->detector->checkConflicts(new BookingSlot(
                 type: BookingType::CourseSession,
                 teacherIds: [$data['teacher_id']],
                 roomIds: [$data['room_id']],

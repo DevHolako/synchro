@@ -3,9 +3,9 @@
 namespace App\Actions\Exams;
 
 use App\Enums\ExamState;
-use App\Enums\InvigilatorRole;
 use App\Models\Exam;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class PublishExamAction
@@ -24,17 +24,22 @@ class PublishExamAction
      */
     public function execute(Exam $exam, User $publisher): Exam
     {
-        if ($exam->roomAssignments()->whereDoesntHave('invigilators', fn ($invigilators) => $invigilators->where('role', InvigilatorRole::Principal))->exists()) {
-            throw ValidationException::withMessages(['exam' => __('messages.exam_lead_missing')]);
-        }
+        return DB::transaction(function () use ($exam, $publisher): Exam {
+            // Staffing changes lock the exam too, so no lead can leave between this check and the move.
+            Exam::query()->whereKey($exam->id)->lockForUpdate()->first();
 
-        $exam = $this->changeState->execute($exam, ExamState::Published, [
-            'published_at' => now(),
-            'published_by' => $publisher->id,
-        ]);
+            if (Exam::query()->whereKey($exam->id)->missingLead()->exists()) {
+                throw ValidationException::withMessages(['exam' => __('messages.exam_lead_missing')]);
+            }
 
-        $this->queueDocuments->execute([$exam->id]);
+            $exam = $this->changeState->execute($exam, ExamState::Published, [
+                'published_at' => now(),
+                'published_by' => $publisher->id,
+            ]);
 
-        return $exam;
+            $this->queueDocuments->execute([$exam->id]);
+
+            return $exam;
+        });
     }
 }

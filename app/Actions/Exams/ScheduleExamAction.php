@@ -18,17 +18,20 @@ class ScheduleExamAction
 
     /**
      * Move a draft to Scheduled: it needs rooms and candidates, its split is refreshed, and from
-     * then on it books its rooms, invigilators and groups, so none may be taken by a course
-     * session or another booked exam.
+     * then on it books its rooms, invigilators and groups: rooms and groups must be free, and
+     * invigilators busy then are released.
+     *
+     * @return array{exam: Exam, released: array<int, string>} The exam, and the invigilators
+     *                                                         released because they are busy then, by id.
      *
      * @throws ValidationException
      * @throws HardConflictException
      */
-    public function execute(Exam $exam): Exam
+    public function execute(Exam $exam): array
     {
         $this->changeState->ensureAllowed($exam, ExamState::Scheduled);
 
-        return DB::transaction(function () use ($exam): Exam {
+        return DB::transaction(function () use ($exam): array {
             if ($exam->roomAssignments()->doesntExist()) {
                 throw ValidationException::withMessages(['exam' => __('messages.exam_rooms_missing')]);
             }
@@ -38,9 +41,9 @@ class ScheduleExamAction
                 throw ValidationException::withMessages(['exam' => __('messages.exam_no_candidates')]);
             }
 
-            $this->guardConflicts->execute($exam);
+            $released = $this->guardConflicts->execute($exam);
 
-            return $this->changeState->execute($exam, ExamState::Scheduled);
+            return ['exam' => $this->changeState->execute($exam, ExamState::Scheduled), 'released' => $released];
         });
     }
 }

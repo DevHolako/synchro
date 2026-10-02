@@ -10,5 +10,5 @@ interface SoftConflictRule
     /**
      * @return list<Conflict>
      */
-    public function softConflicts(SessionSlot $slot): array;
+    public function softConflicts(BookingSlot $slot): array;
 }

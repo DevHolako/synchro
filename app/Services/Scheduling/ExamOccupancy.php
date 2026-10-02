@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class ExamOccupancy implements OccupancySource
 {
-    public function hardConflicts(SessionSlot $slot): array
+    public function hardConflicts(BookingSlot $slot): array
     {
         return [
             ...$this->collisions($slot, ConflictType::Room, $slot->roomIds, 'exam_room_assignments', 'room_id', 'rooms'),
@@ -30,7 +30,7 @@ class ExamOccupancy implements OccupancySource
      * @param  string  $link  The table tying exams to the resource (by `exam_id`).
      * @return list<Conflict>
      */
-    private function collisions(SessionSlot $slot, ConflictType $type, array $resourceIds, string $link, string $column, string $table): array
+    private function collisions(BookingSlot $slot, ConflictType $type, array $resourceIds, string $link, string $column, string $table): array
     {
         if ($resourceIds === []) {
             return [];

@@ -34,4 +34,6 @@ return [
     'invigilators' => 'Invigilators (name and signature)',
     'present_count' => 'Present: ____  Absent: ____',
     'no_students' => 'No student in this room.',
+    'convocation_filename' => 'convocation-:code.pdf',
+    'roster_filename' => 'attendance-sheets-:code.pdf',
 ];

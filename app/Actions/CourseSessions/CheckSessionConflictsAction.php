@@ -2,9 +2,9 @@
 
 namespace App\Actions\CourseSessions;
 
+use App\Services\Scheduling\BookingSlot;
 use App\Services\Scheduling\ConflictDetectorService;
 use App\Services\Scheduling\ConflictResult;
-use App\Services\Scheduling\SessionSlot;
 
 /**
  * Previews the conflicts a session would cause, without locking or saving anything.
@@ -18,6 +18,6 @@ class CheckSessionConflictsAction
      */
     public function execute(array $data, ?int $ignoreSessionId = null): ConflictResult
     {
-        return $this->detector->checkConflicts(SessionSlot::fromPayload($data, $ignoreSessionId));
+        return $this->detector->checkConflicts(BookingSlot::fromPayload($data, $ignoreSessionId));
     }
 }

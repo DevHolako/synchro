@@ -12,7 +12,7 @@ use Illuminate\Validation\Validator;
  * What every booking write shares, course session or exam: a same-day window on the
  * scheduling grid, and groups from the module's program.
  *
- * `$messages` is the prefix of the translation keys, so each booking speaks of itself.
+ * `$keyPrefix` starts the translation keys, so each booking speaks of itself.
  */
 trait ValidatesBookingTimes
 {
@@ -21,7 +21,7 @@ trait ValidatesBookingTimes
     /**
      * Same day, inside the scheduling grid, on quarter hours.
      */
-    protected function validateSlotTimes(Validator $validator, string $startKey, string $endKey, string $messages = 'course_session'): void
+    protected function validateSlotTimes(Validator $validator, string $startKey, string $endKey, string $keyPrefix = 'course_session'): void
     {
         $start = CarbonImmutable::createFromFormat(self::DATETIME_FORMAT, $this->string($startKey)->value());
         $end = CarbonImmutable::createFromFormat(self::DATETIME_FORMAT, $this->string($endKey)->value());
@@ -31,24 +31,24 @@ trait ValidatesBookingTimes
         }
 
         if (! $start->isSameDay($end)) {
-            $validator->errors()->add($endKey, __("messages.{$messages}_same_day"));
+            $validator->errors()->add($endKey, __("messages.{$keyPrefix}_same_day"));
 
             return;
         }
 
         if (! SchedulingGrid::contains($start, $end)) {
-            $validator->errors()->add($startKey, __("messages.{$messages}_outside_grid", SchedulingGrid::bounds()));
+            $validator->errors()->add($startKey, __("messages.{$keyPrefix}_outside_grid", SchedulingGrid::bounds()));
         }
 
         if (! SchedulingGrid::isOnStep($start) || ! SchedulingGrid::isOnStep($end)) {
-            $validator->errors()->add($startKey, __("messages.{$messages}_quarter_hour"));
+            $validator->errors()->add($startKey, __("messages.{$keyPrefix}_quarter_hour"));
         }
     }
 
     /**
      * Runs once the module and groups are individually valid.
      */
-    protected function validateGroupsBelongToModuleProgram(Validator $validator, string $messages = 'course_session'): void
+    protected function validateGroupsBelongToModuleProgram(Validator $validator, string $keyPrefix = 'course_session'): void
     {
         if ($validator->errors()->hasAny(['module_id', 'student_group_ids', 'student_group_ids.*'])) {
             return;
@@ -62,7 +62,7 @@ trait ValidatesBookingTimes
             ->exists();
 
         if ($foreign) {
-            $validator->errors()->add('student_group_ids', __("messages.{$messages}_group_program_mismatch"));
+            $validator->errors()->add('student_group_ids', __("messages.{$keyPrefix}_group_program_mismatch"));
         }
     }
 

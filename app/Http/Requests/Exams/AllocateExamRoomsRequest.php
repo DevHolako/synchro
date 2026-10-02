@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Exams;
 
-use App\Enums\Permission;
+use App\Http\Requests\Concerns\ValidatesConflictOverride;
 use App\Models\Exam;
-use App\Services\Scheduling\SoftConflictOverride;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,22 +13,25 @@ use Illuminate\Validation\Rule;
  */
 class AllocateExamRoomsRequest extends FormRequest
 {
+    use ValidatesConflictOverride;
+
     public function authorize(): bool
     {
         $exam = $this->route('exam');
-        $user = $this->user();
 
         return $exam instanceof Exam
-            && $user !== null
-            && $user->can('update', $exam)
-            && (! $this->boolean('force_single_room') || $user->hasPermission(Permission::OverrideSoftConflicts));
+            && ($this->user()?->can('update', $exam) ?? false)
+            && $this->mayOverride();
+    }
+
+    protected function overrideFlag(): string
+    {
+        return 'force_single_room';
     }
 
     protected function prepareForValidation(): void
     {
-        if (! $this->boolean('force_single_room')) {
-            $this->merge(['justification' => null]);
-        }
+        $this->prepareOverrideInput();
     }
 
     /**
@@ -40,14 +42,7 @@ class AllocateExamRoomsRequest extends FormRequest
         return [
             'room_ids' => ['required', 'array', 'min:1', $this->boolean('force_single_room') ? 'max:1' : 'max:20'],
             'room_ids.*' => ['integer', 'distinct', Rule::exists('rooms', 'id')->where('is_active', true)],
-            'force_single_room' => ['sometimes', 'boolean'],
-            'justification' => [
-                'nullable',
-                'required_if_accepted:force_single_room',
-                'string',
-                'min:'.SoftConflictOverride::MIN_JUSTIFICATION,
-                'max:'.SoftConflictOverride::MAX_JUSTIFICATION,
-            ],
+            ...$this->overrideRules(),
         ];
     }
 
@@ -59,19 +54,5 @@ class AllocateExamRoomsRequest extends FormRequest
         $this->validated();
 
         return array_values(array_map('intval', (array) $this->input('room_ids', [])));
-    }
-
-    /**
-     * The justified decision to seat everyone in the one room, when asked for.
-     */
-    public function forceSingleRoom(): ?SoftConflictOverride
-    {
-        $user = $this->user();
-
-        if (! $this->boolean('force_single_room') || $user === null) {
-            return null;
-        }
-
-        return new SoftConflictOverride($user, $this->string('justification')->trim()->value());
     }
 }

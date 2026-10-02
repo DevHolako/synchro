@@ -5,6 +5,7 @@ namespace App\Actions\Exams;
 use App\Jobs\SendUrgentMessageJob;
 use App\Models\Exam;
 use App\Models\User;
+use App\Notifications\Data\RescheduledExam;
 use App\Notifications\ExamRescheduledNotification;
 
 /**
@@ -15,18 +16,26 @@ use App\Notifications\ExamRescheduledNotification;
 class NotifyExamRescheduledAction
 {
     /**
-     * @param  list<int>  $releasedTeacherIds  Invigilators the new time freed from the exam.
+     * @param  list<int>  $releasedTeacherIds  Invigilators the reschedule freed from the exam.
      */
     public function execute(Exam $exam, string $reason, array $releasedTeacherIds): void
     {
         $exam->loadMissing('module:id,code,name');
-        $title = "{$exam->module->code} · {$exam->module->name}";
-        $when = $exam->starts_at->format('d/m/Y').' · '.$exam->starts_at->format('H:i').'–'.$exam->ends_at->format('H:i');
+        $details = new RescheduledExam(
+            title: $exam->module->label(),
+            when: __('messages.exam_rescheduled_when', [
+                'date' => $exam->starts_at->settings(['locale' => app()->getLocale()])->isoFormat('LL'),
+                'start' => $exam->starts_at->format('H:i'),
+                'end' => $exam->ends_at->format('H:i'),
+            ]),
+            reason: $reason,
+            key: "exam-{$exam->id}-revision-{$exam->revision}",
+        );
 
         $candidates = $exam->candidates()->with(['student.studentProfile:id,user_id,phone', 'roomAssignment.room:id,name'])->get();
 
         foreach ($candidates as $candidate) {
-            $this->alert($candidate->student, $candidate->student->studentProfile?->phone, $title, $when, $reason, __('messages.exam_rescheduled_place', [
+            $this->alert($candidate->student, $candidate->student->studentProfile?->phone, $details, __('messages.exam_rescheduled_place', [
                 'room' => $candidate->roomAssignment->room->name,
                 'seat' => $candidate->seat_number,
             ]));
@@ -35,24 +44,24 @@ class NotifyExamRescheduledAction
         $invigilators = $exam->invigilators()->with(['teacher.teacherProfile:id,user_id,phone', 'roomAssignment.room:id,name'])->get();
 
         foreach ($invigilators as $invigilator) {
-            $this->alert($invigilator->teacher, $invigilator->teacher->teacherProfile?->phone, $title, $when, $reason, __('messages.exam_rescheduled_invigilation', [
+            $this->alert($invigilator->teacher, $invigilator->teacher->teacherProfile?->phone, $details, __('messages.exam_rescheduled_invigilation', [
                 'room' => $invigilator->roomAssignment->room->name,
             ]));
         }
 
         foreach (User::query()->whereKey($releasedTeacherIds)->with('teacherProfile:id,user_id,phone')->get() as $teacher) {
-            $this->alert($teacher, $teacher->teacherProfile?->phone, $title, $when, $reason, __('messages.exam_rescheduled_released'));
+            $this->alert($teacher, $teacher->teacherProfile?->phone, $details, __('messages.exam_rescheduled_released'));
         }
     }
 
-    private function alert(User $user, ?string $phone, string $title, string $when, string $reason, string $place): void
+    private function alert(User $user, ?string $phone, RescheduledExam $details, string $place): void
     {
-        $user->notify(new ExamRescheduledNotification($title, $when, $place, $reason));
+        $user->notify(new ExamRescheduledNotification($details, $place));
 
         if ($phone !== null && $phone !== '') {
-            SendUrgentMessageJob::dispatch($phone, __('messages.exam_rescheduled_sms', [
-                'exam' => $title,
-                'when' => $when,
+            SendUrgentMessageJob::dispatch("{$details->key}-user-{$user->id}", $phone, __('messages.exam_rescheduled_sms', [
+                'exam' => $details->title,
+                'when' => $details->when,
                 'place' => $place,
             ]));
         }

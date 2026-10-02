@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Web\Exams;
 
+use App\Actions\Exams\DownloadExamDocumentAction;
+use App\Http\Controllers\Concerns\FlashesExamOutcome;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -16,18 +16,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ExamConvocationDownloadController extends Controller
 {
-    public function __invoke(Request $request, Exam $exam): StreamedResponse|RedirectResponse
+    use FlashesExamOutcome;
+
+    public function __invoke(Request $request, Exam $exam, DownloadExamDocumentAction $download): StreamedResponse|RedirectResponse
     {
         Gate::authorize('downloadConvocation', $exam);
 
         $candidate = $exam->candidates()->where('student_id', $request->user()?->id)->firstOrFail();
 
-        if (! Storage::disk('local')->exists($candidate->convocationPath())) {
-            Inertia::flash('toast', ['type' => 'info', 'message' => __('messages.exam_document_pending')]);
-
-            return back();
-        }
-
-        return Storage::disk('local')->download($candidate->convocationPath(), "convocation-{$exam->module->code}.pdf");
+        return $download->execute(
+            $candidate->convocationPath(),
+            __('documents.convocation_filename', ['code' => $exam->module->code], 'fr'),
+        ) ?? $this->documentPending();
     }
 }

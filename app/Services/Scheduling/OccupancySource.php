@@ -12,5 +12,5 @@ interface OccupancySource
      *
      * @return list<Conflict>
      */
-    public function hardConflicts(SessionSlot $slot): array;
+    public function hardConflicts(BookingSlot $slot): array;
 }

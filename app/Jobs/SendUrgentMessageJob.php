@@ -5,6 +5,8 @@ namespace App\Jobs;
 use App\Actions\Exams\SendUrgentMessageAction;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SendUrgentMessageJob implements ShouldQueue
 {
@@ -15,14 +17,25 @@ class SendUrgentMessageJob implements ShouldQueue
      */
     public int $timeout = 30;
 
-    public function __construct(public string $phone, public string $message)
+    /**
+     * @param  string  $key  Identifies this message, so a redelivery does not send it twice.
+     */
+    public function __construct(public string $key, public string $phone, public string $message)
     {
         $this->onQueue('notifications');
     }
 
     public function handle(SendUrgentMessageAction $action): void
     {
-        $action->execute($this->phone, $this->message);
+        $action->execute($this->key, $this->phone, $this->message);
+    }
+
+    /**
+     * Record that the alert never went out, for follow-up by phone.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        Log::error('Urgent message not sent', ['key' => $this->key, 'error' => $exception?->getMessage()]);
     }
 
     /**
@@ -30,6 +43,6 @@ class SendUrgentMessageJob implements ShouldQueue
      */
     public function tags(): array
     {
-        return ['urgent-message'];
+        return ['urgent-message', $this->key];
     }
 }

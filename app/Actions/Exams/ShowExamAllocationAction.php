@@ -10,7 +10,6 @@ use App\Models\ExamInvigilator;
 use App\Models\ExamRoomAssignment;
 use App\Models\Room;
 use App\Models\StudentProfile;
-use Carbon\CarbonImmutable;
 
 /**
  * What the rooms and invigilators sheet shows for an exam: how many students sit it, its rooms
@@ -24,7 +23,16 @@ class ShowExamAllocationAction
     public function __construct(private ListTeacherOptionsAction $listTeachers) {}
 
     /**
-     * @return array<string, mixed>
+     * @return array{
+     *     state: string,
+     *     rooms_editable: bool,
+     *     force_single_room: bool,
+     *     students_count: int,
+     *     assistant_threshold: int,
+     *     assignments: list<array{id: int, room_id: int, room: string, building: string, exam_capacity: int, allocated_students_count: int, first_surname: string|null, last_surname: string|null, invigilators: list<array{teacher_id: int, name: string, role: string}>}>,
+     *     rooms: list<array{id: int, name: string, building: string, exam_capacity: int, busy: bool}>,
+     *     teachers: list<array{id: int, name: string}>
+     * }
      */
     public function execute(Exam $exam): array
     {
@@ -34,6 +42,8 @@ class ShowExamAllocationAction
 
         return [
             'state' => $exam->state->value,
+            // Rooms (and so seats) are frozen from publication on.
+            'rooms_editable' => $exam->state->isEditable(),
             'force_single_room' => $exam->force_single_room,
             'students_count' => StudentProfile::query()
                 ->whereIn('student_group_id', $exam->studentGroups()->select('student_groups.id'))
@@ -67,8 +77,8 @@ class ShowExamAllocationAction
      */
     private function rooms(Exam $exam): array
     {
-        $start = CarbonImmutable::parse($exam->starts_at->format('Y-m-d H:i:s'));
-        $end = CarbonImmutable::parse($exam->ends_at->format('Y-m-d H:i:s'));
+        $start = $exam->starts_at->toImmutable();
+        $end = $exam->ends_at->toImmutable();
 
         $busy = CourseSession::query()->overlapping($start, $end)->pluck('room_id')
             ->merge(ExamRoomAssignment::query()

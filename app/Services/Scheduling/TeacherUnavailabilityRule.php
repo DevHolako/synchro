@@ -10,7 +10,7 @@ use App\Models\TeacherUnavailability;
  */
 class TeacherUnavailabilityRule implements SoftConflictRule
 {
-    public function softConflicts(SessionSlot $slot): array
+    public function softConflicts(BookingSlot $slot): array
     {
         if ($slot->teacherIds === []) {
             return [];

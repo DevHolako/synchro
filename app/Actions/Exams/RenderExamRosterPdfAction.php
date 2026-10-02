@@ -36,7 +36,7 @@ class RenderExamRosterPdfAction
                 'to' => $assignment->last_surname,
                 'students' => $assignment->candidates->map(fn (ExamCandidate $candidate): array => [
                     'seat' => $candidate->seat_number,
-                    'name' => $candidate->student->name,
+                    'name' => $candidate->student->officialName(),
                     'student_number' => $candidate->student->studentProfile->student_number ?? '',
                     'group' => $candidate->student->studentProfile?->studentGroup->name ?? '',
                 ])->all(),

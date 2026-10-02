@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Web\Exams;
 
+use App\Actions\Exams\DownloadExamDocumentAction;
+use App\Http\Controllers\Concerns\FlashesExamOutcome;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -15,16 +15,15 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ExamRosterDownloadController extends Controller
 {
-    public function __invoke(Exam $exam): StreamedResponse|RedirectResponse
+    use FlashesExamOutcome;
+
+    public function __invoke(Exam $exam, DownloadExamDocumentAction $download): StreamedResponse|RedirectResponse
     {
         Gate::authorize('downloadRoster', $exam);
 
-        if (! Storage::disk('local')->exists($exam->rosterPath())) {
-            Inertia::flash('toast', ['type' => 'info', 'message' => __('messages.exam_document_pending')]);
-
-            return back();
-        }
-
-        return Storage::disk('local')->download($exam->rosterPath(), "emargement-{$exam->module->code}.pdf");
+        return $download->execute(
+            $exam->rosterPath(),
+            __('documents.roster_filename', ['code' => $exam->module->code], 'fr'),
+        ) ?? $this->documentPending();
     }
 }

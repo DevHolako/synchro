@@ -12,7 +12,7 @@ use App\Models\StudentGroup;
  */
 class CapacityRule implements SoftConflictRule
 {
-    public function softConflicts(SessionSlot $slot): array
+    public function softConflicts(BookingSlot $slot): array
     {
         if ($slot->type !== BookingType::CourseSession || $slot->roomIds === []) {
             return [];

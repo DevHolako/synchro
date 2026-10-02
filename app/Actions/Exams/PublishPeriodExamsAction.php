@@ -3,12 +3,11 @@
 namespace App\Actions\Exams;
 
 use App\Enums\ExamState;
-use App\Enums\InvigilatorRole;
 use App\Models\Exam;
 use App\Models\ExamPeriod;
 use App\Models\User;
 use App\Support\SchoolClock;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class PublishPeriodExamsAction
@@ -26,34 +25,30 @@ class PublishPeriodExamsAction
      */
     public function execute(ExamPeriod $period, User $publisher): array
     {
-        $upcoming = fn () => $period->exams()
-            ->where('state', ExamState::Scheduled)
-            ->where('starts_at', '>', SchoolClock::now());
+        return DB::transaction(function () use ($period, $publisher): array {
+            $upcoming = fn () => $period->exams()
+                ->where('state', ExamState::Scheduled)
+                ->where('starts_at', '>', SchoolClock::now());
 
-        $withoutLead = fn (Builder $rooms) => $rooms
-            ->whereDoesntHave('invigilators', fn (Builder $invigilators) => $invigilators->where('role', InvigilatorRole::Principal));
+            $skipped = $upcoming()->missingLead()->count();
+            // Locked, so every exam read here is the one published and given documents.
+            $ready = array_values(array_map('intval', $upcoming()->staffed()->lockForUpdate()->pluck('id')->all()));
 
-        $skipped = $upcoming()->whereHas('roomAssignments', $withoutLead)->count();
-
-        $ready = $upcoming()->whereDoesntHave('roomAssignments', $withoutLead)->pluck('id')->all();
-
-        $published = Exam::query()
-            ->whereKey($ready)
-            ->where('state', ExamState::Scheduled)
-            ->update([
+            $published = Exam::query()->whereKey($ready)->update([
                 'state' => ExamState::Published,
                 'published_at' => now(),
                 'published_by' => $publisher->id,
             ]);
 
-        $this->queueDocuments->execute(array_values(array_map('intval', $ready)));
+            if ($published === 0) {
+                throw ValidationException::withMessages(['period' => $skipped > 0
+                    ? __('messages.exam_period_leads_missing', ['count' => $skipped])
+                    : __('messages.exam_period_nothing_to_publish')]);
+            }
 
-        if ($published === 0) {
-            throw ValidationException::withMessages(['period' => $skipped > 0
-                ? __('messages.exam_period_leads_missing', ['count' => $skipped])
-                : __('messages.exam_period_nothing_to_publish')]);
-        }
+            $this->queueDocuments->execute($ready);
 
-        return ['published' => $published, 'skipped' => $skipped];
+            return ['published' => $published, 'skipped' => $skipped];
+        });
     }
 }

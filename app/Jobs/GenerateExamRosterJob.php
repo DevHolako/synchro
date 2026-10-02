@@ -6,6 +6,8 @@ use App\Actions\Exams\StoreExamRosterAction;
 use App\Models\Exam;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GenerateExamRosterJob implements ShouldQueue
 {
@@ -26,6 +28,14 @@ class GenerateExamRosterJob implements ShouldQueue
     public function handle(StoreExamRosterAction $action): void
     {
         $action->execute($this->exam);
+    }
+
+    /**
+     * Record the room sheets that could not be generated; their download stays "being prepared".
+     */
+    public function failed(?Throwable $exception): void
+    {
+        Log::error('Exam room sheets not generated', ['exam' => $this->exam->id, 'error' => $exception?->getMessage()]);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Exams;
 
+use App\Models\Exam;
 use App\Models\ExamCandidate;
 use App\Services\Documents\QrCode;
 use App\Support\SchoolClock;
@@ -19,6 +20,19 @@ class RenderConvocationPdfAction
      */
     public function execute(ExamCandidate $candidate): string
     {
+        return Pdf::loadView('pdf.convocation', $this->viewData($candidate))
+            ->setPaper('a4')
+            ->setOption('isFontSubsettingEnabled', true)
+            ->output();
+    }
+
+    /**
+     * What the convocation template prints, the QR code included.
+     *
+     * @return array{exam: Exam, name: string, studentNumber: string, group: string, day: string, room: string, seat: int, qrCode: string, generatedAt: string}
+     */
+    public function viewData(ExamCandidate $candidate): array
+    {
         $candidate->loadMissing([
             'exam.module:id,code,name',
             'exam.examPeriod:id,name,academic_year',
@@ -28,9 +42,9 @@ class RenderConvocationPdfAction
         $profile = $candidate->student->studentProfile;
         $room = $candidate->roomAssignment->room;
 
-        return Pdf::loadView('pdf.convocation', [
+        return [
             'exam' => $candidate->exam,
-            'name' => $candidate->student->name,
+            'name' => $candidate->student->officialName(),
             'studentNumber' => $profile->student_number ?? '—',
             'group' => $profile?->studentGroup->name ?? '—',
             'day' => $candidate->exam->starts_at->settings(['locale' => 'fr'])->isoFormat('dddd D MMMM YYYY'),
@@ -38,7 +52,7 @@ class RenderConvocationPdfAction
             'seat' => $candidate->seat_number,
             'qrCode' => QrCode::svgDataUri($this->verificationUrl($candidate)),
             'generatedAt' => SchoolClock::now()->format('d/m/Y H:i'),
-        ])->setPaper('a4')->setOption('isFontSubsettingEnabled', true)->output();
+        ];
     }
 
     /**

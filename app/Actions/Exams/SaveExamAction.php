@@ -24,13 +24,15 @@ class SaveExamAction
 
     /**
      * @param  array{exam_period_id: int, module_id: int, student_group_ids: list<int>, starts_at: string, ends_at: string}  $data
+     * @return array{exam: Exam, released: array<int, string>} The exam, and the invigilators its
+     *                                                         new time released, by id.
      *
      * @throws ValidationException
      * @throws HardConflictException
      */
-    public function execute(Exam $exam, array $data): Exam
+    public function execute(Exam $exam, array $data): array
     {
-        return DB::transaction(function () use ($exam, $data): Exam {
+        return DB::transaction(function () use ($exam, $data): array {
             $existed = $exam->exists;
 
             if ($existed && ! $exam->state->isEditable()) {
@@ -62,11 +64,9 @@ class SaveExamAction
                 $this->resplit->execute($exam);
             }
 
-            if ($exam->state->occupiesResources()) {
-                $this->guardConflicts->execute($exam);
-            }
+            $released = $exam->state->occupiesResources() ? $this->guardConflicts->execute($exam) : [];
 
-            return $exam;
+            return ['exam' => $exam, 'released' => $released];
         });
     }
 

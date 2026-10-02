@@ -6,7 +6,7 @@
     @foreach ($rooms as $room)
         <div class="header">
             <div class="institution">{{ __('documents.institution', [], 'fr') }}</div>
-            <div class="subtitle">{{ $exam->module->code }} · {{ $exam->module->name }} · {{ $day }} · {{ __('documents.time_range', ['start' => $exam->starts_at->format('H:i'), 'end' => $exam->ends_at->format('H:i')], 'fr') }}</div>
+            <div class="subtitle">{{ $exam->module->label() }} · {{ $day }} · {{ __('documents.time_range', ['start' => $exam->starts_at->format('H:i'), 'end' => $exam->ends_at->format('H:i')], 'fr') }}</div>
         </div>
 
         <h1>{{ __('documents.door_list_title', [], 'fr') }} · {{ $room['name'] }}</h1>
@@ -29,7 +29,7 @@
 
         <div class="header">
             <div class="institution">{{ __('documents.institution', [], 'fr') }}</div>
-            <div class="subtitle">{{ $exam->module->code }} · {{ $exam->module->name }} · {{ $day }} · {{ __('documents.time_range', ['start' => $exam->starts_at->format('H:i'), 'end' => $exam->ends_at->format('H:i')], 'fr') }}</div>
+            <div class="subtitle">{{ $exam->module->label() }} · {{ $day }} · {{ __('documents.time_range', ['start' => $exam->starts_at->format('H:i'), 'end' => $exam->ends_at->format('H:i')], 'fr') }}</div>
         </div>
 
         <h1>{{ __('documents.roster_title', [], 'fr') }} · {{ $room['name'] }}</h1>

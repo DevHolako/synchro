@@ -17,7 +17,7 @@
                     <tr><td class="label">{{ __('documents.name', [], 'fr') }}</td><td><strong>{{ $name }}</strong></td></tr>
                     <tr><td class="label">{{ __('documents.student_number', [], 'fr') }}</td><td>{{ $studentNumber }}</td></tr>
                     <tr><td class="label">{{ __('documents.group', [], 'fr') }}</td><td>{{ $group }}</td></tr>
-                    <tr><td class="label">{{ __('documents.exam', [], 'fr') }}</td><td>{{ $exam->module->code }} · {{ $exam->module->name }}</td></tr>
+                    <tr><td class="label">{{ __('documents.exam', [], 'fr') }}</td><td>{{ $exam->module->label() }}</td></tr>
                     <tr><td class="label">{{ __('documents.date', [], 'fr') }}</td><td>{{ $day }}</td></tr>
                     <tr><td class="label">{{ __('documents.time', [], 'fr') }}</td><td>{{ __('documents.time_range', ['start' => $exam->starts_at->format('H:i'), 'end' => $exam->ends_at->format('H:i')], 'fr') }}</td></tr>
                     <tr><td class="label">{{ __('documents.room', [], 'fr') }}</td><td><strong>{{ $room }}</strong></td></tr>

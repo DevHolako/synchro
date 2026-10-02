@@ -20,7 +20,7 @@ class ExamRoomsUpdateController extends Controller
         AllocateExamRoomsAction $allocate,
         ShowExamAllocationAction $show,
     ): JsonResponse {
-        $allocate->execute($exam, $request->roomIds(), $request->forceSingleRoom());
+        $allocate->execute($exam, $request->roomIds(), $request->softConflictOverride());
 
         return new JsonResponse($show->execute($exam->refresh()));
     }

@@ -154,6 +154,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * The name to print on official exam documents: a student's official name, otherwise the display name.
+     */
+    public function officialName(): string
+    {
+        return $this->studentProfile?->officialName() ?? $this->name;
+    }
+
+    /**
      * The student's marks on attendance registers.
      *
      * @return HasMany<SessionAttendance, $this>

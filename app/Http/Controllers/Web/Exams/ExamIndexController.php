@@ -7,9 +7,9 @@ use App\Actions\Exams\ListExamPeriodsAction;
 use App\Actions\Exams\ListExamsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Exams\ExamIndexRequest;
+use App\Http\Resources\ExamPeriodResource;
 use App\Http\Resources\ExamResource;
 use App\Models\Exam;
-use App\Models\ExamPeriod;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -33,16 +33,7 @@ class ExamIndexController extends Controller
         $canManage = $viewer->can('create', Exam::class);
 
         return Inertia::render('exams/index', [
-            'periods' => $periods->map(fn (ExamPeriod $item): array => [
-                'id' => $item->id,
-                'name' => $item->name,
-                'session_type' => $item->session_type->value,
-                'academic_year' => $item->academic_year,
-                'start_date' => $item->start_date->format('Y-m-d'),
-                'end_date' => $item->end_date->format('Y-m-d'),
-                'status' => $item->status()->value,
-                'exams_count' => (int) $item->getAttribute('exams_count'),
-            ])->values()->all(),
+            'periods' => ExamPeriodResource::collection($periods)->resolve(),
             'periodId' => $period?->id,
             'exams' => ExamResource::collection($listing['exams'] ?? [])->resolve(),
             'stats' => $listing['stats'] ?? null,

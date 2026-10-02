@@ -169,7 +169,6 @@ return [
     'exam_check_in_undone' => ':name\'s check-in is cancelled.',
     'exam_reschedule_not_allowed' => 'Only a published exam that has not started can be rescheduled in an emergency.',
     'exam_rescheduled' => 'Exam rescheduled: new convocations are being prepared and everyone concerned is alerted.',
-    'exam_rescheduled_released_invigilators' => 'Exam rescheduled. Invigilators released (busy at the new time), to replace: :names.',
     'exam_rescheduled_mail_subject' => 'Urgent: the :exam exam has moved',
     'exam_rescheduled_mail_greeting' => 'Hello :name,',
     'exam_rescheduled_mail_intro' => 'The :exam exam has been moved in an emergency.',
@@ -181,4 +180,6 @@ return [
     'exam_rescheduled_invigilation' => 'You invigilate :room.',
     'exam_rescheduled_released' => 'You no longer invigilate this exam (busy at the new time).',
     'exam_rescheduled_sms' => 'URGENT: exam :exam moved to :when. :place',
+    'exam_invigilators_released' => 'Invigilators released (busy or unavailable at that time), to replace: :names.',
+    'exam_rescheduled_when' => ':date · :start–:end',
 ];

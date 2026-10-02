@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\ConflictOverride;
 use App\Models\CourseSession;
 use App\Models\StudentGroup;
+use App\Support\SchoolClock;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,8 +19,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class TimetableSessionResource extends JsonResource
 {
-    private const string WALL_CLOCK_FORMAT = 'Y-m-d\TH:i:s';
-
     /**
      * @return array<string, mixed>
      */
@@ -29,8 +28,8 @@ class TimetableSessionResource extends JsonResource
 
         return [
             'id' => $session->id,
-            'start' => $session->starts_at->format(self::WALL_CLOCK_FORMAT),
-            'end' => $session->ends_at->format(self::WALL_CLOCK_FORMAT),
+            'start' => $session->starts_at->format(SchoolClock::WALL_CLOCK_FORMAT),
+            'end' => $session->ends_at->format(SchoolClock::WALL_CLOCK_FORMAT),
             'module' => [
                 'id' => $session->module->id,
                 'code' => $session->module->code,

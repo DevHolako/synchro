@@ -6,6 +6,8 @@ use App\Actions\Exams\StoreConvocationAction;
 use App\Models\ExamCandidate;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GenerateConvocationJob implements ShouldQueue
 {
@@ -27,6 +29,14 @@ class GenerateConvocationJob implements ShouldQueue
     public function handle(StoreConvocationAction $action): void
     {
         $action->execute($this->candidate);
+    }
+
+    /**
+     * Record the convocation that could not be generated; its download stays "being prepared".
+     */
+    public function failed(?Throwable $exception): void
+    {
+        Log::error('Convocation not generated', ['candidate' => $this->candidate->id, 'error' => $exception?->getMessage()]);
     }
 
     /**

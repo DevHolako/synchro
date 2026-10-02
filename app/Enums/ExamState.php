@@ -47,6 +47,32 @@ enum ExamState: string
     }
 
     /**
+     * Whether students and teachers may see the exam: published, or its history.
+     */
+    public function isVisibleToCandidates(): bool
+    {
+        return in_array($this, self::visibleToCandidates(), true);
+    }
+
+    /**
+     * Whether the exam is over and only kept for the record: completed or archived.
+     */
+    public function isFinished(): bool
+    {
+        return in_array($this, self::finished(), true);
+    }
+
+    /**
+     * States of exams that are over: completed or archived.
+     *
+     * @return list<self>
+     */
+    public static function finished(): array
+    {
+        return [self::Completed, self::Archived];
+    }
+
+    /**
      * States that book resources.
      *
      * @return list<self>

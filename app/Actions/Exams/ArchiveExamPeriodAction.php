@@ -22,7 +22,7 @@ class ArchiveExamPeriodAction
             ExamPeriod::query()->whereKey($period->id)->lockForUpdate()->first();
 
             $unfinished = $period->exams()
-                ->whereIn('state', [ExamState::Draft, ExamState::Scheduled, ExamState::Published])
+                ->whereNotIn('state', ExamState::finished())
                 ->exists();
 
             if ($unfinished) {

@@ -12,6 +12,9 @@ use Carbon\CarbonImmutable;
  */
 final class SchoolClock
 {
+    /** How wall-clock times travel to the frontend: offset-less, so they render as they are. */
+    public const string WALL_CLOCK_FORMAT = 'Y-m-d\\TH:i:s';
+
     public static function now(): CarbonImmutable
     {
         return CarbonImmutable::parse(

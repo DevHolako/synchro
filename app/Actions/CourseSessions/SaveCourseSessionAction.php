@@ -5,7 +5,7 @@ namespace App\Actions\CourseSessions;
 use App\Exceptions\HardConflictException;
 use App\Exceptions\SoftConflictException;
 use App\Models\CourseSession;
-use App\Services\Scheduling\SessionSlot;
+use App\Services\Scheduling\BookingSlot;
 use App\Services\Scheduling\SoftConflictOverride;
 use Illuminate\Support\Facades\DB;
 
@@ -37,7 +37,7 @@ class SaveCourseSessionAction
     {
         return DB::transaction(function () use ($session, $data, $override): CourseSession {
             $existed = $session->exists;
-            $slot = SessionSlot::fromPayload($data, $existed ? $session->id : null);
+            $slot = BookingSlot::fromPayload($data, $existed ? $session->id : null);
             $result = $this->guardConflicts->execute($slot, $override);
 
             $session->fill([

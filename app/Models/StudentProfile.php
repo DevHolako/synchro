@@ -45,6 +45,19 @@ class StudentProfile extends Model
     }
 
     /**
+     * The name on official documents and at the exam door: SURNAME Given name, from the official
+     * fields (the display name, which the student may edit, stands in only when they are missing).
+     */
+    public function officialName(): string
+    {
+        if (blank($this->last_name)) {
+            return $this->user->name;
+        }
+
+        return trim(mb_strtoupper(trim((string) $this->last_name)).' '.trim((string) $this->first_name));
+    }
+
+    /**
      * @return BelongsTo<StudentGroup, $this>
      */
     public function studentGroup(): BelongsTo

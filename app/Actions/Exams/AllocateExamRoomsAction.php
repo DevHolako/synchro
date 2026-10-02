@@ -12,7 +12,6 @@ use App\Models\Room;
 use App\Services\Scheduling\Conflict;
 use App\Services\Scheduling\ConflictResult;
 use App\Services\Scheduling\SoftConflictOverride;
-use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -91,8 +90,8 @@ class AllocateExamRoomsAction
             resourceName: $room->name,
             bookingType: null,
             bookingId: null,
-            startsAt: CarbonImmutable::parse($exam->starts_at->format('Y-m-d H:i:s')),
-            endsAt: CarbonImmutable::parse($exam->ends_at->format('Y-m-d H:i:s')),
+            startsAt: $exam->starts_at->toImmutable(),
+            endsAt: $exam->ends_at->toImmutable(),
             details: ['capacity' => $room->exam_capacity, 'headcount' => $seated],
         )]);
     }

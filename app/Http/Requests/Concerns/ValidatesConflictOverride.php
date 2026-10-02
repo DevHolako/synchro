@@ -6,17 +6,25 @@ use App\Enums\Permission;
 use App\Services\Scheduling\SoftConflictOverride;
 
 /**
- * A write that may knowingly override soft conflicts (ADR 0002): `force_override` with a
- * `justification`, which needs its own permission.
+ * A write that may knowingly override soft conflicts (ADR 0002): a flag (`force_override`
+ * unless the request names it otherwise) with a `justification`, which needs its own permission.
  */
 trait ValidatesConflictOverride
 {
+    /**
+     * The input flag that asks for the override; a request may name it after what it overrides.
+     */
+    protected function overrideFlag(): string
+    {
+        return 'force_override';
+    }
+
     /**
      * Asking to override soft conflicts needs its own permission.
      */
     protected function mayOverride(): bool
     {
-        return ! $this->boolean('force_override')
+        return ! $this->boolean($this->overrideFlag())
             || ($this->user()?->hasPermission(Permission::OverrideSoftConflicts) ?? false);
     }
 
@@ -25,7 +33,7 @@ trait ValidatesConflictOverride
      */
     protected function prepareOverrideInput(): void
     {
-        if (! $this->boolean('force_override')) {
+        if (! $this->boolean($this->overrideFlag())) {
             $this->merge(['justification' => null]);
         }
     }
@@ -36,10 +44,10 @@ trait ValidatesConflictOverride
     protected function overrideRules(): array
     {
         return [
-            'force_override' => ['sometimes', 'boolean'],
+            $this->overrideFlag() => ['sometimes', 'boolean'],
             'justification' => [
                 'nullable',
-                'required_if_accepted:force_override',
+                'required_if_accepted:'.$this->overrideFlag(),
                 'string',
                 'min:'.SoftConflictOverride::MIN_JUSTIFICATION,
                 'max:'.SoftConflictOverride::MAX_JUSTIFICATION,
@@ -54,7 +62,7 @@ trait ValidatesConflictOverride
     {
         $user = $this->user();
 
-        if (! $this->boolean('force_override') || $user === null) {
+        if (! $this->boolean($this->overrideFlag()) || $user === null) {
             return null;
         }
 

@@ -3,19 +3,16 @@
 namespace App\Actions\Exams;
 
 use App\Actions\CourseSessions\RecordConflictOverridesAction;
-use App\Enums\BookingType;
-use App\Enums\ExamState;
 use App\Enums\InvigilatorRole;
 use App\Enums\Permission;
 use App\Exceptions\HardConflictException;
 use App\Exceptions\SoftConflictException;
+use App\Models\Exam;
 use App\Models\ExamInvigilator;
 use App\Models\ExamRoomAssignment;
 use App\Models\User;
 use App\Services\Scheduling\ConflictDetectorService;
-use App\Services\Scheduling\SessionSlot;
 use App\Services\Scheduling\SoftConflictOverride;
-use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -47,7 +44,7 @@ class AssignInvigilatorsAction
     {
         $exam = $room->exam;
 
-        if (! in_array($exam->state, [ExamState::Draft, ExamState::Scheduled, ExamState::Published], true) || $exam->hasStarted()) {
+        if ($exam->state->isFinished() || $exam->hasStarted()) {
             throw ValidationException::withMessages(['exam' => __('messages.exam_invigilators_locked')]);
         }
 
@@ -58,6 +55,8 @@ class AssignInvigilatorsAction
         $teacherIds = [$leadId, ...$assistantIds];
 
         return DB::transaction(function () use ($exam, $room, $leadId, $teacherIds, $override): ExamRoomAssignment {
+            // The exam first (publication checks leads under the same lock), then the teachers.
+            Exam::query()->whereKey($exam->id)->lockForUpdate()->first();
             User::query()->whereKey($teacherIds)->orderBy('id')->lockForUpdate()->get();
 
             $elsewhere = ExamInvigilator::query()
@@ -71,15 +70,7 @@ class AssignInvigilatorsAction
                 throw ValidationException::withMessages(['assistant_ids' => __('messages.exam_invigilator_elsewhere', ['name' => $elsewhere->teacher->name])]);
             }
 
-            $result = $this->detector->checkConflicts(new SessionSlot(
-                type: BookingType::Exam,
-                teacherIds: $teacherIds,
-                roomIds: [],
-                groupIds: [],
-                startsAt: CarbonImmutable::parse($exam->starts_at->format('Y-m-d H:i:s')),
-                endsAt: CarbonImmutable::parse($exam->ends_at->format('Y-m-d H:i:s')),
-                ignoreId: $exam->id,
-            ));
+            $result = $this->detector->checkConflicts($exam->invigilationSlot($teacherIds));
 
             if ($exam->state->occupiesResources() && $result->hasHardConflicts()) {
                 throw new HardConflictException($result);

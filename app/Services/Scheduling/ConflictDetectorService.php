@@ -31,7 +31,7 @@ class ConflictDetectorService
         $this->rules = [$capacity, $teacherUnavailability];
     }
 
-    public function checkConflicts(SessionSlot $slot): ConflictResult
+    public function checkConflicts(BookingSlot $slot): ConflictResult
     {
         $hardConflicts = [];
         $softConflicts = [];

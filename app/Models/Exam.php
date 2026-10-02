@@ -4,11 +4,11 @@ namespace App\Models;
 
 use App\Enums\BookingType;
 use App\Enums\ExamState;
+use App\Enums\InvigilatorRole;
 use App\Enums\Permission;
 use App\Models\Concerns\OverlapsInTime;
-use App\Services\Scheduling\SessionSlot;
+use App\Services\Scheduling\BookingSlot;
 use App\Support\SchoolClock;
-use Carbon\CarbonImmutable;
 use Database\Factories\ExamFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -162,15 +162,15 @@ class Exam extends Model
     /**
      * What the exam books, as the conflict detector reads it: its groups, rooms and invigilators.
      */
-    public function bookingSlot(): SessionSlot
+    public function bookingSlot(): BookingSlot
     {
-        return new SessionSlot(
+        return new BookingSlot(
             type: BookingType::Exam,
             teacherIds: array_values(array_map('intval', $this->invigilators()->pluck('teacher_id')->all())),
             roomIds: array_values(array_map('intval', $this->roomAssignments()->pluck('room_id')->all())),
             groupIds: array_values(array_map('intval', $this->studentGroups()->pluck('student_groups.id')->all())),
-            startsAt: CarbonImmutable::parse($this->starts_at->format('Y-m-d H:i:s')),
-            endsAt: CarbonImmutable::parse($this->ends_at->format('Y-m-d H:i:s')),
+            startsAt: $this->starts_at->toImmutable(),
+            endsAt: $this->ends_at->toImmutable(),
             ignoreId: $this->id,
         );
     }
@@ -186,7 +186,7 @@ class Exam extends Model
     /**
      * The room this user invigilates in the exam, if any.
      */
-    public function invigilatedRoomId(User $user): ?int
+    public function invigilatedAssignmentId(User $user): ?int
     {
         $roomId = $this->invigilators()->where('teacher_id', $user->id)->value('exam_room_assignment_id');
 
@@ -210,6 +210,24 @@ class Exam extends Model
     }
 
     /**
+     * The exam's window for these invigilators alone, to check them against their other bookings.
+     *
+     * @param  list<int>  $teacherIds
+     */
+    public function invigilationSlot(array $teacherIds): BookingSlot
+    {
+        return new BookingSlot(
+            type: BookingType::Exam,
+            teacherIds: $teacherIds,
+            roomIds: [],
+            groupIds: [],
+            startsAt: $this->starts_at->toImmutable(),
+            endsAt: $this->ends_at->toImmutable(),
+            ignoreId: $this->id,
+        );
+    }
+
+    /**
      * Whether the exam has begun, by the school's clock.
      */
     public function hasStarted(): bool
@@ -223,6 +241,34 @@ class Exam extends Model
     public function isOverdue(): bool
     {
         return $this->state->isEditable() && $this->hasStarted();
+    }
+
+    /**
+     * Exams with a room that has no lead invigilator yet.
+     *
+     * @param  Builder<Exam>  $query
+     */
+    public function scopeMissingLead(Builder $query): void
+    {
+        $query->whereHas('roomAssignments', self::roomWithoutLead(...));
+    }
+
+    /**
+     * Exams whose every room has a lead invigilator.
+     *
+     * @param  Builder<Exam>  $query
+     */
+    public function scopeStaffed(Builder $query): void
+    {
+        $query->whereDoesntHave('roomAssignments', self::roomWithoutLead(...));
+    }
+
+    /**
+     * @param  Builder<ExamRoomAssignment>  $rooms
+     */
+    private static function roomWithoutLead(Builder $rooms): void
+    {
+        $rooms->whereDoesntHave('invigilators', fn (Builder $invigilators) => $invigilators->where('role', InvigilatorRole::Principal));
     }
 
     /**
