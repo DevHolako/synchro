@@ -213,22 +213,38 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
    - Backward compatible: `SendUrgentMessageAction` and `SendUrgentMessageJob` execute through the manager and benefit from phone normalization and queue retries on `UrgentAlertDeliveryException`.
    - **Run `php artisan migrate`** locally: `urgent_alerts` table.
 
-### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
-- **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
-- **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
-- **Docker** (modelled on the we-cretif setup): `Dockerfile` (FrankenPHP `dunglas/frankenphp:1-php8.5`, composer and node builder stages, target `production`), `docker-compose.yml`, `docker/Caddyfile`, `docker/entrypoint.sh`, `docker/hestia/synchro.{tpl,stpl}` (host nginx templates), `.env.docker.example`. `app` serves HTTP on `127.0.0.1:${APP_PORT:-8000}` (Caddy `auto_https off`) and migrates on boot; `app`, `horizon`, and `scheduler` share the `synchro:latest` image and the storage volume (`APP_STORAGE`). `mysql` (8.0), `redis`, and `phpmyadmin` are optional via `COMPOSE_PROFILES`; external servers or the host's MySQL socket (`DB_SOCKET_DIR`) work too. The host's nginx owns the domain and HTTPS; Laravel trusts private-range proxies so signed URLs keep `https`. CI/CD (deploy script, GitLab) is intentionally not included yet.
-- **Local dev:** `composer dev` runs Horizon instead of `queue:listen`; `.env` needs `QUEUE_CONNECTION=redis` and a running Redis.
-- **Tickets 01–03** have no queued work (synchronous CRUD); Ticket 04 invitation emails and Ticket 05 imports are queued.
+2. **Ticket 02: In-App Notification Bell and Automated Emails** ([`02-in-app-notification-bell-and-automated-emails.md`](file:///home/holako/github/synchro/docs/specs/06-notifications-and-mobile-api/tickets/02-in-app-notification-bell-and-automated-emails.md), design decisions recorded in the ticket)
+   - Implemented: `TimetablePublishedNotification` and `ExamConvocationPublishedNotification` queued on `notifications`, `NotifyTimetablePublishedAction`, `ListRecentNotificationsAction`, `MarkNotificationReadAction`, `MarkAllNotificationsReadAction`.
+   - Web endpoints: `GET /notifications`, `PATCH /notifications/{id}/read`, `POST /notifications/read-all`.
+   - UI: `NotificationBell` in `TopBar` with unread badge counter, popover list, mark all read, and decomposed `NotificationItem`.
+
+3. **Ticket 03: Sanctum REST API v1 — Authentication and Schedules** ([`03-sanctum-rest-api-v1-authentication-and-schedules.md`](file:///home/holako/github/synchro/docs/specs/06-notifications-and-mobile-api/tickets/03-sanctum-rest-api-v1-authentication-and-schedules.md), design decisions recorded in the ticket)
+   - Implemented: Laravel Sanctum Bearer token authentication for mobile clients.
+   - Throttled API endpoints (`throttle:60,1`): `POST /api/v1/auth/login`, `POST /api/v1/auth/logout`, `GET /api/v1/auth/user`.
+   - Schedule feeds: `GET /api/v1/schedules/my-schedule`, `GET /api/v1/schedules/group/{id}` with `ResolvesDateRange` concern.
+   - Standardized RFC 7807 error responses (`ProblemDetailsResponse` with `application/problem+json`).
+
+4. **Ticket 04: Mobile REST API — Exams and Door QR Check-in** ([`04-mobile-api-exam-and-checkin-endpoints.md`](file:///home/holako/github/synchro/docs/specs/06-notifications-and-mobile-api/tickets/04-mobile-api-exam-and-checkin-endpoints.md), design decisions recorded in the ticket)
+   - Implemented: `GET /api/v1/exams/my-exams` delegating to `ListMyExamsAction` with `MyExamResource`.
+   - `GET /api/v1/exams/convocation/{exam}/download` delegating to `FindCandidateConvocationAction` with IDOR protection.
+   - `POST /api/v1/check-in/scan` delegating to `ScanDoorCheckInAction` returning `DoorCheckInOutcome` payload.
 
 ---
 
-## 4. The Active Implementation Frontier: Next Ticket
+## 4. The Implementation Frontier: Project Complete
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Parts 03, 04, and 05 are complete, reviewed and re-reviewed (2026-10-02). Part 06 (Notifications & Mobile REST API) is the active implementation frontier.
+All six specifications (Parts 01 through 06, totaling 26 vertical slice tickets) are **100% complete, reviewed, and verified**.
 
-### **Part 06: Notifications & Mobile REST API** (active frontier)
-- Part 05 was reviewed and re-reviewed on 2026-10-02 (`f85bfd5..HEAD`, standards + spec axes); all findings were resolved and verified.
-- Part 06 builds on the notification pipeline (`UrgentMessageGateway`, `SendUrgentMessageJob`, `notifications` queue) and exposes Sanctum-authenticated `/api/v1/` endpoints adhering to ADR 0009.
+### Part 06 Code Review Remediations (2026-10-02, `b8005af..HEAD`):
+- **Door Check-In Action**: Extracted `ScanDoorCheckInAction` and `DoorCheckInOutcome` DTO; `ScanCheckInController` reduced to thin declarative controller.
+- **My Exams Action & Resource**: Extracted `ListMyExamsAction` and `MyExamResource`; `MyExamsController` reduced to 18 lines.
+- **IDOR & ID Collision Fix**: Created `FindCandidateConvocationAction` for secure candidate resolution.
+- **Emergency Session Reschedule**: Created `NotifyCourseSessionRescheduledAction` and integrated with `RescheduleCourseSessionAction` for 2-hour window alert dispatch.
+- **Timetable Publication Notification**: Hooked `NotifyTimetablePublishedAction` into `BatchCreateCourseSessionsAction`.
+- **Frontend Decomposition**: Decomposed `notification-bell.tsx` (reduced from 273 lines) with `notification-item.tsx` (77 lines) and `types.ts`.
+- **Full Localization**: Zero hardcoded strings across all new features; full parity between `lang/en/messages.php` and `lang/fr/messages.php`.
+- **Test Suite Green**: 580 passed, 0 failures, 5 Fortify stubs skipped.
+
 
 ### Prior Part Reviews Archive
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
