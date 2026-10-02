@@ -1022,4 +1022,16 @@ export const en: Translations = {
         ungrouped:
             '{count} student(s) without a group: no exam can seat them. Assign them to a group first.',
     },
+    notifications: {
+        title: 'Notifications',
+        empty: 'No notifications at the moment.',
+        mark_all_read: 'Mark all as read',
+        unread_badge: '{count} unread',
+        view_timetable: 'View timetable',
+        view_convocation: 'View convocation',
+        just_now: 'Just now',
+        minutes_ago: '{count}m ago',
+        hours_ago: '{count}h ago',
+        days_ago: '{count}d ago',
+    },
 };

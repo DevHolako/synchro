@@ -50,6 +50,7 @@ class HandleInertiaRequests extends Middleware
             'pendingUnavailabilityCount' => fn () => $request->user()?->hasPermission(Permission::ReviewUnavailability)
                 ? TeacherUnavailability::query()->where('status', UnavailabilityStatus::Pending)->count()
                 : null,
+            'unreadNotificationsCount' => fn () => $request->user()?->unreadNotifications()->count() ?? 0,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'flash' => [
                 'toast' => $request->session()->get('toast'),

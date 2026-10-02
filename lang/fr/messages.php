@@ -199,4 +199,18 @@ return [
     'deliberation_not_submitted' => 'Cette feuille de notes n\'attend pas de délibération : elle doit être soumise.',
     'deliberation_locked' => 'Délibération verrouillée. Le PV est en cours de génération et les notes sont publiées.',
     'grade_sheet_returned' => 'Feuille de notes renvoyée à l\'enseignant.',
+
+    // Notifications (Part 06 / Ticket 02)
+    'timetable_published_title' => 'Emploi du temps publié',
+    'timetable_published_message' => 'L\'emploi du temps pour le groupe :group (:period) est maintenant disponible.',
+    'timetable_published_mail_subject' => 'Publication de votre emploi du temps',
+    'timetable_published_mail_line' => 'L\'emploi du temps pour le groupe :group (:period) a été publié.',
+    'timetable_published_mail_action' => 'Consulter l\'emploi du temps',
+    'convocation_published_title' => 'Convocation d\'examen disponible',
+    'convocation_published_message' => 'Votre convocation pour l\'examen de :module (:starts_at) est disponible.',
+    'convocation_published_mail_subject' => 'Convocation à l\'examen de :module',
+    'convocation_published_mail_line' => 'Votre convocation pour l\'examen de :module (prévu le :starts_at) est disponible. Salle : :room, place : :seat.',
+    'convocation_published_mail_action' => 'Télécharger ma convocation',
+    'mail_greeting' => 'Bonjour :name,',
+    'mail_salutation' => 'Cordialement, l\'équipe pédagogique.',
 ];

@@ -933,4 +933,16 @@ export interface Translations {
         save: string;
         ungrouped: string;
     };
+    notifications: {
+        title: string;
+        empty: string;
+        mark_all_read: string;
+        unread_badge: string;
+        view_timetable: string;
+        view_convocation: string;
+        just_now: string;
+        minutes_ago: string;
+        hours_ago: string;
+        days_ago: string;
+    };
 }

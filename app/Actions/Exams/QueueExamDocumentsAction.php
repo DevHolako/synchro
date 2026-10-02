@@ -6,6 +6,7 @@ use App\Jobs\GenerateConvocationJob;
 use App\Jobs\GenerateExamRosterJob;
 use App\Models\Exam;
 use App\Models\ExamCandidate;
+use App\Notifications\ExamConvocationPublishedNotification;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -22,8 +23,12 @@ class QueueExamDocumentsAction
         DB::afterCommit(function () use ($examIds): void {
             ExamCandidate::query()
                 ->whereIn('exam_id', $examIds)
+                ->with(['student', 'exam.module', 'roomAssignment.room'])
                 ->orderBy('id')
-                ->each(fn (ExamCandidate $candidate) => GenerateConvocationJob::dispatch($candidate));
+                ->each(function (ExamCandidate $candidate): void {
+                    GenerateConvocationJob::dispatch($candidate);
+                    $candidate->student?->notify(new ExamConvocationPublishedNotification($candidate));
+                });
 
             Exam::query()->whereKey($examIds)->each(fn (Exam $exam) => GenerateExamRosterJob::dispatch($exam));
         });

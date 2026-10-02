@@ -1049,4 +1049,16 @@ export const fr: Translations = {
         ungrouped:
             "{count} étudiant(s) sans groupe : aucun examen ne peut les placer. Affectez-les à un groupe d'abord.",
     },
+    notifications: {
+        title: 'Notifications',
+        empty: 'Aucune notification pour le moment.',
+        mark_all_read: 'Tout marquer comme lu',
+        unread_badge: '{count} non lue(s)',
+        view_timetable: "Voir l'emploi du temps",
+        view_convocation: 'Voir la convocation',
+        just_now: "À l'instant",
+        minutes_ago: 'Il y a {count} min',
+        hours_ago: 'Il y a {count} h',
+        days_ago: 'Il y a {count} j',
+    },
 };

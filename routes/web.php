@@ -62,6 +62,9 @@ use App\Http\Controllers\Web\Modules\ModuleIndexController;
 use App\Http\Controllers\Web\Modules\ModuleStoreController;
 use App\Http\Controllers\Web\Modules\ModuleToggleActiveController;
 use App\Http\Controllers\Web\Modules\ModuleUpdateController;
+use App\Http\Controllers\Web\Notifications\NotificationIndexController;
+use App\Http\Controllers\Web\Notifications\NotificationReadAllController;
+use App\Http\Controllers\Web\Notifications\NotificationReadController;
 use App\Http\Controllers\Web\Programs\ProgramStoreController;
 use App\Http\Controllers\Web\Programs\ProgramToggleActiveController;
 use App\Http\Controllers\Web\Programs\ProgramUpdateController;
@@ -222,6 +225,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('imports', ImportIndexController::class)->name('imports.index');
     Route::get('imports/{type}/template', ImportTemplateController::class)->name('imports.template');
     Route::post('imports/{type}', ImportStoreController::class)->name('imports.store');
+
+    // In-app notifications (Part 06 / Ticket 02)
+    Route::get('notifications', NotificationIndexController::class)->name('notifications.index');
+    Route::patch('notifications/{id}/read', NotificationReadController::class)->name('notifications.read');
+    Route::post('notifications/read-all', NotificationReadAllController::class)->name('notifications.read-all');
 
     // User Provisioning & Invitation Tokens
     Route::get('users', UserIndexController::class)->name('users.index');

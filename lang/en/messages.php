@@ -199,4 +199,18 @@ return [
     'deliberation_not_submitted' => 'This grade sheet is not waiting for deliberation: it must be submitted.',
     'deliberation_locked' => 'Deliberation locked. The PV is being generated and the grades are published.',
     'grade_sheet_returned' => 'Grade sheet sent back to the teacher.',
+
+    // Notifications (Part 06 / Ticket 02)
+    'timetable_published_title' => 'Timetable published',
+    'timetable_published_message' => 'The timetable for group :group (:period) is now available.',
+    'timetable_published_mail_subject' => 'Your timetable has been published',
+    'timetable_published_mail_line' => 'The timetable for group :group (:period) has been published.',
+    'timetable_published_mail_action' => 'View timetable',
+    'convocation_published_title' => 'Exam convocation available',
+    'convocation_published_message' => 'Your convocation for the :module exam (:starts_at) is now available.',
+    'convocation_published_mail_subject' => 'Convocation for the :module exam',
+    'convocation_published_mail_line' => 'Your convocation for the :module exam (scheduled on :starts_at) is now available. Room: :room, seat: :seat.',
+    'convocation_published_mail_action' => 'Download my convocation',
+    'mail_greeting' => 'Hello :name,',
+    'mail_salutation' => 'Best regards, the academic team.',
 ];

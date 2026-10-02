@@ -15,6 +15,7 @@ declare module '@inertiajs/core' {
             auth: Auth;
             sidebarOpen: boolean;
             pendingUnavailabilityCount: number | null;
+            unreadNotificationsCount: number;
             [key: string]: unknown;
         };
     }
