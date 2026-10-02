@@ -149,6 +149,14 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - UI: `resources/js/pages/exams/` (lazy FullCalendar view, live clash warnings for drafts); sidebar "Examens".
    - **Run `php artisan migrate`** locally: three new tables.
 
+2. **Ticket 02: Room Split and Invigilators** ([`02-automatic-room-split-and-invigilator-assignment.md`](file:///home/holako/github/synchro/docs/specs/04-examination-logistics-and-convocations/tickets/02-automatic-room-split-and-invigilator-assignment.md), design decisions recorded in the ticket)
+   - Implemented: `student_profiles.last_name`/`first_name` (provisioning, import and invite dialog), `exams.force_single_room`, `ExamRoomAssignment`, `ExamCandidate` (room and seat per student), `ExamInvigilator` (`InvigilatorRole`), `ConflictType::ForcedSingleRoom`.
+   - Actions: `SplitExamRoomsAction` (French collation, proportional largest-remainder split), `ResplitExamAction`, `AllocateExamRoomsAction`, `AssignInvigilatorsAction`, `GuardExamConflictsAction` (hard conflicts only), `ShowExamAllocationAction`. Scheduling needs rooms and candidates; publishing needs a lead per room.
+   - Engine: `ExamOccupancy` books rooms, invigilators and groups (a check is now 8 queries). `ValidatesConflictOverride` holds the shared override validation.
+   - HTTP: `GET /exams/{exam}/allocation`, `PUT /exams/{exam}/rooms`, `PUT /exams/{exam}/rooms/{assignment}/invigilators` (JSON).
+   - UI: "Salles & surveillants" sheet on the exams page.
+   - **Run `php artisan migrate`** locally: two migrations (names backfilled from `users.name`).
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -160,7 +168,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is in progress: ticket 01 is done, ticket 02 (room split and invigilators) is next.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is in progress: tickets 01–02 are done, ticket 03 (PDF convocations and attendance sheets) is next.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
