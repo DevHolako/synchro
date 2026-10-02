@@ -8,7 +8,6 @@ import {
     ClipboardList,
     FileSpreadsheet,
     Building2,
-    FolderGit2,
     Gavel,
     GraduationCap,
     LayoutGrid,
@@ -16,8 +15,6 @@ import {
     UsersRound,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { LanguageSwitcher } from '@/components/language-switcher';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -183,19 +180,6 @@ export function AppSidebar() {
             : []),
     ];
 
-    const footerNavItems: NavItem[] = [
-        {
-            title: t('nav.repository'),
-            href: 'https://github.com/laravel/react-starter-kit',
-            icon: FolderGit2,
-        },
-        {
-            title: t('nav.documentation'),
-            href: 'https://laravel.com/docs/starter-kits#react',
-            icon: BookOpen,
-        },
-    ];
-
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -215,10 +199,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <div className="px-2 py-1">
-                    <LanguageSwitcher />
-                </div>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

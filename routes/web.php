@@ -20,6 +20,7 @@ use App\Http\Controllers\Web\CourseSessions\CourseSessionDestroyController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionRescheduleController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionStoreController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionUpdateController;
+use App\Http\Controllers\Web\Dashboard\DashboardIndexController;
 use App\Http\Controllers\Web\Deliberations\DeliberationIndexController;
 use App\Http\Controllers\Web\Deliberations\DeliberationLockController;
 use App\Http\Controllers\Web\Deliberations\DeliberationPvDownloadController;
@@ -104,7 +105,7 @@ Route::get('feeds/calendar/{token}.ics', CalendarFeedShowController::class)
     ->name('calendar-feeds.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardIndexController::class)->name('dashboard');
 
     // Physical Referentials (Campuses, Buildings, Rooms)
     Route::get('rooms', RoomIndexController::class)->name('rooms.index');
