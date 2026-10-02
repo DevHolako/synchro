@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\BookingType;
+use App\Enums\ExamSessionType;
 use App\Enums\ExamState;
 use App\Enums\InvigilatorRole;
 use App\Enums\Permission;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
@@ -48,6 +50,8 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, ExamCandidate> $candidates
  * @property-read Collection<int, ExamInvigilator> $invigilators
  * @property-read Collection<int, ExamReschedule> $reschedules
+ * @property-read ExamDeliberation|null $deliberation
+ * @property-read Collection<int, ExamGrade> $grades
  */
 #[Fillable(['exam_period_id', 'module_id', 'starts_at', 'ends_at', 'state', 'force_single_room', 'revision', 'published_at', 'published_by'])]
 class Exam extends Model
@@ -160,6 +164,24 @@ class Exam extends Model
     }
 
     /**
+     * The exam's grade sheet and deliberation, once the sheet has been opened.
+     *
+     * @return HasOne<ExamDeliberation, $this>
+     */
+    public function deliberation(): HasOne
+    {
+        return $this->hasOne(ExamDeliberation::class);
+    }
+
+    /**
+     * @return HasMany<ExamGrade, $this>
+     */
+    public function grades(): HasMany
+    {
+        return $this->hasMany(ExamGrade::class);
+    }
+
+    /**
      * What the exam books, as the conflict detector reads it: its groups, rooms and invigilators.
      */
     public function bookingSlot(): BookingSlot
@@ -243,6 +265,15 @@ class Exam extends Model
     public function hasStarted(): bool
     {
         return $this->starts_at->lessThanOrEqualTo(SchoolClock::now());
+    }
+
+    /**
+     * Whether the exam's grade sheet can be opened: the exam is over, and it belongs to a normal
+     * session (retake sheets come with spec 05 / ticket 04).
+     */
+    public function isGradable(): bool
+    {
+        return $this->state->isFinished() && $this->examPeriod->session_type === ExamSessionType::Normal;
     }
 
     /**
