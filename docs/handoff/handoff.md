@@ -227,8 +227,26 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 
     - array shapes on the `Show*` actions;
     - the pass-through `Create`/`Update`/`UnscheduleExamAction` were removed.
   - **Frontend:** one `OrderedRoomPicker`, `moduleLabel()`, `toastErrors()`, `useExamsBreadcrumbs()`, a stable staff-save callback for the memoized room cards, server flags `is_editable`/`has_started`/`rooms_editable`, busy rooms flagged rather than disabled.
-  - **Other:** the logo icon no longer overrides its callers' fill. Tests were added for each fix (QR in the convocation's view data, unknown convocation 404, dropped-room invigilators, released invigilators on a move, urgent-message idempotency, query count of the exams list).
+  - **Other:** the logo icon no longer overrides its callers' fill. New tests: QR in the convocation's view data, unknown convocation 404, dropped-room invigilators, released invigilators on a move, urgent-message idempotency, query count of the exams list.
   - **Not changed (existing deferred item):** who may invigilate is still decided by the teacher role, like the session teacher (see the Part 02 deferred list).
+- **Re-review of the Part 04 fixes (2026-10-02, `1c2b765..HEAD`):** fixed right away:
+  - **Locking:** every exam write locks the exam row first (`Exam::lockRow()`, order period → exam → rooms → users → groups), which removes the scheduling/staffing deadlock and covers releases. "Publish all" locks the exams before reading their leads.
+  - **Releases:**
+    - room saves name released invigilators (`released` in the JSON, warning toast);
+    - dropped-room invigilators get their own alert wording;
+    - the release toast is one translated sentence.
+  - **Urgent messages:** a short send claim plus a "sent" marker, so a killed worker no longer loses the message.
+  - **Names, labels and access:**
+    - official names in the check-in toasts too, with no lazy load for the name fallback;
+    - module labels come from the server (`label`);
+    - the convocation status (`my_seat.convocation`) and the invigilator's `can_check_in` come from the server.
+  - **Frontend:**
+    - the busy flags are hidden in the reschedule picker (they describe the current time);
+    - the staff-save ref is updated in an effect;
+    - the breadcrumbs hook moved to `resources/js/hooks`;
+    - the toast trait is renamed `FlashesExamToasts`.
+  - **Tests:** the `RecordAttendance` denial, release on scheduling, released names on a rooms save, official names on the check-in screens, the urgent-message claim, and `fake()` data in the new tests.
+  - **Not covered by tests:** publish-all atomicity (it needs two connections) and the `ViewExams` download denial (every role holds `ViewExams`).
 - **Deferred from the Part 03 review:**
   - The PDF copy of the weekly timetable (spec 03 user story 11): reuse Part 04's queued PDF pipeline (recorded in the spec).
   - `resources/js/lib/scheduling-grid.ts` mirrors `SchedulingGrid` by hand, like `permissions.ts`.

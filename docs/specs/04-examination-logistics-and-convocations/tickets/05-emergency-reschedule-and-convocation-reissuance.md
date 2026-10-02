@@ -29,6 +29,6 @@
   - the only driver is `log` (`URGENT_MESSAGES_DRIVER`); SMS and WhatsApp arrive in Part 06.
 - **Everywhere else**: lists and the check-in screen read the new time; the iCal SEQUENCE grows with the exam's `updated_at`. Rows show "Rév. n" with the latest reason as a tooltip.
 - **After the Part review**:
-  - Invigilators of rooms the reschedule drops are released too, recorded in `released_invigilator_ids` and alerted.
+  - Invigilators of rooms the reschedule drops are released too, recorded in `released_invigilator_ids` and alerted with their own reason ("your room is no longer used").
   - Invigilators with an un-overridden unavailability at the new time are released as well.
-  - Each urgent message carries a key (exam, revision, recipient) claimed in the cache before sending, so a retried or redelivered job sends it once; a failed send frees the key and is logged.
+  - Each urgent message carries a key (exam, revision, recipient). A short claim (2 minutes) covers the send, and only a successful send is remembered (7 days). So a duplicate delivery backs off and retries, a worker killed mid-send leaves a claim that expires so the retry still sends, and a message that already went out is never sent again. Final failures are logged.
