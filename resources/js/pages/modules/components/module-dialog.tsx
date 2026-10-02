@@ -16,6 +16,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { store as storeModule, update as updateModule } from '@/routes/modules';
+import {
+    isWeightInRange,
+    ModuleGradingSection,
+} from './module-grading-section';
 import type { Module, Program, Teacher } from './types';
 
 const COLOR_PRESETS = [
@@ -37,6 +41,7 @@ interface ModuleDialogProps {
     programs: Program[];
     teachers: Teacher[];
     moduleToEdit?: Module | null;
+    maxContinuousAssessmentWeight: number;
 }
 
 export function ModuleDialog({
@@ -45,6 +50,7 @@ export function ModuleDialog({
     programs,
     teachers,
     moduleToEdit,
+    maxContinuousAssessmentWeight,
 }: ModuleDialogProps) {
     const { t } = useTranslation();
     const isEditing = Boolean(moduleToEdit);
@@ -57,6 +63,7 @@ export function ModuleDialog({
         total_hours: '40',
         lecture_hours: '24',
         tp_hours: '16',
+        continuous_assessment_weight: '0',
         color_code: '#3B82F6',
         description: '',
         is_active: true,
@@ -74,6 +81,8 @@ export function ModuleDialog({
                 total_hours: moduleToEdit.total_hours.toString(),
                 lecture_hours: moduleToEdit.lecture_hours.toString(),
                 tp_hours: moduleToEdit.tp_hours.toString(),
+                continuous_assessment_weight:
+                    moduleToEdit.continuous_assessment_weight.toString(),
                 color_code: moduleToEdit.color_code,
                 description: moduleToEdit.description || '',
                 is_active: moduleToEdit.is_active,
@@ -87,6 +96,7 @@ export function ModuleDialog({
                 total_hours: '40',
                 lecture_hours: '24',
                 tp_hours: '16',
+                continuous_assessment_weight: '0',
                 color_code: '#3B82F6',
                 description: '',
                 is_active: true,
@@ -100,6 +110,10 @@ export function ModuleDialog({
     const tpHours = parseInt(form.data.tp_hours, 10) || 0;
     const sumHours = lectureHours + tpHours;
     const isHoursExceeded = sumHours > totalHours;
+    const isWeightValid = isWeightInRange(
+        form.data.continuous_assessment_weight,
+        maxContinuousAssessmentWeight,
+    );
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -351,6 +365,20 @@ export function ModuleDialog({
                             )}
                         </div>
 
+                        <ModuleGradingSection
+                            continuousAssessmentWeight={
+                                form.data.continuous_assessment_weight
+                            }
+                            maxWeight={maxContinuousAssessmentWeight}
+                            error={form.errors.continuous_assessment_weight}
+                            onChange={(value) =>
+                                form.setData(
+                                    'continuous_assessment_weight',
+                                    value,
+                                )
+                            }
+                        />
+
                         {/* Color Code Section */}
                         <div className="grid gap-2">
                             <Label className="flex items-center gap-1.5">
@@ -464,7 +492,11 @@ export function ModuleDialog({
                         </Button>
                         <Button
                             type="submit"
-                            disabled={form.processing || isHoursExceeded}
+                            disabled={
+                                form.processing ||
+                                isHoursExceeded ||
+                                !isWeightValid
+                            }
                         >
                             {form.processing
                                 ? t('common.saving')

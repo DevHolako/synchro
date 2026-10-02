@@ -103,6 +103,13 @@ const ModuleRow = memo(function ModuleRow({
                             title={`${t('modules.dialog_tp_hours')}: ${module.tp_hours}h (${Math.round(tpPct)}%)`}
                         />
                     </div>
+
+                    <span className="text-xs text-neutral-500">
+                        {t('modules.weighting_split', {
+                            cc: module.continuous_assessment_weight,
+                            exam: module.exam_weight,
+                        })}
+                    </span>
                 </div>
             </td>
 

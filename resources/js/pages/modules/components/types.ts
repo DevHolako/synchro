@@ -28,6 +28,8 @@ export interface Module {
     total_hours: number;
     lecture_hours: number;
     tp_hours: number;
+    continuous_assessment_weight: number;
+    exam_weight: number;
     color_code: string;
     description?: string | null;
     is_active: boolean;
@@ -49,4 +51,8 @@ export interface ModuleFilters {
     program_id: string;
     teacher_id: string;
     is_active: string;
+}
+
+export interface ModuleLimits {
+    max_continuous_assessment_weight: number;
 }

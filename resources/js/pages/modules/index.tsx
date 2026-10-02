@@ -12,6 +12,7 @@ import { ModulesTable } from './components/modules-table';
 import type {
     Module,
     ModuleFilters,
+    ModuleLimits,
     ModuleStats,
     Program,
     Teacher,
@@ -23,6 +24,7 @@ interface ModulesIndexProps {
     teachers: Teacher[];
     filters: ModuleFilters;
     stats: ModuleStats;
+    limits: ModuleLimits;
 }
 
 export default function ModulesIndex({
@@ -31,6 +33,7 @@ export default function ModulesIndex({
     teachers,
     filters,
     stats,
+    limits,
 }: ModulesIndexProps) {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
@@ -135,6 +138,9 @@ export default function ModulesIndex({
                 programs={programs}
                 teachers={teachers}
                 moduleToEdit={editingModule}
+                maxContinuousAssessmentWeight={
+                    limits.max_continuous_assessment_weight
+                }
             />
         </>
     );

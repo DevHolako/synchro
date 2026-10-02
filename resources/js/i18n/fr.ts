@@ -240,6 +240,7 @@ export const fr: Translations = {
         tp_hours: 'TP / Labo',
         hours_total: '{hours}h total',
         hours_split: '{lecture}h C / {tp}h TP',
+        weighting_split: 'CC {cc} % · Examen {exam} %',
         badge_preview: "Aperçu du badge d'agenda ({code})",
         dialog_create_title: 'Créer un module',
         dialog_edit_title: 'Modifier le module : {name}',
@@ -259,6 +260,13 @@ export const fr: Translations = {
         dialog_tp_hours: 'Travaux pratiques (TP)',
         dialog_hours_warning:
             'Attention : Cours ({lecture}h) + TP ({tp}h) = {sum}h dépasse le Total ({total}h).',
+        dialog_grading_section: 'Pondération de la note finale',
+        dialog_continuous_assessment_weight: 'Contrôle continu (CC) %',
+        dialog_exam_weight: 'Examen final %',
+        dialog_grading_hint:
+            "L'examen final compte pour le reste. Il pèse toujours au moins 1 %.",
+        dialog_weight_out_of_range:
+            'La part du contrôle continu doit être comprise entre 0 et {max} %.',
         dialog_color_section: "Couleur du créneau d'agenda",
         dialog_preview_badge: "Aperçu du badge d'agenda",
         dialog_active_label:
@@ -422,6 +430,8 @@ export const fr: Translations = {
         hint_total_hours: 'Volume horaire total (> 0)',
         hint_lecture_hours: 'Heures de cours',
         hint_tp_hours: 'Heures de TP',
+        hint_continuous_assessment_weight:
+            'Part du contrôle continu en %, de 0 à 99 (0 par défaut : 100 % examen)',
         hint_color_code: 'Couleur hexadécimale, ex. #3B82F6',
         hint_teacher_email: "E-mail d'un enseignant existant",
         hint_description: 'Texte libre',

@@ -221,6 +221,7 @@ export interface Translations {
         tp_hours: string;
         hours_total: string;
         hours_split: string;
+        weighting_split: string;
         badge_preview: string;
         dialog_create_title: string;
         dialog_edit_title: string;
@@ -238,6 +239,11 @@ export interface Translations {
         dialog_lecture_hours: string;
         dialog_tp_hours: string;
         dialog_hours_warning: string;
+        dialog_grading_section: string;
+        dialog_continuous_assessment_weight: string;
+        dialog_exam_weight: string;
+        dialog_grading_hint: string;
+        dialog_weight_out_of_range: string;
         dialog_color_section: string;
         dialog_preview_badge: string;
         dialog_active_label: string;
@@ -382,6 +388,7 @@ export interface Translations {
         hint_total_hours: string;
         hint_lecture_hours: string;
         hint_tp_hours: string;
+        hint_continuous_assessment_weight: string;
         hint_color_code: string;
         hint_teacher_email: string;
         hint_description: string;

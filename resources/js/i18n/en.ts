@@ -237,6 +237,7 @@ export const en: Translations = {
         tp_hours: 'TP / Lab',
         hours_total: '{hours}h total',
         hours_split: '{lecture}h C / {tp}h TP',
+        weighting_split: 'CA {cc}% · Exam {exam}%',
         badge_preview: 'Calendar Preview Badge ({code})',
         dialog_create_title: 'Create Module',
         dialog_edit_title: 'Edit Module: {name}',
@@ -256,6 +257,13 @@ export const en: Translations = {
         dialog_tp_hours: 'Practical (TP)',
         dialog_hours_warning:
             'Warning: Lecture ({lecture}h) + TP ({tp}h) = {sum}h exceeds Total Hours ({total}h).',
+        dialog_grading_section: 'Final Grade Weighting',
+        dialog_continuous_assessment_weight: 'Continuous assessment (CA) %',
+        dialog_exam_weight: 'Final exam %',
+        dialog_grading_hint:
+            'The final exam weighs the rest. It always counts for at least 1%.',
+        dialog_weight_out_of_range:
+            'The continuous assessment share must be between 0 and {max}%.',
         dialog_color_section: 'Calendar Event Color',
         dialog_preview_badge: 'Calendar Preview Badge',
         dialog_active_label:
@@ -413,6 +421,8 @@ export const en: Translations = {
         hint_total_hours: 'Total syllabus hours (> 0)',
         hint_lecture_hours: 'Lecture hours',
         hint_tp_hours: 'Practical (TP) hours',
+        hint_continuous_assessment_weight:
+            'Continuous assessment share in %, 0 to 99 (default 0: 100% exam)',
         hint_color_code: 'Hex color, e.g. #3B82F6',
         hint_teacher_email: 'Email of an existing teacher',
         hint_description: 'Free text',
