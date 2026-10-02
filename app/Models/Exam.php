@@ -170,6 +170,32 @@ class Exam extends Model
     }
 
     /**
+     * The room this user invigilates in the exam, if any.
+     */
+    public function invigilatedRoomId(User $user): ?int
+    {
+        $roomId = $this->invigilators()->where('teacher_id', $user->id)->value('exam_room_assignment_id');
+
+        return $roomId === null ? null : (int) $roomId;
+    }
+
+    /** Candidates may be checked in from this many minutes before the start. */
+    public const int CHECK_IN_OPENS_MINUTES_BEFORE = 60;
+
+    /**
+     * Whether candidates may be checked in now: a published exam, from an hour before its start
+     * until its end, by the school's clock.
+     */
+    public function isCheckInOpen(): bool
+    {
+        $now = SchoolClock::now();
+
+        return $this->state === ExamState::Published
+            && $now->greaterThanOrEqualTo($this->starts_at->copy()->subMinutes(self::CHECK_IN_OPENS_MINUTES_BEFORE))
+            && $now->lessThan($this->ends_at);
+    }
+
+    /**
      * Whether the exam has begun, by the school's clock.
      */
     public function hasStarted(): bool

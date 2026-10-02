@@ -148,7 +148,7 @@ class User extends Authenticatable implements MustVerifyEmail
             || ConflictOverride::query()->where('user_id', $this->id)->exists()
             || SessionAttendance::query()->where('student_id', $this->id)->orWhere('recorded_by', $this->id)->exists()
             || Exam::query()->where('published_by', $this->id)->exists()
-            || ExamCandidate::query()->where('student_id', $this->id)->exists()
+            || ExamCandidate::query()->where('student_id', $this->id)->orWhere('checked_in_by', $this->id)->exists()
             || ExamInvigilator::query()->where('teacher_id', $this->id)->exists();
     }
 

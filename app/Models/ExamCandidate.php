@@ -16,13 +16,16 @@ use Illuminate\Support\Carbon;
  * @property int $exam_room_assignment_id
  * @property int $seat_number
  * @property string $convocation_uuid
+ * @property Carbon|null $checked_in_at
+ * @property int|null $checked_in_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Exam $exam
  * @property-read User $student
  * @property-read ExamRoomAssignment $roomAssignment
+ * @property-read User|null $checker
  */
-#[Fillable(['exam_id', 'student_id', 'exam_room_assignment_id', 'seat_number', 'convocation_uuid'])]
+#[Fillable(['exam_id', 'student_id', 'exam_room_assignment_id', 'seat_number', 'convocation_uuid', 'checked_in_at', 'checked_in_by'])]
 class ExamCandidate extends Model
 {
     /**
@@ -30,7 +33,10 @@ class ExamCandidate extends Model
      */
     protected function casts(): array
     {
-        return ['seat_number' => 'integer'];
+        return [
+            'seat_number' => 'integer',
+            'checked_in_at' => 'datetime',
+        ];
     }
 
     /**
@@ -63,5 +69,15 @@ class ExamCandidate extends Model
     public function roomAssignment(): BelongsTo
     {
         return $this->belongsTo(ExamRoomAssignment::class, 'exam_room_assignment_id');
+    }
+
+    /**
+     * The invigilator or manager who marked the candidate present.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function checker(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'checked_in_by');
     }
 }
