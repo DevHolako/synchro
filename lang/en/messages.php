@@ -160,5 +160,6 @@ return [
     'exam_invigilators_locked' => 'Invigilators can no longer change once the exam has started.',
     'exam_invigilator_elsewhere' => ':name already invigilates another room of this exam.',
     'conflict_forced_single_room' => 'Room :name seats :capacity for exams; all :headcount candidates are placed in it.',
-    'calendar_feed_exam_room' => 'Room :room · seat :seat',
+    'calendar_feed_exam_room' => ':room · seat :seat',
+    'exam_document_pending' => 'The document is being prepared: try again in a few minutes.',
 ];

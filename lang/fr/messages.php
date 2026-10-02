@@ -160,5 +160,6 @@ return [
     'exam_invigilators_locked' => 'Les surveillants ne peuvent plus changer une fois l\'examen commencé.',
     'exam_invigilator_elsewhere' => ':name surveille déjà une autre salle de cet examen.',
     'conflict_forced_single_room' => 'La salle :name compte :capacity places d\'examen ; les :headcount candidats y sont tous placés.',
-    'calendar_feed_exam_room' => 'Salle :room · place :seat',
+    'calendar_feed_exam_room' => ':room · place :seat',
+    'exam_document_pending' => 'Le document est en cours de préparation : réessayez dans quelques minutes.',
 ];

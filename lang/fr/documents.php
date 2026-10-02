@@ -1,0 +1,36 @@
+<?php
+
+// Official printed documents (convocations, door lists, attendance sheets). Always rendered in French.
+return [
+    'institution' => 'ISGA — Institut Supérieur du Génie Appliqué',
+    'convocation_title' => 'Convocation à l\'examen',
+    'session' => ':period · :year',
+    'candidate' => 'Candidat',
+    'name' => 'Nom et prénom',
+    'student_number' => 'Matricule',
+    'group' => 'Groupe',
+    'exam' => 'Épreuve',
+    'date' => 'Date',
+    'time' => 'Horaire',
+    'time_range' => 'de :start à :end',
+    'room' => 'Salle',
+    'seat' => 'Place',
+    'seat_number' => 'Place n° :seat',
+    'instructions_title' => 'Consignes',
+    'instructions' => [
+        'Présentez-vous devant la salle 30 minutes avant le début de l\'épreuve.',
+        'Munissez-vous de cette convocation et de votre carte d\'étudiant.',
+        'Les téléphones et objets connectés sont interdits pendant l\'épreuve.',
+        'Tout retard de plus de 30 minutes interdit l\'accès à la salle.',
+    ],
+    'qr_hint' => 'À présenter au surveillant à l\'entrée de la salle.',
+    'generated_at' => 'Document généré le :date.',
+    'roster_title' => 'Feuille d\'émargement',
+    'door_list_title' => 'Liste d\'affichage',
+    'range' => 'De :from à :to',
+    'students_count' => ':count étudiant(s)',
+    'signature' => 'Signature',
+    'invigilators' => 'Surveillants (nom et signature)',
+    'present_count' => 'Présents : ____  Absents : ____',
+    'no_students' => 'Aucun étudiant dans cette salle.',
+];

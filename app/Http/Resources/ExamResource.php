@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ExamState;
 use App\Enums\InvigilatorRole;
 use App\Models\Exam;
 use App\Models\ExamCandidate;
@@ -10,6 +11,7 @@ use App\Models\ExamRoomAssignment;
 use App\Models\StudentGroup;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * An exam for the exams page. Times are offset-less wall-clock times, as on the timetable.
@@ -59,18 +61,33 @@ class ExamResource extends JsonResource
             // The viewer's own place: their seat as a candidate, their room as an invigilator.
             'my_seat' => $this->seat($exam->candidates->first()),
             'my_invigilation' => $this->invigilation($exam->invigilators->first()),
+            // The door lists and attendance sheets: null when the viewer may not download them.
+            'roster' => $this->roster($request, $exam),
         ];
     }
 
     /**
-     * @return array{room: string, seat: int}|null
+     * @return array{room: string, seat: int, convocation_ready: bool}|null
      */
     private function seat(?ExamCandidate $candidate): ?array
     {
         return $candidate === null ? null : [
             'room' => $candidate->roomAssignment->room->name,
             'seat' => $candidate->seat_number,
+            'convocation_ready' => Storage::disk('local')->exists($candidate->convocationPath()),
         ];
+    }
+
+    /**
+     * @return 'ready'|'pending'|null
+     */
+    private function roster(Request $request, Exam $exam): ?string
+    {
+        if (! in_array($exam->state, ExamState::visibleToCandidates(), true) || ! ($request->user()?->can('downloadRoster', $exam) ?? false)) {
+            return null;
+        }
+
+        return Storage::disk('local')->exists($exam->rosterPath()) ? 'ready' : 'pending';
     }
 
     /**

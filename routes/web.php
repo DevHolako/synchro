@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\CalendarFeeds\CalendarFeedStoreController;
 use App\Http\Controllers\Web\Campuses\CampusStoreController;
 use App\Http\Controllers\Web\Campuses\CampusToggleActiveController;
 use App\Http\Controllers\Web\Campuses\CampusUpdateController;
+use App\Http\Controllers\Web\Convocations\ConvocationVerifyController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionBatchCheckController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionBatchStoreController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionCheckController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
 use App\Http\Controllers\Web\Exams\ExamAllocationShowController;
 use App\Http\Controllers\Web\Exams\ExamCheckController;
+use App\Http\Controllers\Web\Exams\ExamConvocationDownloadController;
 use App\Http\Controllers\Web\Exams\ExamDestroyController;
 use App\Http\Controllers\Web\Exams\ExamIndexController;
 use App\Http\Controllers\Web\Exams\ExamInvigilatorsUpdateController;
@@ -34,6 +36,7 @@ use App\Http\Controllers\Web\Exams\ExamPeriodStoreController;
 use App\Http\Controllers\Web\Exams\ExamPeriodUpdateController;
 use App\Http\Controllers\Web\Exams\ExamPublishController;
 use App\Http\Controllers\Web\Exams\ExamRoomsUpdateController;
+use App\Http\Controllers\Web\Exams\ExamRosterDownloadController;
 use App\Http\Controllers\Web\Exams\ExamScheduleController;
 use App\Http\Controllers\Web\Exams\ExamStoreController;
 use App\Http\Controllers\Web\Exams\ExamUnscheduleController;
@@ -158,6 +161,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('exams/{exam}/allocation', ExamAllocationShowController::class)->name('exams.allocation.show');
     Route::put('exams/{exam}/rooms', ExamRoomsUpdateController::class)->name('exams.rooms.update');
     Route::put('exams/{exam}/rooms/{assignment}/invigilators', ExamInvigilatorsUpdateController::class)->name('exams.invigilators.update');
+
+    // Convocations and room sheets as PDFs, and the convocation QR link (Part 04 / Ticket 03, ADR 0008)
+    Route::get('exams/{exam}/convocation', ExamConvocationDownloadController::class)->name('exams.convocation');
+    Route::get('exams/{exam}/roster', ExamRosterDownloadController::class)->name('exams.roster');
+    Route::get('verify/convocation/{uuid}', ConvocationVerifyController::class)
+        ->whereUuid('uuid')
+        ->middleware('signed')
+        ->name('convocations.verify');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');

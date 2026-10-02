@@ -10,11 +10,15 @@ use Illuminate\Validation\ValidationException;
 
 class PublishExamAction
 {
-    public function __construct(private ChangeExamStateAction $changeState) {}
+    public function __construct(
+        private ChangeExamStateAction $changeState,
+        private QueueExamDocumentsAction $queueDocuments,
+    ) {}
 
     /**
      * Make a scheduled exam visible to its candidates once every room has a lead invigilator.
      * From then on its rooms and candidates are locked: only an emergency reschedule changes them.
+     * Its convocations and room sheets are generated in the background.
      *
      * @throws ValidationException
      */
@@ -24,9 +28,13 @@ class PublishExamAction
             throw ValidationException::withMessages(['exam' => __('messages.exam_lead_missing')]);
         }
 
-        return $this->changeState->execute($exam, ExamState::Published, [
+        $exam = $this->changeState->execute($exam, ExamState::Published, [
             'published_at' => now(),
             'published_by' => $publisher->id,
         ]);
+
+        $this->queueDocuments->execute([$exam->id]);
+
+        return $exam;
     }
 }

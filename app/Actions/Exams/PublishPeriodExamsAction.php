@@ -4,6 +4,7 @@ namespace App\Actions\Exams;
 
 use App\Enums\ExamState;
 use App\Enums\InvigilatorRole;
+use App\Models\Exam;
 use App\Models\ExamPeriod;
 use App\Models\User;
 use App\Support\SchoolClock;
@@ -12,9 +13,11 @@ use Illuminate\Validation\ValidationException;
 
 class PublishPeriodExamsAction
 {
+    public function __construct(private QueueExamDocumentsAction $queueDocuments) {}
+
     /**
      * Publish every scheduled exam of the period that has not started yet and has a lead
-     * invigilator in each room, in one update. The others stay scheduled.
+     * invigilator in each room, in one update, and queue their documents. The others stay scheduled.
      *
      * @return array{published: int, skipped: int} How many exams were published, and how many
      *                                             were left out for want of a lead invigilator.
@@ -32,13 +35,18 @@ class PublishPeriodExamsAction
 
         $skipped = $upcoming()->whereHas('roomAssignments', $withoutLead)->count();
 
-        $published = $upcoming()
-            ->whereDoesntHave('roomAssignments', $withoutLead)
+        $ready = $upcoming()->whereDoesntHave('roomAssignments', $withoutLead)->pluck('id')->all();
+
+        $published = Exam::query()
+            ->whereKey($ready)
+            ->where('state', ExamState::Scheduled)
             ->update([
                 'state' => ExamState::Published,
                 'published_at' => now(),
                 'published_by' => $publisher->id,
             ]);
+
+        $this->queueDocuments->execute(array_values(array_map('intval', $ready)));
 
         if ($published === 0) {
             throw ValidationException::withMessages(['period' => $skipped > 0
