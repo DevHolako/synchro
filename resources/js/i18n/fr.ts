@@ -696,4 +696,21 @@ export const fr: Translations = {
         save_failed: "Les présences n'ont pas pu être enregistrées.",
         load_failed: "La feuille de présence n'a pas pu être chargée.",
     },
+    calendar_feed: {
+        open_button: 'Synchroniser mon agenda',
+        title: 'Abonnement à mon emploi du temps',
+        description:
+            'Ajoutez votre emploi du temps à Google Agenda, Apple Calendar ou Outlook : il se met à jour tout seul quand une séance change.',
+        private_warning:
+            'Ce lien est personnel : toute personne qui le possède voit votre emploi du temps.',
+        create: 'Créer mon lien',
+        webcal_label: 'Apple Calendar et Outlook',
+        https_label: "Google Agenda (« À partir de l'URL »)",
+        open_in_app: 'Ouvrir dans mon agenda',
+        copy: 'Copier',
+        copied: 'Copié',
+        regenerate: 'Générer un nouveau lien',
+        regenerate_hint: "L'ancien lien cessera de fonctionner.",
+        revoke: 'Désactiver le lien',
+    },
 };

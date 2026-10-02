@@ -1,4 +1,4 @@
-import { CalendarPlus } from 'lucide-react';
+import { CalendarPlus, CalendarSync } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/i18n/LanguageContext';
 
@@ -6,12 +6,14 @@ interface TimetableHeaderProps {
     canBrowse: boolean;
     canSchedule: boolean;
     onSchedule: () => void;
+    onSubscribe: () => void;
 }
 
 export function TimetableHeader({
     canBrowse,
     canSchedule,
     onSchedule,
+    onSubscribe,
 }: TimetableHeaderProps) {
     const { t } = useTranslation();
 
@@ -27,12 +29,18 @@ export function TimetableHeader({
                         : t('timetable.my_description')}
                 </p>
             </div>
-            {canSchedule ? (
-                <Button type="button" onClick={onSchedule}>
-                    <CalendarPlus className="size-4" />
-                    {t('schedule.open_button')}
+            <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" onClick={onSubscribe}>
+                    <CalendarSync className="size-4" />
+                    {t('calendar_feed.open_button')}
                 </Button>
-            ) : null}
+                {canSchedule ? (
+                    <Button type="button" onClick={onSchedule}>
+                        <CalendarPlus className="size-4" />
+                        {t('schedule.open_button')}
+                    </Button>
+                ) : null}
+            </div>
         </div>
     );
 }

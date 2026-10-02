@@ -679,4 +679,21 @@ export const en: Translations = {
         save_failed: 'The attendance could not be saved.',
         load_failed: 'The register could not be loaded.',
     },
+    calendar_feed: {
+        open_button: 'Sync my calendar',
+        title: 'Subscribe to my timetable',
+        description:
+            'Add your timetable to Google Calendar, Apple Calendar or Outlook: it updates by itself when a session changes.',
+        private_warning:
+            'This link is personal: anyone who has it can see your timetable.',
+        create: 'Create my link',
+        webcal_label: 'Apple Calendar and Outlook',
+        https_label: 'Google Calendar ("From URL")',
+        open_in_app: 'Open in my calendar app',
+        copy: 'Copy',
+        copied: 'Copied',
+        regenerate: 'Generate a new link',
+        regenerate_hint: 'The old link will stop working.',
+        revoke: 'Turn off the link',
+    },
 };

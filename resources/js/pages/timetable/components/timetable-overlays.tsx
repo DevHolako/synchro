@@ -1,4 +1,6 @@
 import { AttendanceSheet } from './attendance/attendance-sheet';
+import { CalendarFeedDialog } from './calendar-feed-dialog';
+import type { CalendarFeedLinks } from './calendar-feed-dialog';
 import { ScheduleSessionsDialog } from './schedule/schedule-sessions-dialog';
 import type { SchedulingOptions, SchedulingPrefill } from './schedule/types';
 import { SessionDetailsDialog } from './session-details-dialog';
@@ -21,6 +23,9 @@ interface TimetableOverlaysProps {
     onCloseDetails: () => void;
     onOpenAttendance: (session: TimetableSession) => void;
     onCloseAttendance: () => void;
+    subscribing: boolean;
+    calendarFeed: CalendarFeedLinks | null;
+    onCloseSubscription: () => void;
 }
 
 /** Everything the timetable opens on top of the calendar. */
@@ -39,6 +44,9 @@ export function TimetableOverlays({
     onCloseDetails,
     onOpenAttendance,
     onCloseAttendance,
+    subscribing,
+    calendarFeed,
+    onCloseSubscription,
 }: TimetableOverlaysProps) {
     return (
         <>
@@ -68,6 +76,13 @@ export function TimetableOverlays({
                     key={attendanceSession.id}
                     session={attendanceSession}
                     onClose={onCloseAttendance}
+                />
+            ) : null}
+
+            {subscribing ? (
+                <CalendarFeedDialog
+                    feed={calendarFeed}
+                    onClose={onCloseSubscription}
                 />
             ) : null}
 

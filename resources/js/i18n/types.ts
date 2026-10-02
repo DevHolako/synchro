@@ -625,4 +625,19 @@ export interface Translations {
         save_failed: string;
         load_failed: string;
     };
+    calendar_feed: {
+        open_button: string;
+        title: string;
+        description: string;
+        private_warning: string;
+        create: string;
+        webcal_label: string;
+        https_label: string;
+        open_in_app: string;
+        copy: string;
+        copied: string;
+        regenerate: string;
+        regenerate_hint: string;
+        revoke: string;
+    };
 }

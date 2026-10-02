@@ -7,6 +7,7 @@ import { dashboard } from '@/routes';
 import { index } from '@/routes/timetable';
 import { defaultView } from './components/calendar-utils';
 import { prefillFromScope } from './components/schedule/schedule-prefill';
+import type { CalendarFeedLinks } from './components/calendar-feed-dialog';
 import type { SchedulingOptions } from './components/schedule/types';
 import { SyllabusProgressPanel } from './components/syllabus-progress-panel';
 import { TimetableCalendar } from './components/timetable-calendar';
@@ -37,6 +38,7 @@ interface TimetableIndexProps {
     canSchedule: boolean;
     /** Absent until the scheduling wizard first asks for it. */
     schedulingOptions?: SchedulingOptions | null;
+    calendarFeed: CalendarFeedLinks | null;
 }
 
 export default function TimetableIndex({
@@ -49,6 +51,7 @@ export default function TimetableIndex({
     noGroup,
     canSchedule,
     schedulingOptions,
+    calendarFeed,
 }: TimetableIndexProps) {
     const { t } = useTranslation();
     const { auth } = usePage().props;
@@ -57,6 +60,7 @@ export default function TimetableIndex({
         useState<TimetableSession | null>(null);
     const [activeModuleId, setActiveModuleId] = useState<number | null>(null);
     const [scheduling, setScheduling] = useState(false);
+    const [subscribing, setSubscribing] = useState(false);
     const [interacting, setInteracting] = useState(false);
     const [attendanceSession, setAttendanceSession] =
         useState<TimetableSession | null>(null);
@@ -130,6 +134,7 @@ export default function TimetableIndex({
                     canBrowse={canBrowse}
                     canSchedule={canSchedule}
                     onSchedule={handleOpenScheduling}
+                    onSubscribe={() => setSubscribing(true)}
                 />
 
                 {canBrowse && options ? (
@@ -200,6 +205,9 @@ export default function TimetableIndex({
                 onCloseDetails={() => setSelectedSession(null)}
                 onOpenAttendance={setAttendanceSession}
                 onCloseAttendance={() => setAttendanceSession(null)}
+                subscribing={subscribing}
+                calendarFeed={calendarFeed}
+                onCloseSubscription={() => setSubscribing(false)}
             />
         </>
     );
