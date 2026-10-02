@@ -986,6 +986,8 @@ export const fr: Translations = {
         retake_badge: 'Session de rattrapage',
         cc_carried: 'CC repris de la session normale',
         normal_final: 'Session normale : {grade}',
+        panel_counts_retake:
+            'Admis {passing} · Ajournés {failing} · Absents {absent}',
     },
     deliberations: {
         title: 'Délibérations',
@@ -1023,6 +1025,7 @@ export const fr: Translations = {
         retake: 'Rattrapage',
         weighting: 'CC {cc} % · Examen {exam} %',
         session_retake: 'Rattrapage',
+        failed: 'Ajourné',
     },
     retakes: {
         title: 'Rattrapages',
@@ -1043,5 +1046,7 @@ export const fr: Translations = {
         dialog_desc:
             'Un brouillon est créé dans {period} pour les groupes concernés. Seuls les étudiants ajournés y seront placés.',
         save: 'Créer le brouillon',
+        ungrouped:
+            "{count} étudiant(s) sans groupe : aucun examen ne peut les placer. Affectez-les à un groupe d'abord.",
     },
 };

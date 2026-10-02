@@ -12,11 +12,6 @@ export function ExamGradesLink({ exam }: { exam: Exam }) {
         return null;
     }
 
-    const enter =
-        exam.grades.can_enter &&
-        exam.grades.status !== 'submitted' &&
-        exam.grades.status !== 'locked';
-
     return (
         <div className="mt-1">
             <Link
@@ -24,7 +19,7 @@ export function ExamGradesLink({ exam }: { exam: Exam }) {
                 className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:underline dark:text-sky-300"
             >
                 <ClipboardList className="size-3.5" />
-                {t(enter ? 'grades.enter' : 'grades.view')}
+                {t(exam.grades.can_edit ? 'grades.enter' : 'grades.view')}
                 {exam.grades.status ? (
                     <span className="text-neutral-500">
                         · {t(`grades.status_${exam.grades.status}`)}

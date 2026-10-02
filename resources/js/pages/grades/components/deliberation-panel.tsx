@@ -12,19 +12,22 @@ import { lock } from '@/routes/exams/deliberation';
 import { returnMethod as returnSheet } from '@/routes/exams/grades';
 import { pv } from '@/routes/exams';
 import { DeliberationLockDialog } from './deliberation-lock-dialog';
+import { GradeFigure } from './grade-figure';
+import { GRADE_SHEET_PROPS } from './grade-sheet-props';
 import { GradeReturnDialog } from './grade-return-dialog';
 import type { Deliberation } from './types';
 
-const RELOADED_PROPS = ['rows', 'sheet', 'can_edit', 'deliberation', 'flash'];
-
 interface DeliberationPanelProps {
     examId: number;
+    /** A retake session: those who fail are "ajournés", not sent to the retake. */
+    retake: boolean;
     deliberation: Deliberation;
 }
 
 /** The deliberation figures, and the coordinator's decision on a submitted sheet: lock or send back. */
 export function DeliberationPanel({
     examId,
+    retake,
     deliberation,
 }: DeliberationPanelProps) {
     const { t, locale } = useTranslation();
@@ -35,7 +38,7 @@ export function DeliberationPanel({
     const decide = (url: string, data: Record<string, string>) =>
         router.post(url, data, {
             preserveScroll: true,
-            only: RELOADED_PROPS,
+            only: GRADE_SHEET_PROPS,
             onStart: () => setProcessing(true),
             onFinish: () => {
                 setProcessing(false);
@@ -58,22 +61,26 @@ export function DeliberationPanel({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h2 className="font-semibold">{t('grades.panel_title')}</h2>
-                    <dl className="mt-2 flex flex-wrap gap-6">
+                    <div className="mt-2 grid grid-cols-3 gap-3">
                         {figures.map(([label, value]) => (
-                            <div key={label}>
-                                <dt className="text-xs text-neutral-500">
-                                    {label}
-                                </dt>
-                                <dd className="text-xl font-bold">{value}</dd>
-                            </div>
+                            <GradeFigure
+                                key={label}
+                                label={label}
+                                value={value}
+                            />
                         ))}
-                    </dl>
-                    <p className="mt-1 text-sm text-neutral-500">
-                        {t('grades.panel_counts', {
-                            passing: stats.passing,
-                            failing: stats.failing,
-                            absent: stats.absent,
-                        })}
+                    </div>
+                    <p className="mt-2 text-sm text-neutral-500">
+                        {t(
+                            retake
+                                ? 'grades.panel_counts_retake'
+                                : 'grades.panel_counts',
+                            {
+                                passing: stats.passing,
+                                failing: stats.failing,
+                                absent: stats.absent,
+                            },
+                        )}
                     </p>
                     {deliberation.locked_at && deliberation.locked_by ? (
                         <p className="mt-1 text-sm text-neutral-500">

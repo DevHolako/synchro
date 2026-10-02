@@ -4,6 +4,7 @@ export interface RetakePeriodOption {
     id: number;
     name: string;
     academic_year: string;
+    session_type: 'normal' | 'rattrapage';
 }
 
 export interface RetakePeriod extends RetakePeriodOption {
@@ -24,6 +25,8 @@ export interface RetakeModule {
     module_id: number;
     module: string;
     group_ids: number[];
+    /** Failing students without a group: no exam can seat them. */
+    ungrouped: number;
     exam: { id: number; state: ExamState } | null;
     students: RetakeStudent[];
 }

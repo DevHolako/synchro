@@ -1,5 +1,6 @@
 import { useTranslation } from '@/i18n/LanguageContext';
 import { computeFinalGrade, isComplete, isPassing } from './final-grade';
+import { GradeFigure } from './grade-figure';
 import type { GradeDraft, GradeRow } from './types';
 
 interface GradeSheetStatsProps {
@@ -52,13 +53,7 @@ export function GradeSheetStats({
     return (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {figures.map(([label, value]) => (
-                <div
-                    key={label}
-                    className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900"
-                >
-                    <div className="text-xs text-neutral-500">{label}</div>
-                    <div className="text-xl font-bold">{value}</div>
-                </div>
+                <GradeFigure key={label} label={label} value={value} />
             ))}
         </div>
     );

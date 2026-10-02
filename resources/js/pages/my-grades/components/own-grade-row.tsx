@@ -50,7 +50,13 @@ export const OwnGradeRow = memo(function OwnGradeRow({
                             : 'border-rose-300 text-rose-700 dark:border-rose-900 dark:text-rose-300'
                     }
                 >
-                    {t(grade.passed ? 'my_grades.passed' : 'my_grades.retake')}
+                    {t(
+                        grade.passed
+                            ? 'my_grades.passed'
+                            : grade.session_type === 'rattrapage'
+                              ? 'my_grades.failed'
+                              : 'my_grades.retake',
+                    )}
                 </Badge>
             </td>
         </tr>

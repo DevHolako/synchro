@@ -876,6 +876,7 @@ export interface Translations {
         retake_badge: string;
         cc_carried: string;
         normal_final: string;
+        panel_counts_retake: string;
     };
     deliberations: {
         title: string;
@@ -912,6 +913,7 @@ export interface Translations {
         retake: string;
         weighting: string;
         session_retake: string;
+        failed: string;
     };
     retakes: {
         title: string;
@@ -929,5 +931,6 @@ export interface Translations {
         dialog_title: string;
         dialog_desc: string;
         save: string;
+        ungrouped: string;
     };
 }

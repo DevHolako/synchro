@@ -73,7 +73,8 @@ export interface Exam {
     /** The grade sheet; null when the viewer may not open it. Status is null until first opened. */
     grades: {
         status: GradeSheetStatus | null;
-        can_enter: boolean;
+        /** The viewer may still change its grades. */
+        can_edit: boolean;
     } | null;
 }
 

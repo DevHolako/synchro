@@ -1,8 +1,8 @@
 import type { GradeDraft, GradeRow } from './types';
 
-/** Mirrors `ExamGrade::PASS_MARK`. */
+/** Mirrors `GradeScale::PASS_MARK`. */
 const PASS_MARK = 10;
-/** Mirrors `ExamGrade::MAX_GRADE`, in hundredths. */
+/** Mirrors `GradeScale::MAX`, in hundredths. */
 const MAX_HUNDREDTHS = 2000;
 const GRADE_PATTERN = /^\d{1,2}([.,]\d{1,2})?$/;
 

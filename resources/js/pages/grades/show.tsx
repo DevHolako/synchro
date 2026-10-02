@@ -86,6 +86,7 @@ export default function GradesShow({
                 ) : (
                     <DeliberationPanel
                         examId={exam.id}
+                        retake={exam.retake}
                         deliberation={deliberation}
                     />
                 )}

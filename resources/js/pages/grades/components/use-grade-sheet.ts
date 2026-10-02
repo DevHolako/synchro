@@ -4,9 +4,8 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { toastErrors } from '@/lib/toast-errors';
 import { submit, update } from '@/routes/exams/grades';
 import { draftOf, isInvalid } from './final-grade';
+import { GRADE_SHEET_PROPS } from './grade-sheet-props';
 import type { GradeDraft, GradeRow } from './types';
-
-const RELOADED_PROPS = ['rows', 'sheet', 'can_edit', 'flash'];
 
 /**
  * The grid's typed lines: only the lines the teacher changed are kept here and sent on save,
@@ -79,7 +78,7 @@ export function useGradeSheet(
             { grades },
             {
                 preserveScroll: true,
-                only: RELOADED_PROPS,
+                only: GRADE_SHEET_PROPS,
                 onStart: () => setProcessing(true),
                 onFinish: () => setProcessing(false),
                 onSuccess: () => setEdits({}),
@@ -95,7 +94,7 @@ export function useGradeSheet(
                 {},
                 {
                     preserveScroll: true,
-                    only: RELOADED_PROPS,
+                    only: GRADE_SHEET_PROPS,
                     onStart: () => setProcessing(true),
                     onFinish: () => {
                         setProcessing(false);

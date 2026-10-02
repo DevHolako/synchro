@@ -961,6 +961,8 @@ export const en: Translations = {
         retake_badge: 'Retake session',
         cc_carried: 'CA carried over from the normal session',
         normal_final: 'Normal session: {grade}',
+        panel_counts_retake:
+            'Passed {passing} · Failed {failing} · Absent {absent}',
     },
     deliberations: {
         title: 'Deliberations',
@@ -997,6 +999,7 @@ export const en: Translations = {
         retake: 'Retake',
         weighting: 'CA {cc}% · Exam {exam}%',
         session_retake: 'Retake',
+        failed: 'Failed',
     },
     retakes: {
         title: 'Retakes',
@@ -1016,5 +1019,7 @@ export const en: Translations = {
         dialog_desc:
             'A draft is created in {period} for the groups concerned. Only the failing students will be seated.',
         save: 'Create the draft',
+        ungrouped:
+            '{count} student(s) without a group: no exam can seat them. Assign them to a group first.',
     },
 };

@@ -1,10 +1,10 @@
 import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from '@/i18n/LanguageContext';
-import { FIELD_CLASS } from '@/lib/form-classes';
 import { dashboard } from '@/routes';
 import { index as retakesIndex } from '@/routes/retakes';
 import { RetakeExamDialog } from './components/retake-exam-dialog';
+import { RetakeFilterBar } from './components/retake-filter-bar';
 import { RetakeModuleCard } from './components/retake-module-card';
 import type {
     RetakeModule,
@@ -27,6 +27,15 @@ export default function RetakesIndex({
     const { t } = useTranslation();
     const [creating, setCreating] = useState<RetakeModule | null>(null);
     const handleClose = useCallback(() => setCreating(null), []);
+    const handlePeriodChange = useCallback(
+        (periodId: number) =>
+            router.get(
+                retakesIndex().url,
+                { period: periodId },
+                { preserveState: true },
+            ),
+        [],
+    );
 
     useEffect(() => {
         setLayoutProps({
@@ -57,24 +66,11 @@ export default function RetakesIndex({
                     </p>
                 ) : (
                     <>
-                        <select
-                            aria-label={t('retakes.period')}
-                            className={`${FIELD_CLASS} sm:max-w-sm`}
-                            value={period.id}
-                            onChange={(event) =>
-                                router.get(
-                                    retakesIndex().url,
-                                    { period: event.target.value },
-                                    { preserveState: true },
-                                )
-                            }
-                        >
-                            {periods.map((option) => (
-                                <option key={option.id} value={option.id}>
-                                    {option.name} · {option.academic_year}
-                                </option>
-                            ))}
-                        </select>
+                        <RetakeFilterBar
+                            periods={periods}
+                            periodId={period.id}
+                            onPeriodChange={handlePeriodChange}
+                        />
 
                         {modules.length === 0 ? (
                             <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center text-sm text-neutral-500 dark:border-neutral-700">
