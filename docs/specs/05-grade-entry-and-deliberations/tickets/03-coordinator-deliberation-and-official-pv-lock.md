@@ -41,3 +41,9 @@
   - `GET /exams/{exam}/pv` is open to `LockGrades`, `ManageExams` and the module teacher.
 - **Students** (`/my-grades`, sidebar "Mes notes"): only lines of locked deliberations, with CC, exam or ABS, final, result and the locked weighting. Nothing appears before the lock.
 - **Left out**: notifications on send-back or publication (Part 06), the appeal flow, and archiving waiting for deliberations.
+
+## After the Part review
+
+- Immutability moved from model events to the builders (`GradeLineBuilder`, `DeliberationBuilder`). Bulk writes on locked lines or deliberations are refused, except filling in the PV once.
+- Retake deliberations say "Ajournés" in the PV summary and in the coordinator's figures.
+- The PV's "submitted by" and the coordinator's signature block print official names.

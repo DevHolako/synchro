@@ -66,3 +66,10 @@ A structured two-step Grade Entry and Deliberation module. Instructors enter mar
 - **Rounding**: final = (CC × w + exam × (100 − w)) / 100, rounded half-up to 2 decimals. One PHP calculator computes it on integer hundredths. The grid mirrors it in TypeScript for the live display, but the server's value is stored, recomputed on every save.
 - **Pass mark**: final ≥ 10/20, one constant, no eliminatory mark.
 - **Weights**: one stored column, CC 0–99, default 0, editable at any time (see ticket 01).
+
+## Review alignment (2026-10-02, Part 05 review)
+
+- **Opening a sheet**: only the module teacher's visit creates the sheet and its lines. Coordinators and exam managers read a sheet once it exists. Before that, the exams list offers them no link, and a direct visit is sent back with a toast.
+- **Immutability**: locked lines and deliberations are guarded at the Eloquent builder (`GradeLineBuilder`, `DeliberationBuilder`), so bulk updates, upserts, inserts and deletes are refused as well as model saves. Raw `DB::table()` is out of reach, as for `ImmutableBuilder`.
+- **Grade scale**: one `App\Support\GradeScale` (max 20, pass mark 10.00, hundredths conversions, `passes()`). `FrenchCollation` gives the official name order.
+- **Official names**: the "submitted by" and the coordinator's signature block use `User::officialName()`.

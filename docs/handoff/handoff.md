@@ -216,7 +216,7 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Parts 03 and 04 are complete and reviewed (2026-10-02). Part 05 is complete (tickets 01–04, 2026-10-02); its whole-Part review is due.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Parts 03 and 04 are complete and reviewed (2026-10-02). Part 05 is complete (tickets 01–04) and reviewed (2026-10-02); the review fixes are to be re-reviewed.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.
@@ -278,6 +278,14 @@ Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Parts
     - the toast trait is renamed `FlashesExamToasts`.
   - **Tests:** the `RecordAttendance` denial, release on scheduling, released names on a rooms save, official names on the check-in screens, the urgent-message claim, and `fake()` data in the new tests.
   - **Not covered by tests:** publish-all atomicity (it needs two connections) and the `ViewExams` download denial (every role holds `ViewExams`).
+- **Part 05 review (2026-10-02, `f85bfd5..HEAD`, standards + spec axes):** fixed right away:
+  - **Retake candidates:** the latest locked line per module decides, before the < 10 filter. Failing students without a group are counted on the roster.
+  - **No writes on a read:** the grid only opens (creates) a sheet for its teacher; exam rows send `grades.can_edit`.
+  - **Immutability at the builder:** `GradeLineBuilder`/`DeliberationBuilder` refuse bulk updates, upserts, inserts and deletes of locked rows, except filling in the PV once. The recompute writes one upsert per exam (no per-line queries).
+  - **Wording and names:** "Ajourné(s)" on retake PVs, figures and "Mes notes"; official names for the submitter and the signing coordinator.
+  - **Duplication removed:** `GradeScale` (max, pass mark, hundredths, `passes()`), `FrenchCollation`, `ExamPeriod::toOption()`, `Module::ensureValidContinuousAssessmentWeight()` (translated) with the `ValidatesContinuousAssessmentWeight` request concern, shared `GRADE_SHEET_PROPS` and `GradeFigure`, `RetakeIndexRequest`, `retake-filter-bar.tsx`, `GradeSheetStatus` values in the board order, inline comments moved into docblocks.
+  - **Decided:** retakes are weighted with the module's weighting at the retake (recorded in ticket 04).
+  - **Not changed:** memoized rows take their (stable) row objects, as the existing tables do.
 - **Deferred from the Part 03 review:**
   - The PDF copy of the weekly timetable (spec 03 user story 11): reuse Part 04's queued PDF pipeline (recorded in the spec).
   - `resources/js/lib/scheduling-grid.ts` mirrors `SchedulingGrid` by hand, like `permissions.ts`.

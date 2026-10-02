@@ -39,3 +39,9 @@
   - `resources/js/pages/grades/` holds the grid: header with status, live stats (complete lines, absences, average, passing), a memoized row per student with an initials avatar, and a sticky save/submit bar with a confirmation dialog.
   - The exams list shows "Saisir les notes" or "Voir les notes" with the sheet's status.
 - **No audit for drafts**: only `updated_at` per line and the submission stamp. The audit starts at the lock (ticket 03).
+
+## After the Part review
+
+- Only the module teacher's visit opens the sheet (`ExamGradesShowController`). Others are sent back until it exists, and the exams list shows them no link before then. Exam rows carry `grades.can_edit` from the server instead of a client-side rule.
+- Weight recomputes write once per exam (an upsert) instead of once per line.
+- After a save or a submission, the grid reloads the deliberation block too (shared `GRADE_SHEET_PROPS`).

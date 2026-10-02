@@ -23,3 +23,11 @@
   - The stored final is the better of the recomputed final and the normal-session one, in `CalculateFinalGradeAction` and its TypeScript mirror. The grid shows "Session normale : x" under the final.
   - Only the retake grade, or a remarked absence, is required to submit.
 - **Deliberation, PV and "Mes notes"**: the board lists rattrapage periods too. A retake PV is titled for the retake session, with results "Admis" or "Ajourné". "Mes notes" marks retake lines.
+
+## After the Part review
+
+- **Latest line decides**: candidates are found on each student's latest locked line per module, then filtered below 10. A student who failed a first exam of the module and passed a later one is no longer listed.
+- **Retake weighting** (decided in the review): a retake final is computed with the module's weighting at the time of the retake, and its own deliberation snapshots that weighting. It does not reuse the normal session's snapshot.
+- **Students without a group**: they can't be seated by any exam, so each roster card counts them (`ungrouped`) with a warning.
+- **"Ajourné" wording**: "Mes notes" shows "Ajourné" for a failed retake line.
+- **Request and filter bar**: the roster reads its period through `RetakeIndexRequest`, and the page has its own `retake-filter-bar.tsx`.
