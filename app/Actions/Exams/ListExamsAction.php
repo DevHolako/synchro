@@ -29,6 +29,7 @@ class ListExamsAction
                 'studentGroups:id,name,code',
                 'roomAssignments.room:id,name',
                 'roomAssignments.invigilators:id,exam_room_assignment_id,role',
+                'reschedules:id,exam_id,revision,reason',
                 'candidates' => fn ($candidates) => $candidates->where('student_id', $viewer->id)->with('roomAssignment.room:id,name'),
                 'invigilators' => fn ($invigilators) => $invigilators->where('teacher_id', $viewer->id)->with('roomAssignment.room:id,name'),
             ])

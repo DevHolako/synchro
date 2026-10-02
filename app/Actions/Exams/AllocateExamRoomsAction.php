@@ -27,6 +27,7 @@ use Illuminate\Validation\ValidationException;
 class AllocateExamRoomsAction
 {
     public function __construct(
+        private SyncExamRoomsAction $syncRooms,
         private ResplitExamAction $resplit,
         private GuardExamConflictsAction $guardConflicts,
         private RecordConflictOverridesAction $recordOverrides,
@@ -58,11 +59,7 @@ class AllocateExamRoomsAction
         }
 
         return DB::transaction(function () use ($exam, $roomIds, $forceSingleRoom): Exam {
-            $exam->roomAssignments()->whereNotIn('room_id', $roomIds)->delete();
-
-            foreach ($roomIds as $position => $roomId) {
-                $exam->roomAssignments()->updateOrCreate(['room_id' => $roomId], ['position' => $position]);
-            }
+            $this->syncRooms->execute($exam, $roomIds);
 
             $exam->update(['force_single_room' => $forceSingleRoom !== null]);
             $seated = $this->resplit->execute($exam);

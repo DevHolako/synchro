@@ -35,7 +35,10 @@ class ExamResource extends JsonResource
             'start' => $exam->starts_at->format(self::WALL_CLOCK_FORMAT),
             'end' => $exam->ends_at->format(self::WALL_CLOCK_FORMAT),
             'state' => $exam->state->value,
+            'revision' => $exam->revision,
+            'last_reschedule_reason' => $exam->reschedules->first()?->reason,
             'is_overdue' => $exam->isOverdue(),
+            'has_started' => $exam->hasStarted(),
             'module' => [
                 'id' => $exam->module->id,
                 'program_id' => $exam->module->program_id,

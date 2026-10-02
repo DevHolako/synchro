@@ -29,6 +29,7 @@ use App\Http\Controllers\Web\Exams\ExamAllocationShowController;
 use App\Http\Controllers\Web\Exams\ExamCheckController;
 use App\Http\Controllers\Web\Exams\ExamConvocationDownloadController;
 use App\Http\Controllers\Web\Exams\ExamDestroyController;
+use App\Http\Controllers\Web\Exams\ExamEmergencyRescheduleController;
 use App\Http\Controllers\Web\Exams\ExamIndexController;
 use App\Http\Controllers\Web\Exams\ExamInvigilatorsUpdateController;
 use App\Http\Controllers\Web\Exams\ExamPeriodArchiveController;
@@ -159,6 +160,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('exams/{exam}/schedule', ExamScheduleController::class)->name('exams.schedule');
     Route::post('exams/{exam}/unschedule', ExamUnscheduleController::class)->name('exams.unschedule');
     Route::post('exams/{exam}/publish', ExamPublishController::class)->name('exams.publish');
+    Route::post('exams/{exam}/emergency-reschedule', ExamEmergencyRescheduleController::class)->name('exams.emergency-reschedule');
 
     // Exam rooms, alphabetical split and invigilators (Part 04 / Ticket 02)
     Route::get('exams/{exam}/allocation', ExamAllocationShowController::class)->name('exams.allocation.show');

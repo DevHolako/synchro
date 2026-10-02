@@ -6,8 +6,6 @@ use App\Exceptions\HardConflictException;
 use App\Models\Exam;
 use App\Models\ExamPeriod;
 use App\Models\StudentGroup;
-use App\Support\SchoolClock;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -21,6 +19,7 @@ class SaveExamAction
     public function __construct(
         private GuardExamConflictsAction $guardConflicts,
         private ResplitExamAction $resplit,
+        private EnsureExamTimesFitAction $ensureTimesFit,
     ) {}
 
     /**
@@ -41,7 +40,7 @@ class SaveExamAction
             // Shared with period edits, so the period's dates cannot change under this exam.
             $period = ExamPeriod::query()->whereKey($data['exam_period_id'])->lockForUpdate()->firstOrFail();
 
-            $this->ensureTimesFit($period, $data);
+            $this->ensureTimesFit->execute($period, $data['starts_at']);
             $this->ensureModuleNotExaminedTwice($exam, $data);
 
             $exam->fill([
@@ -69,28 +68,6 @@ class SaveExamAction
 
             return $exam;
         });
-    }
-
-    /**
-     * Inside the period's dates, and not already begun by the school's clock.
-     *
-     * @param  array{starts_at: string}  $data
-     */
-    private function ensureTimesFit(ExamPeriod $period, array $data): void
-    {
-        $start = CarbonImmutable::parse($data['starts_at']);
-        $day = $start->format('Y-m-d');
-
-        if ($day < $period->start_date->format('Y-m-d') || $day > $period->end_date->format('Y-m-d')) {
-            throw ValidationException::withMessages(['starts_at' => __('messages.exam_outside_period', [
-                'start' => $period->start_date->format('Y-m-d'),
-                'end' => $period->end_date->format('Y-m-d'),
-            ])]);
-        }
-
-        if ($start->lessThanOrEqualTo(SchoolClock::now())) {
-            throw ValidationException::withMessages(['starts_at' => __('messages.exam_in_past')]);
-        }
     }
 
     /**
