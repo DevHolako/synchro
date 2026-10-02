@@ -4,6 +4,7 @@ import {
     CalendarClock,
     CalendarDays,
     CalendarX2,
+    ClipboardList,
     FileSpreadsheet,
     Building2,
     FolderGit2,
@@ -29,6 +30,7 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { Permission } from '@/lib/permissions';
 import { dashboard } from '@/routes';
 import { index as academicStructureIndex } from '@/routes/academic-structure';
+import { index as examsIndex } from '@/routes/exams';
 import { index as importsIndex } from '@/routes/imports';
 import { index as modulesIndex } from '@/routes/modules';
 import { index as roomsIndex } from '@/routes/rooms';
@@ -42,6 +44,8 @@ const USER_DIRECTORY_PERMISSIONS = [
     Permission.ViewUsers,
     Permission.ManageUsers,
 ];
+
+const EXAM_PERMISSIONS = [Permission.ViewExams, Permission.ManageExams];
 
 export function AppSidebar() {
     const { t } = useTranslation();
@@ -58,6 +62,9 @@ export function AppSidebar() {
     );
     const canViewSchedules = auth.permissions.includes(
         Permission.ViewSchedules,
+    );
+    const canViewExams = EXAM_PERMISSIONS.some((permission) =>
+        auth.permissions.includes(permission),
     );
 
     const mainNavItems: NavItem[] = [
@@ -87,6 +94,15 @@ export function AppSidebar() {
                       title: t('nav.timetable'),
                       href: timetableIndex(),
                       icon: CalendarDays,
+                  },
+              ]
+            : []),
+        ...(canViewExams
+            ? [
+                  {
+                      title: t('nav.exams'),
+                      href: examsIndex(),
+                      icon: ClipboardList,
                   },
               ]
             : []),

@@ -10,6 +10,8 @@ export const Permission = {
     ManageSchedules: 'manage:schedules',
     OverrideSoftConflicts: 'override:soft-conflicts',
     RecordAttendance: 'record:attendance',
+    ViewExams: 'view:exams',
+    ManageExams: 'manage:exams',
 } as const;
 
 export type PermissionValue = (typeof Permission)[keyof typeof Permission];

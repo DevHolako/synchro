@@ -73,7 +73,9 @@ export interface SlotConflict {
     type: ConflictKind;
     resource_id: number;
     resource_name: string;
-    session_id: number | null;
+    /** The colliding booking, for hard conflicts. */
+    booking_type: 'course_session' | 'exam' | null;
+    booking_id: number | null;
     starts_at: string;
     ends_at: string;
     details: Record<string, string | number | null>;

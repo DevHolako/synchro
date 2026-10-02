@@ -8,7 +8,9 @@ type Translate = (
 
 /** A conflict in the UI language (the server's own messages follow APP_LOCALE). */
 export function describeConflict(conflict: SlotConflict, t: Translate): string {
-    return t(`schedule.conflict_${conflict.type}`, {
+    const suffix = conflict.booking_type === 'exam' ? '_exam' : '';
+
+    return t(`schedule.conflict_${conflict.type}${suffix}`, {
         name: conflict.resource_name,
         start: timeOf(conflict.starts_at),
         end: timeOf(conflict.ends_at),
