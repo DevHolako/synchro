@@ -13,7 +13,7 @@ use Collator;
 class ListGradeLinesAction
 {
     /**
-     * @return list<array{student_id: int, name: string, student_number: string|null, group: string|null, continuous_assessment_grade: string|null, exam_grade: string|null, final_grade: string|null, is_absent: bool, remarks: string|null}>
+     * @return list<array{student_id: int, name: string, student_number: string|null, group: string|null, continuous_assessment_grade: string|null, exam_grade: string|null, final_grade: string|null, previous_final_grade: string|null, is_absent: bool, remarks: string|null}>
      */
     public function execute(Exam $exam): array
     {
@@ -28,6 +28,7 @@ class ListGradeLinesAction
                 'continuous_assessment_grade' => $grade->continuous_assessment_grade,
                 'exam_grade' => $grade->exam_grade,
                 'final_grade' => $grade->final_grade,
+                'previous_final_grade' => $grade->previous_final_grade,
                 'is_absent' => $grade->is_absent,
                 'remarks' => $grade->remarks,
             ])

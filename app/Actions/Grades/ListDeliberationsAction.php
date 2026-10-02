@@ -2,15 +2,14 @@
 
 namespace App\Actions\Grades;
 
-use App\Enums\ExamSessionType;
 use App\Enums\ExamState;
 use App\Models\Exam;
 use App\Models\ExamPeriod;
 use App\Support\SchoolClock;
 
 /**
- * The deliberation board for coordinators: a normal period's finished exams with where each
- * grade sheet stands, sheets waiting for a decision first.
+ * The deliberation board for coordinators: a period's finished exams (normal or retake session)
+ * with where each grade sheet stands, sheets waiting for a decision first.
  */
 class ListDeliberationsAction
 {
@@ -22,7 +21,7 @@ class ListDeliberationsAction
 
     /**
      * @return array{
-     *     periods: list<array{id: int, name: string, academic_year: string}>,
+     *     periods: list<array{id: int, name: string, academic_year: string, session_type: string}>,
      *     period_id: int|null,
      *     stats: array<string, int>,
      *     sheets: list<array{exam_id: int, module: string, teacher: string|null, start: string, status: string, lines: int, class_average: string|null, pass_rate: string|null}>
@@ -31,13 +30,13 @@ class ListDeliberationsAction
     public function execute(?int $periodId, ?string $status): array
     {
         $periods = ExamPeriod::query()
-            ->where('session_type', ExamSessionType::Normal)
             ->orderByDesc('start_date')
-            ->get(['id', 'name', 'academic_year']);
+            ->get(['id', 'name', 'academic_year', 'session_type']);
         $options = array_values($periods->map(fn (ExamPeriod $option): array => [
             'id' => $option->id,
             'name' => $option->name,
             'academic_year' => $option->academic_year,
+            'session_type' => $option->session_type->value,
         ])->all());
         $period = $periods->firstWhere('id', $periodId) ?? $periods->first();
         $stats = array_fill_keys(self::ORDER, 0);

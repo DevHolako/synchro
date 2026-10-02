@@ -39,6 +39,7 @@ class RecomputeOpenFinalGradesAction
                         $grade->exam_grade,
                         $grade->is_absent,
                         $module->continuous_assessment_weight,
+                        $grade->previous_final_grade,
                     )]);
                 });
             });

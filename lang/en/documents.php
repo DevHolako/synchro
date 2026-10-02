@@ -60,4 +60,6 @@ return [
     'pv_signature' => 'The coordinator (name, date and signature)',
     'pv_locked_at' => 'Deliberation locked on :date',
     'pv_filename' => 'pv-:code.pdf',
+    'pv_title_retake' => 'Deliberation report (PV) — retake session',
+    'pv_failed' => 'Failed',
 ];

@@ -59,4 +59,6 @@ return [
     'pv_signature' => 'Le coordinateur (nom, date et signature)',
     'pv_locked_at' => 'Délibération verrouillée le :date',
     'pv_filename' => 'pv-:code.pdf',
+    'pv_title_retake' => 'Procès-verbal de délibération — session de rattrapage',
+    'pv_failed' => 'Ajourné',
 ];

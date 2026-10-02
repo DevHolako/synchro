@@ -1,6 +1,6 @@
 @extends('pdf.layout')
 
-@section('title', __('documents.pv_title', [], 'fr'))
+@section('title', __($retake ? 'documents.pv_title_retake' : 'documents.pv_title', [], 'fr'))
 
 @section('content')
     <div class="header">
@@ -8,7 +8,7 @@
         <div class="subtitle">{{ __('documents.session', ['period' => $exam->examPeriod->name, 'year' => $exam->examPeriod->academic_year], 'fr') }}</div>
     </div>
 
-    <h1>{{ __('documents.pv_title', [], 'fr') }}</h1>
+    <h1>{{ __($retake ? 'documents.pv_title_retake' : 'documents.pv_title', [], 'fr') }}</h1>
 
     <table class="facts">
         <tr><td class="label">{{ __('documents.exam', [], 'fr') }}</td><td><strong>{{ $exam->module->label() }}</strong></td></tr>
@@ -42,7 +42,7 @@
                 @endif
                 <td>{{ $line['is_absent'] ? __('documents.pv_absent', [], 'fr') : $line['exam_grade'] }}</td>
                 <td><strong>{{ $line['final_grade'] }}</strong></td>
-                <td>{{ $line['passed'] ? __('documents.pv_passed', [], 'fr') : __('documents.pv_retake', [], 'fr') }}</td>
+                <td>{{ $line['passed'] ? __('documents.pv_passed', [], 'fr') : __($retake ? 'documents.pv_failed' : 'documents.pv_retake', [], 'fr') }}</td>
             </tr>
         @empty
             <tr><td colspan="8">{{ __('documents.no_students', [], 'fr') }}</td></tr>

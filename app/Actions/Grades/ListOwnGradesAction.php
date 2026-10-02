@@ -14,14 +14,14 @@ use App\Support\SchoolClock;
 class ListOwnGradesAction
 {
     /**
-     * @return list<array{exam_id: int, module: string, period: string, academic_year: string, start: string, continuous_assessment_weight: int, continuous_assessment_grade: string|null, exam_grade: string|null, is_absent: bool, final_grade: string|null, passed: bool}>
+     * @return list<array{exam_id: int, module: string, period: string, academic_year: string, session_type: string, start: string, continuous_assessment_weight: int, continuous_assessment_grade: string|null, exam_grade: string|null, is_absent: bool, final_grade: string|null, passed: bool}>
      */
     public function execute(User $student): array
     {
         $grades = ExamGrade::query()
             ->where('student_id', $student->id)
             ->whereHas('exam.deliberation', fn ($sheets) => $sheets->where('status', GradeSheetStatus::Locked))
-            ->with(['exam:id,exam_period_id,module_id,starts_at', 'exam.module:id,code,name', 'exam.examPeriod:id,name,academic_year', 'exam.deliberation:id,exam_id,continuous_assessment_weight'])
+            ->with(['exam:id,exam_period_id,module_id,starts_at', 'exam.module:id,code,name', 'exam.examPeriod:id,name,academic_year,session_type', 'exam.deliberation:id,exam_id,continuous_assessment_weight'])
             ->get()
             ->sortByDesc(fn (ExamGrade $grade) => $grade->exam->starts_at);
 
@@ -30,6 +30,7 @@ class ListOwnGradesAction
             'module' => $grade->exam->module->label(),
             'period' => $grade->exam->examPeriod->name,
             'academic_year' => $grade->exam->examPeriod->academic_year,
+            'session_type' => $grade->exam->examPeriod->session_type->value,
             'start' => $grade->exam->starts_at->format(SchoolClock::WALL_CLOCK_FORMAT),
             'continuous_assessment_weight' => (int) $grade->exam->deliberation?->continuous_assessment_weight,
             'continuous_assessment_grade' => $grade->continuous_assessment_grade,

@@ -23,11 +23,11 @@ class ShowGradeSheetAction
 
     /**
      * @return array{
-     *     exam: array{id: int, module: string, period: string, start: string, end: string},
+     *     exam: array{id: int, module: string, period: string, start: string, end: string, retake: bool},
      *     weights: array{continuous_assessment: int, exam: int},
      *     sheet: array{status: string, submitted_at: string|null, submitted_by: string|null},
      *     can_edit: bool,
-     *     rows: list<array{student_id: int, name: string, student_number: string|null, group: string|null, continuous_assessment_grade: string|null, exam_grade: string|null, final_grade: string|null, is_absent: bool, remarks: string|null}>,
+     *     rows: list<array{student_id: int, name: string, student_number: string|null, group: string|null, continuous_assessment_grade: string|null, exam_grade: string|null, final_grade: string|null, previous_final_grade: string|null, is_absent: bool, remarks: string|null}>,
      *     deliberation: array{
      *         stats: array{graded: int, average: string|null, median: string|null, pass_rate: string|null, passing: int, failing: int, absent: int},
      *         returned_at: string|null,
@@ -41,7 +41,7 @@ class ShowGradeSheetAction
      */
     public function execute(Exam $exam, ExamDeliberation $sheet, User $viewer): array
     {
-        $exam->loadMissing(['module', 'examPeriod:id,name']);
+        $exam->loadMissing(['module', 'examPeriod']);
         $sheet->loadMissing(['submitter:id,name', 'locker:id,name']);
         $lines = $this->listLines->execute($exam);
         $locked = $sheet->status === GradeSheetStatus::Locked;
@@ -55,6 +55,7 @@ class ShowGradeSheetAction
                 'period' => $exam->examPeriod->name,
                 'start' => $exam->starts_at->format(SchoolClock::WALL_CLOCK_FORMAT),
                 'end' => $exam->ends_at->format(SchoolClock::WALL_CLOCK_FORMAT),
+                'retake' => $exam->isRetake(),
             ],
             'weights' => [
                 'continuous_assessment' => $weight,

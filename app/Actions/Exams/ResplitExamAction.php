@@ -2,6 +2,8 @@
 
 namespace App\Actions\Exams;
 
+use App\Actions\Grades\ListRetakeCandidatesAction;
+use App\Enums\ExamSessionType;
 use App\Models\Exam;
 use App\Models\ExamRoomAssignment;
 use App\Models\StudentProfile;
@@ -9,12 +11,16 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Seats the exam's current candidates (the students of its groups) in its rooms again: each
- * room's range and count, and every candidate's room and seat. Runs inside the caller's transaction.
+ * Seats the exam's current candidates (the students of its groups; for a retake, only those who
+ * failed the module) in its rooms again: each room's range and count, and every candidate's room
+ * and seat. Runs inside the caller's transaction.
  */
 class ResplitExamAction
 {
-    public function __construct(private SplitExamRoomsAction $split) {}
+    public function __construct(
+        private SplitExamRoomsAction $split,
+        private ListRetakeCandidatesAction $retakeCandidates,
+    ) {}
 
     /**
      * @return int How many candidates were seated.
@@ -73,15 +79,23 @@ class ResplitExamAction
 
     /**
      * The students of the exam's groups, with their official names (the display name stands in
-     * for a surname that was never recorded).
+     * for a surname that was never recorded). A retake keeps only the students whose locked
+     * normal-session final for the module is below the pass mark.
      *
      * @return list<array{id: int, last_name: string, first_name: string, student_number: string|null}>
      */
     private function candidates(Exam $exam): array
     {
+        // Read afresh: the exam may just have moved to another period.
+        $period = $exam->examPeriod()->firstOrFail();
+        $retakeStudentIds = $period->session_type === ExamSessionType::Rattrapage
+            ? $this->retakeCandidates->execute($period->academic_year, [$exam->module_id])->pluck('student_id')->all()
+            : null;
+
         return array_values(StudentProfile::query()
             ->join('users', 'users.id', '=', 'student_profiles.user_id')
             ->whereIn('student_profiles.student_group_id', $exam->studentGroups()->select('student_groups.id'))
+            ->when($retakeStudentIds !== null, fn ($query) => $query->whereIn('users.id', $retakeStudentIds))
             ->get(['users.id as student_id', 'users.name', 'student_profiles.last_name', 'student_profiles.first_name', 'student_profiles.student_number'])
             ->map(fn (StudentProfile $profile): array => [
                 'id' => (int) $profile->getAttribute('student_id'),

@@ -32,6 +32,7 @@ class RenderDeliberationPvPdfAction
 
         return Pdf::loadView('pdf.deliberation-pv', [
             'exam' => $exam,
+            'retake' => $exam->isRetake(),
             'day' => $exam->starts_at->settings(['locale' => 'fr'])->isoFormat('dddd D MMMM YYYY'),
             'weight' => $weight,
             'lines' => array_map(fn (array $line): array => [

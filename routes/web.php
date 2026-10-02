@@ -65,6 +65,7 @@ use App\Http\Controllers\Web\Modules\ModuleUpdateController;
 use App\Http\Controllers\Web\Programs\ProgramStoreController;
 use App\Http\Controllers\Web\Programs\ProgramToggleActiveController;
 use App\Http\Controllers\Web\Programs\ProgramUpdateController;
+use App\Http\Controllers\Web\Retakes\RetakeIndexController;
 use App\Http\Controllers\Web\Rooms\RoomIndexController;
 use App\Http\Controllers\Web\Rooms\RoomStoreController;
 use App\Http\Controllers\Web\Rooms\RoomToggleActiveController;
@@ -199,6 +200,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('exams/{exam}/deliberation/lock', DeliberationLockController::class)->name('exams.deliberation.lock');
     Route::get('exams/{exam}/pv', DeliberationPvDownloadController::class)->name('exams.pv');
     Route::get('my-grades', MyGradesController::class)->name('my-grades.index');
+
+    // Retake candidates and their retake exams (Part 05 / Ticket 04)
+    Route::get('retakes', RetakeIndexController::class)->name('retakes.index');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');

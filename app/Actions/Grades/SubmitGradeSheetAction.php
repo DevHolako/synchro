@@ -37,7 +37,8 @@ class SubmitGradeSheetAction
                 throw ValidationException::withMessages(['grades' => __('messages.grade_sheet_empty')]);
             }
 
-            $incomplete = $grades->reject(fn (ExamGrade $grade): bool => $this->isComplete($grade, $weight));
+            // A retake's CC is carried over, not entered: only the retake itself is checked.
+            $incomplete = $grades->reject(fn (ExamGrade $grade): bool => $this->isComplete($grade, $exam->isRetake() ? 0 : $weight));
 
             if ($incomplete->isNotEmpty()) {
                 throw ValidationException::withMessages(['grades' => __('messages.grade_sheet_incomplete', [
