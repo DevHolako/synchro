@@ -52,10 +52,8 @@ class ModuleRowImporter implements RowImporter
 
         $continuousAssessmentWeight = (int) ($row['continuous_assessment_weight'] ?? 0);
 
-        if ($continuousAssessmentWeight < 0 || $continuousAssessmentWeight > Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT) {
-            throw new ImportRowException('continuous_assessment_weight', __('messages.module_continuous_assessment_weight_range', [
-                'max' => Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT,
-            ]));
+        if (! Module::isValidContinuousAssessmentWeight($continuousAssessmentWeight)) {
+            throw new ImportRowException('continuous_assessment_weight', Module::continuousAssessmentWeightError());
         }
 
         $program = Program::query()

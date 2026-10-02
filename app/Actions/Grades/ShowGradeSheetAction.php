@@ -11,8 +11,9 @@ use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * An exam's grade sheet for the grading grid: the module's weighting, the sheet's status, one
- * line per candidate in official order, and the deliberation (figures, send-back, lock, PV).
+ * An exam's grade sheet for the grading grid: the module's weighting (on a locked sheet, the one
+ * it was deliberated with), the sheet's status, one line per candidate in official order, and the
+ * deliberation (figures, send-back, lock, PV).
  */
 class ShowGradeSheetAction
 {
@@ -42,10 +43,12 @@ class ShowGradeSheetAction
     public function execute(Exam $exam, ExamDeliberation $sheet, User $viewer): array
     {
         $exam->loadMissing(['module', 'examPeriod']);
-        $sheet->loadMissing(['submitter:id,name', 'locker:id,name']);
+        $sheet->loadMissing([
+            'submitter:id,name', 'submitter.studentProfile:id,user_id,last_name,first_name',
+            'locker:id,name', 'locker.studentProfile:id,user_id,last_name,first_name',
+        ]);
         $lines = $this->listLines->execute($exam);
         $locked = $sheet->status === GradeSheetStatus::Locked;
-        // A locked sheet shows the weighting it was deliberated with.
         $weight = $locked ? (int) $sheet->continuous_assessment_weight : $exam->module->continuous_assessment_weight;
 
         return [
@@ -64,7 +67,7 @@ class ShowGradeSheetAction
             'sheet' => [
                 'status' => $sheet->status->value,
                 'submitted_at' => $this->wallClock($sheet->submitted_at),
-                'submitted_by' => $sheet->submitter?->name,
+                'submitted_by' => $sheet->submitter?->officialName(),
             ],
             'can_edit' => $sheet->status === GradeSheetStatus::Draft && $viewer->can('enterGrades', $exam),
             'rows' => $lines,
@@ -73,7 +76,7 @@ class ShowGradeSheetAction
                 'returned_at' => $this->wallClock($sheet->returned_at),
                 'return_reason' => $sheet->return_reason,
                 'locked_at' => $this->wallClock($sheet->locked_at),
-                'locked_by' => $sheet->locker?->name,
+                'locked_by' => $sheet->locker?->officialName(),
                 'pv' => $locked && $viewer->can('downloadPv', $exam)
                     ? (Storage::disk('local')->exists($sheet->pvPath()) ? 'ready' : 'pending')
                     : null,

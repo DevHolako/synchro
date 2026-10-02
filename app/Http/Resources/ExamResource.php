@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\GradeSheetStatus;
 use App\Enums\InvigilatorRole;
 use App\Models\Exam;
 use App\Models\ExamCandidate;
@@ -110,9 +111,10 @@ class ExamResource extends JsonResource
     }
 
     /**
-     * The sheet's status is null until it is first opened.
+     * The sheet's status is null until its teacher first opens it; until then only the teacher
+     * gets a link. `can_edit`: the viewer may still change its grades.
      *
-     * @return array{status: string|null, can_enter: bool}|null
+     * @return array{status: string|null, can_edit: bool}|null
      */
     private function grades(Request $request, Exam $exam): ?array
     {
@@ -122,9 +124,16 @@ class ExamResource extends JsonResource
             return null;
         }
 
+        $status = $exam->deliberation?->status;
+        $canEnter = $viewer->can('enterGrades', $exam);
+
+        if ($status === null && ! $canEnter) {
+            return null;
+        }
+
         return [
-            'status' => $exam->deliberation?->status->value,
-            'can_enter' => $viewer->can('enterGrades', $exam),
+            'status' => $status?->value,
+            'can_edit' => $canEnter && ($status === null || $status === GradeSheetStatus::Draft),
         ];
     }
 

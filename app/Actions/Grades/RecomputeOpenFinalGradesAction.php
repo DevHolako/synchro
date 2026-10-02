@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * After a module's weighting changes, recomputes the stored final grades of its draft and
- * submitted grade sheets. Locked sheets keep the finals they were deliberated with.
+ * submitted grade sheets, with one write per exam. Locked sheets keep the finals they were
+ * deliberated with.
  */
 class RecomputeOpenFinalGradesAction
 {
@@ -33,15 +34,22 @@ class RecomputeOpenFinalGradesAction
                     return;
                 }
 
-                $exam->grades()->each(function (ExamGrade $grade) use ($module): void {
-                    $grade->update(['final_grade' => $this->calculate->execute(
+                $now = now();
+                $lines = $exam->grades()->get()->map(fn (ExamGrade $grade): array => [
+                    'exam_id' => $grade->exam_id,
+                    'student_id' => $grade->student_id,
+                    'final_grade' => $this->calculate->execute(
                         $grade->continuous_assessment_grade,
                         $grade->exam_grade,
                         $grade->is_absent,
                         $module->continuous_assessment_weight,
                         $grade->previous_final_grade,
-                    )]);
-                });
+                    ),
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+
+                ExamGrade::query()->upsert($lines->all(), ['exam_id', 'student_id'], ['final_grade', 'updated_at']);
             });
         }
     }

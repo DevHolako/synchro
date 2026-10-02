@@ -2,6 +2,8 @@
 
 namespace App\Actions\Grades;
 
+use App\Support\GradeScale;
+
 /**
  * The final grade out of 20 (spec 05): CC × w + exam × (100 − w), divided by 100 and rounded
  * half-up to two decimals. It runs on integer hundredths, so no float drift reaches the result.
@@ -27,21 +29,16 @@ class CalculateFinalGradeAction
             return null;
         }
 
-        $continuousAssessment = $continuousAssessmentWeight > 0 ? $this->hundredths((string) $continuousAssessmentGrade) : 0;
-        $exam = $isAbsent ? 0 : $this->hundredths((string) $examGrade);
+        $continuousAssessment = $continuousAssessmentWeight > 0 ? GradeScale::toHundredths((string) $continuousAssessmentGrade) : 0;
+        $exam = $isAbsent ? 0 : GradeScale::toHundredths((string) $examGrade);
 
         // Weighted sum in hundredths × percent; adding 50 before the division rounds half up.
         $final = intdiv($continuousAssessment * $continuousAssessmentWeight + $exam * (100 - $continuousAssessmentWeight) + 50, 100);
 
         if ($previousFinalGrade !== null) {
-            $final = max($final, $this->hundredths($previousFinalGrade));
+            $final = max($final, GradeScale::toHundredths($previousFinalGrade));
         }
 
-        return sprintf('%d.%02d', intdiv($final, 100), $final % 100);
-    }
-
-    private function hundredths(string $grade): int
-    {
-        return (int) round((float) $grade * 100);
+        return GradeScale::fromHundredths($final);
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Grades;
 
 use App\Http\Requests\Concerns\ReadsTypedInput;
 use App\Models\Exam;
-use App\Models\ExamGrade;
+use App\Support\GradeScale;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -48,7 +48,7 @@ class SaveGradesRequest extends FormRequest
      */
     public function rules(): array
     {
-        $grade = ['present', 'nullable', 'numeric', 'decimal:0,2', 'between:0,'.ExamGrade::MAX_GRADE];
+        $grade = ['present', 'nullable', 'numeric', 'decimal:0,2', 'between:0,'.GradeScale::MAX];
 
         return [
             'grades' => ['required', 'array'],
@@ -68,7 +68,7 @@ class SaveGradesRequest extends FormRequest
      */
     public function messages(): array
     {
-        $invalid = __('messages.grade_invalid', ['max' => ExamGrade::MAX_GRADE]);
+        $invalid = __('messages.grade_invalid', ['max' => GradeScale::MAX]);
         $messages = [];
 
         foreach (self::GRADE_FIELDS as $field) {

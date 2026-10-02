@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Modules;
 
 use App\Enums\UserRole;
+use App\Http\Requests\Concerns\ValidatesContinuousAssessmentWeight;
 use App\Models\Module;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,8 @@ use Illuminate\Validation\Validator;
 
 class UpdateModuleRequest extends FormRequest
 {
+    use ValidatesContinuousAssessmentWeight;
+
     public function authorize(): bool
     {
         /** @var Module|null $module */
@@ -57,25 +60,10 @@ class UpdateModuleRequest extends FormRequest
             'total_hours' => ['sometimes', 'required', 'integer', 'min:1'],
             'lecture_hours' => ['sometimes', 'required', 'integer', 'min:0'],
             'tp_hours' => ['sometimes', 'required', 'integer', 'min:0'],
-            'continuous_assessment_weight' => ['sometimes', 'required', 'integer', 'min:0', 'max:'.Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT],
+            'continuous_assessment_weight' => ['sometimes', 'required', ...$this->continuousAssessmentWeightRules()],
             'color_code' => ['sometimes', 'required', 'string', 'regex:/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/'],
             'description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
-        ];
-    }
-
-    /**
-     * Custom validation messages.
-     *
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        $outOfRange = __('messages.module_continuous_assessment_weight_range', ['max' => Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT]);
-
-        return [
-            'continuous_assessment_weight.min' => $outOfRange,
-            'continuous_assessment_weight.max' => $outOfRange,
         ];
     }
 

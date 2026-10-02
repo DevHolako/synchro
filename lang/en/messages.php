@@ -193,6 +193,7 @@ return [
     'grade_sheet_incomplete' => ':count incomplete line(s): :names. Every student needs their grades, or to be absent with a remark.',
     'grade_invalid' => 'A grade must be between 0 and :max, with at most two decimals.',
     'grade_unknown_student' => 'One of the students is not on this grade sheet.',
+    'grade_sheet_not_opened' => 'The teacher has not opened this grade sheet yet.',
 
     // Deliberation (Part 05 / Ticket 03)
     'deliberation_not_submitted' => 'This grade sheet is not waiting for deliberation: it must be submitted.',

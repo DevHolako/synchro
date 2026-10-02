@@ -9,6 +9,10 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
+/**
+ * Updates a module's catalog entry. A changed weighting recomputes the finals of the module's
+ * open grade sheets in the same transaction; locked sheets keep theirs.
+ */
 class UpdateModuleAction
 {
     public function __construct(private RecomputeOpenFinalGradesAction $recomputeFinalGrades) {}
@@ -89,11 +93,7 @@ class UpdateModuleAction
         }
 
         if (array_key_exists('continuous_assessment_weight', $data)) {
-            $weight = (int) $data['continuous_assessment_weight'];
-            if ($weight < 0 || $weight > Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT) {
-                throw new InvalidArgumentException('The continuous assessment weight must be between 0 and '.Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT.'%.');
-            }
-            $payload['continuous_assessment_weight'] = $weight;
+            $payload['continuous_assessment_weight'] = Module::ensureValidContinuousAssessmentWeight((int) $data['continuous_assessment_weight']);
         }
 
         if (array_key_exists('color_code', $data)) {
@@ -115,7 +115,6 @@ class UpdateModuleAction
         DB::transaction(function () use ($module, $payload): void {
             $module->update($payload);
 
-            // Open grade sheets follow the new weighting; locked ones keep theirs.
             if ($module->wasChanged('continuous_assessment_weight')) {
                 $this->recomputeFinalGrades->execute($module);
             }

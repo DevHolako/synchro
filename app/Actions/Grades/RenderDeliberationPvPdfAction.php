@@ -3,7 +3,7 @@
 namespace App\Actions\Grades;
 
 use App\Models\ExamDeliberation;
-use App\Models\ExamGrade;
+use App\Support\GradeScale;
 use App\Support\SchoolClock;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -24,7 +24,7 @@ class RenderDeliberationPvPdfAction
      */
     public function execute(ExamDeliberation $deliberation): string
     {
-        $deliberation->loadMissing(['exam.module.teacher:id,name', 'exam.examPeriod', 'submitter:id,name', 'locker:id,name']);
+        $deliberation->loadMissing(['exam.module.teacher:id,name', 'exam.examPeriod', 'submitter:id,name', 'submitter.studentProfile:id,user_id,last_name,first_name', 'locker:id,name', 'locker.studentProfile:id,user_id,last_name,first_name']);
         $exam = $deliberation->exam;
         $lines = $this->listLines->execute($exam);
         $timezone = (string) config('app.schedule_timezone');
@@ -37,12 +37,12 @@ class RenderDeliberationPvPdfAction
             'weight' => $weight,
             'lines' => array_map(fn (array $line): array => [
                 ...$line,
-                'passed' => $line['final_grade'] !== null && (float) $line['final_grade'] >= (float) ExamGrade::PASS_MARK,
+                'passed' => GradeScale::passes($line['final_grade']),
             ], $lines),
             'stats' => $this->stats->execute($lines),
-            'submittedBy' => $deliberation->submitter?->name,
+            'submittedBy' => $deliberation->submitter?->officialName(),
             'submittedAt' => $deliberation->submitted_at?->copy()->setTimezone($timezone)->format('d/m/Y H:i'),
-            'lockedBy' => $deliberation->locker?->name,
+            'lockedBy' => $deliberation->locker?->officialName(),
             'lockedAt' => $deliberation->locked_at?->copy()->setTimezone($timezone)->format('d/m/Y H:i'),
             'generatedAt' => SchoolClock::now()->format('d/m/Y H:i'),
         ])->setPaper('a4')->setOption('isFontSubsettingEnabled', true)->output();

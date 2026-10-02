@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * A period's exams as one viewer may see them (every state for exam managers, otherwise only
- * published exams concerning them), with per-state counts.
+ * published exams concerning them), with per-state counts. Each exam is handed its period, so
+ * the per-row grading checks read it without a query.
  */
 class ListExamsAction
 {
@@ -43,7 +44,6 @@ class ListExamsAction
             ->orderBy('id')
             ->get();
 
-        // Every exam belongs to this period: the grading checks read it without a query per row.
         $exams->each->setRelation('examPeriod', $period);
 
         $counts = $visible()->selectRaw('state, count(*) as total')->groupBy('state')->pluck('total', 'state');

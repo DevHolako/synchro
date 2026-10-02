@@ -6,12 +6,13 @@ use App\Enums\ExamSessionType;
 use App\Models\Exam;
 use App\Models\ExamGrade;
 use App\Models\ExamPeriod;
-use Collator;
+use App\Support\FrenchCollation;
 
 /**
  * The retake roster for a retake period (spec 05 / ticket 04): per module, the students who
- * failed it in the academic year's normal sessions, by group, and the module's retake exam once
- * it exists.
+ * failed it in the academic year's normal sessions, by group, the groups its retake exam is for
+ * (those of its failing students), how many have no group (no exam can seat them), and the
+ * module's retake exam once it exists.
  */
 class ShowRetakeRosterAction
 {
@@ -19,12 +20,13 @@ class ShowRetakeRosterAction
 
     /**
      * @return array{
-     *     periods: list<array{id: int, name: string, academic_year: string}>,
+     *     periods: list<array{id: int, name: string, academic_year: string, session_type: string}>,
      *     period: array{id: int, name: string, academic_year: string, start_date: string, end_date: string}|null,
      *     modules: list<array{
      *         module_id: int,
      *         module: string,
      *         group_ids: list<int>,
+     *         ungrouped: int,
      *         exam: array{id: int, state: string}|null,
      *         students: list<array{student_id: int, name: string, student_number: string|null, group: string|null, final_grade: string|null}>
      *     }>
@@ -37,11 +39,7 @@ class ShowRetakeRosterAction
             ->orderByDesc('start_date')
             ->get();
         $period = $periods->firstWhere('id', $periodId) ?? $periods->first();
-        $options = array_values($periods->map(fn (ExamPeriod $option): array => [
-            'id' => $option->id,
-            'name' => $option->name,
-            'academic_year' => $option->academic_year,
-        ])->all());
+        $options = array_values($periods->map(fn (ExamPeriod $option): array => $option->toOption())->all());
 
         if ($period === null) {
             return ['periods' => $options, 'period' => null, 'modules' => []];
@@ -59,8 +57,7 @@ class ShowRetakeRosterAction
             ->orderBy('id')
             ->get(['id', 'module_id', 'state'])
             ->keyBy('module_id');
-        $collator = new Collator('fr_FR');
-        $collator->setStrength(Collator::PRIMARY);
+        $collator = FrenchCollation::collator();
 
         $modules = $lines->groupBy(fn (ExamGrade $line): int => $line->exam->module_id)
             ->map(function ($moduleLines, int $moduleId) use ($retakeExams, $collator): array {
@@ -77,16 +74,15 @@ class ShowRetakeRosterAction
                     ?: $a['student_id'] <=> $b['student_id']);
 
                 $exam = $retakeExams->get($moduleId);
+                $groupIds = $moduleLines
+                    ->map(fn (ExamGrade $line): ?int => $line->student->studentProfile?->student_group_id)
+                    ->filter();
 
                 return [
                     'module_id' => $moduleId,
                     'module' => $moduleLines->first()->exam->module->label(),
-                    // The groups the retake exam is for: those of its failing students.
-                    'group_ids' => array_values(array_map('intval', $moduleLines
-                        ->map(fn (ExamGrade $line): ?int => $line->student->studentProfile?->student_group_id)
-                        ->filter()
-                        ->unique()
-                        ->all())),
+                    'group_ids' => array_values(array_map('intval', $groupIds->unique()->all())),
+                    'ungrouped' => $moduleLines->count() - $groupIds->count(),
                     'exam' => $exam === null ? null : ['id' => $exam->id, 'state' => $exam->state->value],
                     'students' => $students,
                 ];

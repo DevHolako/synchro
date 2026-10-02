@@ -2,7 +2,7 @@
 
 namespace App\Actions\Exams;
 
-use Collator;
+use App\Support\FrenchCollation;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -93,8 +93,7 @@ class SplitExamRoomsAction
      */
     private function sorted(array $candidates): array
     {
-        $collator = new Collator('fr_FR');
-        $collator->setStrength(Collator::PRIMARY);
+        $collator = FrenchCollation::collator();
 
         usort($candidates, fn (array $a, array $b): int => $collator->compare($a['last_name'], $b['last_name'])
             ?: $collator->compare($a['first_name'], $b['first_name'])

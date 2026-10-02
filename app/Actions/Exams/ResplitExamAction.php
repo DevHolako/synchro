@@ -80,13 +80,13 @@ class ResplitExamAction
     /**
      * The students of the exam's groups, with their official names (the display name stands in
      * for a surname that was never recorded). A retake keeps only the students whose locked
-     * normal-session final for the module is below the pass mark.
+     * normal-session final for the module is below the pass mark. The period is read afresh:
+     * the exam may just have moved to another one.
      *
      * @return list<array{id: int, last_name: string, first_name: string, student_number: string|null}>
      */
     private function candidates(Exam $exam): array
     {
-        // Read afresh: the exam may just have moved to another period.
         $period = $exam->examPeriod()->firstOrFail();
         $retakeStudentIds = $period->session_type === ExamSessionType::Rattrapage
             ? $this->retakeCandidates->execute($period->academic_year, [$exam->module_id])->pluck('student_id')->all()

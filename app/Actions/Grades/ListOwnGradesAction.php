@@ -5,6 +5,7 @@ namespace App\Actions\Grades;
 use App\Enums\GradeSheetStatus;
 use App\Models\ExamGrade;
 use App\Models\User;
+use App\Support\GradeScale;
 use App\Support\SchoolClock;
 
 /**
@@ -37,7 +38,7 @@ class ListOwnGradesAction
             'exam_grade' => $grade->exam_grade,
             'is_absent' => $grade->is_absent,
             'final_grade' => $grade->final_grade,
-            'passed' => $grade->final_grade !== null && (float) $grade->final_grade >= (float) ExamGrade::PASS_MARK,
+            'passed' => GradeScale::passes($grade->final_grade),
         ])->all());
     }
 }

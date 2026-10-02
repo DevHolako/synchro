@@ -2,7 +2,7 @@
 
 namespace App\Actions\Grades;
 
-use App\Models\ExamGrade;
+use App\Support\GradeScale;
 
 /**
  * A grade sheet's figures for deliberation, over the lines that have a final grade: average and
@@ -24,14 +24,14 @@ class CalculateDeliberationStatsAction
             $absent += $line['is_absent'] ? 1 : 0;
 
             if ($line['final_grade'] !== null) {
-                $finals[] = (int) round((float) $line['final_grade'] * 100);
+                $finals[] = GradeScale::toHundredths($line['final_grade']);
             }
         }
 
         sort($finals);
 
         $graded = count($finals);
-        $passMark = (int) round((float) ExamGrade::PASS_MARK * 100);
+        $passMark = GradeScale::toHundredths(GradeScale::PASS_MARK);
         $passing = count(array_filter($finals, fn (int $final): bool => $final >= $passMark));
 
         if ($graded === 0) {
@@ -43,9 +43,9 @@ class CalculateDeliberationStatsAction
 
         return [
             'graded' => $graded,
-            'average' => $this->format($this->divideHalfUp(array_sum($finals), $graded)),
-            'median' => $this->format($this->divideHalfUp($median, 2)),
-            'pass_rate' => $this->format($this->divideHalfUp($passing * 10000, $graded)),
+            'average' => GradeScale::fromHundredths($this->divideHalfUp(array_sum($finals), $graded)),
+            'median' => GradeScale::fromHundredths($this->divideHalfUp($median, 2)),
+            'pass_rate' => GradeScale::fromHundredths($this->divideHalfUp($passing * 10000, $graded)),
             'passing' => $passing,
             'failing' => $graded - $passing,
             'absent' => $absent,
@@ -55,13 +55,5 @@ class CalculateDeliberationStatsAction
     private function divideHalfUp(int $dividend, int $divisor): int
     {
         return intdiv(2 * $dividend + $divisor, 2 * $divisor);
-    }
-
-    /**
-     * Hundredths as a two-decimal string.
-     */
-    private function format(int $hundredths): string
-    {
-        return sprintf('%d.%02d', intdiv($hundredths, 100), $hundredths % 100);
     }
 }

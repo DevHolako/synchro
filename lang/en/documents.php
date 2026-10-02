@@ -55,6 +55,7 @@ return [
     'pv_median' => 'Median',
     'pv_pass_rate' => 'Pass rate',
     'pv_counts' => 'Passed · Retake · Absent',
+    'pv_counts_retake' => 'Passed · Failed · Absent',
     'pv_counts_value' => ':passing · :failing · :absent',
     'pv_submitted' => 'Grades entered and submitted by',
     'pv_signature' => 'The coordinator (name, date and signature)',

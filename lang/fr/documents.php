@@ -54,6 +54,7 @@ return [
     'pv_median' => 'Médiane',
     'pv_pass_rate' => 'Taux de réussite',
     'pv_counts' => 'Admis · Rattrapage · Absents',
+    'pv_counts_retake' => 'Admis · Ajournés · Absents',
     'pv_counts_value' => ':passing · :failing · :absent',
     'pv_submitted' => 'Notes saisies et soumises par',
     'pv_signature' => 'Le coordinateur (nom, date et signature)',

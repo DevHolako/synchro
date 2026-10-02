@@ -49,7 +49,6 @@ class OpenGradeSheetAction
         }
 
         $checkInUsed = $exam->candidates()->whereNotNull('checked_in_at')->exists();
-        // A retake line carries the normal session's CC and final over.
         $normalLines = $exam->isRetake()
             ? $this->retakeCandidates->execute($exam->examPeriod->academic_year, [$exam->module_id])->keyBy('student_id')
             : collect();

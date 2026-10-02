@@ -3,6 +3,7 @@
 namespace App\Actions\Grades;
 
 use App\Enums\ExamState;
+use App\Enums\GradeSheetStatus;
 use App\Models\Exam;
 use App\Models\ExamPeriod;
 use App\Support\SchoolClock;
@@ -17,7 +18,12 @@ class ListDeliberationsAction
     public const string NOT_STARTED = 'not_started';
 
     /** Board order: what waits for the coordinator first, what is settled last. */
-    private const array ORDER = ['submitted', 'draft', self::NOT_STARTED, 'locked'];
+    private const array ORDER = [
+        GradeSheetStatus::Submitted->value,
+        GradeSheetStatus::Draft->value,
+        self::NOT_STARTED,
+        GradeSheetStatus::Locked->value,
+    ];
 
     /**
      * @return array{
@@ -32,12 +38,7 @@ class ListDeliberationsAction
         $periods = ExamPeriod::query()
             ->orderByDesc('start_date')
             ->get(['id', 'name', 'academic_year', 'session_type']);
-        $options = array_values($periods->map(fn (ExamPeriod $option): array => [
-            'id' => $option->id,
-            'name' => $option->name,
-            'academic_year' => $option->academic_year,
-            'session_type' => $option->session_type->value,
-        ])->all());
+        $options = array_values($periods->map(fn (ExamPeriod $option): array => $option->toOption())->all());
         $period = $periods->firstWhere('id', $periodId) ?? $periods->first();
         $stats = array_fill_keys(self::ORDER, 0);
 

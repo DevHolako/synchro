@@ -31,7 +31,7 @@ class CreateModuleAction
         $totalHours = (int) $data['total_hours'];
         $lectureHours = (int) ($data['lecture_hours'] ?? 0);
         $tpHours = (int) ($data['tp_hours'] ?? 0);
-        $continuousAssessmentWeight = (int) ($data['continuous_assessment_weight'] ?? 0);
+        $continuousAssessmentWeight = Module::ensureValidContinuousAssessmentWeight((int) ($data['continuous_assessment_weight'] ?? 0));
         $colorCode = trim($data['color_code'] ?? '#3B82F6');
 
         if ($name === '') {
@@ -52,10 +52,6 @@ class CreateModuleAction
 
         if ($lectureHours + $tpHours > $totalHours) {
             throw new InvalidArgumentException('The sum of lecture hours and TP hours cannot exceed total syllabus hours.');
-        }
-
-        if ($continuousAssessmentWeight < 0 || $continuousAssessmentWeight > Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT) {
-            throw new InvalidArgumentException('The continuous assessment weight must be between 0 and '.Module::MAX_CONTINUOUS_ASSESSMENT_WEIGHT.'%.');
         }
 
         if (! preg_match('/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/', $colorCode)) {

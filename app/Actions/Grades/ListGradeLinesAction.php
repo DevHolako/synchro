@@ -4,7 +4,7 @@ namespace App\Actions\Grades;
 
 use App\Models\Exam;
 use App\Models\ExamGrade;
-use Collator;
+use App\Support\FrenchCollation;
 
 /**
  * An exam's grade lines in official alphabetical order (French collation), with each student's
@@ -34,8 +34,7 @@ class ListGradeLinesAction
             ])
             ->all();
 
-        $collator = new Collator('fr_FR');
-        $collator->setStrength(Collator::PRIMARY);
+        $collator = FrenchCollation::collator();
 
         usort($lines, fn (array $a, array $b): int => $collator->compare($a['name'], $b['name'])
             ?: strcmp((string) $a['student_number'], (string) $b['student_number']));
