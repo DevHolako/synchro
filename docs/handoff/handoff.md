@@ -140,6 +140,15 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
    - UI: `calendar-feed-dialog.tsx` from the timetable header.
    - **Run `php artisan migrate`** locally: two new `users` columns.
 
+### Completed Tickets in Part 04 (Examination Logistics & Convocations)
+1. **Ticket 01: Exam Periods and 5-State Scheduling** ([`01-exam-period-and-session-scheduling.md`](file:///home/holako/github/synchro/docs/specs/04-examination-logistics-and-convocations/tickets/01-exam-period-and-session-scheduling.md), design decisions recorded in the ticket; Part-wide decisions at the end of `spec.md`)
+   - Implemented: `ExamPeriod` (derived `ExamPeriodStatus`), `Exam` (several groups via `exam_student_group`, `starts_at`/`ends_at`, `published_at`/`published_by`), `ExamState` (transition table), `ExamSessionType`, `BookingType`; morph alias `exam`.
+   - Engine: `SessionSlot` holds lists of teachers/rooms/groups and a booking type; `Conflict` names `booking_type`/`booking_id` (was `session_id`); `ExamOccupancy` books groups for non-draft exams, so exams and course sessions block each other. A check is now 6 queries.
+   - Actions (`app/Actions/Exams/`): period CRUD and archive, `SaveExamAction` (create/update), `CheckExamConflictsAction`, `ChangeExamStateAction` (conditional update), `Schedule`/`Unschedule`/`Publish`/`PublishPeriodExams`/`CompleteEndedExams`, listings. Scheduler: `exams:complete-ended` every 15 minutes.
+   - HTTP: `/exams` (Inertia) plus the period and exam routes; `ExamPolicy`/`ExamPeriodPolicy` on `ViewExams`/`ManageExams`. Shared booking validation moved to `ValidatesBookingTimes`.
+   - UI: `resources/js/pages/exams/` (lazy FullCalendar view, live clash warnings for drafts); sidebar "Examens".
+   - **Run `php artisan migrate`** locally: three new tables.
+
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
 - **Scheduler** (`routes/console.php`): `horizon:snapshot` every 5 minutes, `imports:fail-stale` every 15 minutes (fails imports pending for 6 hours or processing 20 minutes past the job timeout), `queue:prune-failed --hours=168` and `model:prune` daily (finished `SpreadsheetImport` after 90 days, unusable `InvitationToken` after 30 days except each user's latest).
@@ -151,7 +160,7 @@ All specifications and vertical slice tickets are tracked in [`docs/specs/README
 
 ## 4. The Active Implementation Frontier: Next Ticket
 
-Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02); Part 04 is next.
+Part 01 is complete. Part 02 (Availability & Conflict Engine) is complete. Part 03 is complete and reviewed (2026-10-02). Part 04 is in progress: ticket 01 is done, ticket 02 (room split and invigilators) is next.
 
 ### **Part 03: Interactive Course Planning** (next spec)
 - Part 02 was reviewed on 2026-10-01 (`8aaefb0~1..HEAD`, standards + spec axes); the blocking findings are fixed (see below). Part 03 is next; discuss each ticket's design first.

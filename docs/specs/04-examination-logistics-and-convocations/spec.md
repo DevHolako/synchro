@@ -55,3 +55,14 @@ An industrial-grade Examination Logistics module managing the complete 5-state e
 ## Further Notes
 
 - The interactive check-in route must be responsive and optimized for mobile screens so invigilators can scan comfortably using native smartphone camera apps or integrated barcode scanners.
+
+## Part-wide decisions (2026-10-02, design round before ticket 01)
+
+- **Working mode**: a full design round for tickets 01 and 02; for tickets 03–05, defaults are posted and confirmed with "go".
+- **Names for the alphabetical split (ticket 02)**: `student_profiles` gets `last_name` and `first_name`, filled when a student is provisioned or imported (the student import gets both columns instead of `name`). `users.name` stays the display name, so a student editing it cannot change their place in the official order.
+- **Student photo (ticket 04)**: deferred. The check-in screen shows full name, matricule, group, assigned room and an initials avatar; the invigilator checks the student card. Photos (personal data, law 09-08) would be their own ticket.
+- **Exams in the conflict engine**: exams are an `OccupancySource` (morph alias `exam`); only non-draft exams book resources. "Force Single Room" becomes a soft `ConflictType` (ticket 02), and the exam capacity rule uses `exam_capacity`.
+- **PDF engine (ticket 03)**: `barryvdh/laravel-dompdf` and `bacon/bacon-qr-code` (SVG), generated in thin queued jobs; the deferred weekly-timetable PDF of Part 03 can reuse the pipeline.
+- **Emergency-reschedule alerts (ticket 05)**: a queued `ExamRescheduledNotification` by mail on the `notifications` queue, dispatched after commit, plus a minimal `UrgentMessageGateway` with only a `log` driver (ADR 0003); SMS and WhatsApp drivers come with Part 06.
+- **Exams in the iCal feed**: published exams from ticket 01; ticket 02 adds the room and invigilated exams; ticket 05 raises SEQUENCE on a reschedule.
+- **Live check-in (ticket 04)**: `usePoll` every 10 s on the room roster; Reverb stays deferred.
