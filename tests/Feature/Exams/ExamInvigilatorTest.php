@@ -152,7 +152,7 @@ test('invigilators see the published exams they watch, with their room and role'
     $this->actingAs($this->teachers[0])->get(route('exams.index'))
         ->assertInertia(fn ($page) => $page
             ->has('exams', 1)
-            ->where('exams.0.my_invigilation', ['room' => $this->roomB->room->name, 'role' => 'principal']));
+            ->where('exams.0.my_invigilation', ['assignment_id' => $this->roomB->id, 'room' => $this->roomB->room->name, 'role' => 'principal']));
 
     $this->actingAs($this->teachers[1])->get(route('exams.index'))->assertInertia(fn ($page) => $page->has('exams', 0));
 });
