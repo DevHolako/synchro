@@ -2,13 +2,17 @@
 
 namespace App\Actions\Modules;
 
+use App\Actions\Grades\RecomputeOpenFinalGradesAction;
 use App\Models\Module;
 use App\Models\Program;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 class UpdateModuleAction
 {
+    public function __construct(private RecomputeOpenFinalGradesAction $recomputeFinalGrades) {}
+
     /**
      * @param array{
      *     program_id?: int,
@@ -108,7 +112,14 @@ class UpdateModuleAction
             $payload['is_active'] = (bool) $data['is_active'];
         }
 
-        $module->update($payload);
+        DB::transaction(function () use ($module, $payload): void {
+            $module->update($payload);
+
+            // Open grade sheets follow the new weighting; locked ones keep theirs.
+            if ($module->wasChanged('continuous_assessment_weight')) {
+                $this->recomputeFinalGrades->execute($module);
+            }
+        });
 
         return $module;
     }

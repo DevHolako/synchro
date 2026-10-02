@@ -82,7 +82,7 @@ test('single action UpdateModuleAction strictly rejects syllabus exceeding total
         'tp_hours' => 20,
     ]);
 
-    $action = new UpdateModuleAction;
+    $action = app(UpdateModuleAction::class);
 
     expect(fn () => $action->execute($module, [
         'lecture_hours' => 25, // 25 + 20 = 45 > 40
