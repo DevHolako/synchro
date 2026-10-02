@@ -78,11 +78,38 @@ class ExamPolicy
     }
 
     /**
+     * Determine whether the user can read an exam's grade sheet: its module teacher who enters
+     * grades, exam managers and those who lock deliberations, once the exam can be graded.
+     */
+    public function viewGrades(User $user, Exam $exam): bool
+    {
+        return $exam->isGradable()
+            && ($this->gradesModule($user, $exam)
+                || $user->hasPermission(Permission::ManageExams)
+                || $user->hasPermission(Permission::LockGrades));
+    }
+
+    /**
+     * Determine whether the user can enter grades on an exam's sheet: only the module's teacher,
+     * holding the permission, once the exam can be graded (whether the sheet is still a draft is
+     * the grade actions' rule).
+     */
+    public function enterGrades(User $user, Exam $exam): bool
+    {
+        return $exam->isGradable() && $this->gradesModule($user, $exam);
+    }
+
+    /**
      * Determine whether the user can remove an exam.
      */
     public function delete(User $user, Exam $exam): bool
     {
         return $user->hasPermission(Permission::ManageExams);
+    }
+
+    private function gradesModule(User $user, Exam $exam): bool
+    {
+        return $user->hasPermission(Permission::EnterGrades) && $exam->module->teacher_id === $user->id;
     }
 
     /**

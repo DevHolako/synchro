@@ -184,4 +184,13 @@ return [
     'exam_rescheduled_when' => ':date · :start–:end',
     'exam_outcome_with_released' => ':outcome Surveillants libérés, à remplacer : :names.',
     'exam_rescheduled_room_dropped' => 'Vous n\'êtes plus surveillant de cet examen : votre salle n\'est plus utilisée.',
+
+    // Grade entry (Part 05 / Ticket 02)
+    'grades_saved' => 'Brouillon des notes enregistré.',
+    'grade_sheet_submitted' => 'Feuille de notes soumise à la coordination.',
+    'grade_sheet_not_draft' => "Cette feuille de notes n'est plus un brouillon : elle ne peut plus être modifiée.",
+    'grade_sheet_empty' => "Cette feuille de notes n'a aucun candidat.",
+    'grade_sheet_incomplete' => ':count ligne(s) incomplète(s) : :names. Chaque étudiant doit avoir ses notes, ou être absent avec une remarque.',
+    'grade_invalid' => 'Une note doit être comprise entre 0 et :max, avec au plus deux décimales.',
+    'grade_unknown_student' => "Un des étudiants n'est pas sur cette feuille de notes.",
 ];

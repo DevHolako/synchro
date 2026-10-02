@@ -66,6 +66,8 @@ class ExamResource extends JsonResource
             'my_invigilation' => $this->invigilation($request, $exam, $exam->invigilators->first()),
             // The door lists and attendance sheets: null when the viewer may not download them.
             'roster' => $this->roster($request, $exam),
+            // The grade sheet: null when the viewer may not open it.
+            'grades' => $this->grades($request, $exam),
         ];
     }
 
@@ -105,6 +107,25 @@ class ExamResource extends JsonResource
         }
 
         return Storage::disk('local')->exists($exam->rosterPath()) ? 'ready' : 'pending';
+    }
+
+    /**
+     * The sheet's status is null until it is first opened.
+     *
+     * @return array{status: string|null, can_enter: bool}|null
+     */
+    private function grades(Request $request, Exam $exam): ?array
+    {
+        $viewer = $request->user();
+
+        if ($viewer === null || ! $viewer->can('viewGrades', $exam)) {
+            return null;
+        }
+
+        return [
+            'status' => $exam->deliberation?->status->value,
+            'can_enter' => $viewer->can('enterGrades', $exam),
+        ];
     }
 
     /**

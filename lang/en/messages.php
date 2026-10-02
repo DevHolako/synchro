@@ -184,4 +184,13 @@ return [
     'exam_rescheduled_when' => ':date · :start–:end',
     'exam_outcome_with_released' => ':outcome Invigilators released, to replace: :names.',
     'exam_rescheduled_room_dropped' => 'You no longer invigilate this exam: your room is no longer used.',
+
+    // Grade entry (Part 05 / Ticket 02)
+    'grades_saved' => 'Grade draft saved.',
+    'grade_sheet_submitted' => 'Grade sheet submitted to coordination.',
+    'grade_sheet_not_draft' => 'This grade sheet is no longer a draft: it can no longer be changed.',
+    'grade_sheet_empty' => 'This grade sheet has no candidates.',
+    'grade_sheet_incomplete' => ':count incomplete line(s): :names. Every student needs their grades, or to be absent with a remark.',
+    'grade_invalid' => 'A grade must be between 0 and :max, with at most two decimals.',
+    'grade_unknown_student' => 'One of the students is not on this grade sheet.',
 ];

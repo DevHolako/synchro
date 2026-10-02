@@ -45,6 +45,9 @@ use App\Http\Controllers\Web\Exams\ExamScheduleController;
 use App\Http\Controllers\Web\Exams\ExamStoreController;
 use App\Http\Controllers\Web\Exams\ExamUnscheduleController;
 use App\Http\Controllers\Web\Exams\ExamUpdateController;
+use App\Http\Controllers\Web\Grades\ExamGradesShowController;
+use App\Http\Controllers\Web\Grades\ExamGradesSubmitController;
+use App\Http\Controllers\Web\Grades\ExamGradesUpdateController;
 use App\Http\Controllers\Web\Imports\ImportIndexController;
 use App\Http\Controllers\Web\Imports\ImportStoreController;
 use App\Http\Controllers\Web\Imports\ImportTemplateController;
@@ -179,6 +182,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->whereUuid('uuid')
         ->middleware('signed')
         ->name('convocations.verify');
+
+    // Grade sheets: the module teacher's draft and submission (Part 05 / Ticket 02, ADR 0006)
+    Route::get('exams/{exam}/grades', ExamGradesShowController::class)->name('exams.grades.show');
+    Route::put('exams/{exam}/grades', ExamGradesUpdateController::class)->name('exams.grades.update');
+    Route::post('exams/{exam}/grades/submit', ExamGradesSubmitController::class)->name('exams.grades.submit');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');

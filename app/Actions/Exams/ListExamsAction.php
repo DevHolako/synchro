@@ -25,7 +25,8 @@ class ListExamsAction
 
         $exams = $visible()
             ->with([
-                'module:id,program_id,code,name,color_code',
+                'module:id,program_id,teacher_id,code,name,color_code',
+                'deliberation:id,exam_id,status',
                 'studentGroups:id,name,code',
                 'roomAssignments.room:id,name',
                 'roomAssignments.invigilators:id,exam_room_assignment_id,role',
@@ -41,6 +42,9 @@ class ListExamsAction
             ->orderBy('starts_at')
             ->orderBy('id')
             ->get();
+
+        // Every exam belongs to this period: the grading checks read it without a query per row.
+        $exams->each->setRelation('examPeriod', $period);
 
         $counts = $visible()->selectRaw('state, count(*) as total')->groupBy('state')->pluck('total', 'state');
 
