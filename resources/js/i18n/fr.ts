@@ -673,6 +673,10 @@ export const fr: Translations = {
             'Le groupe {name} a déjà une séance de {start} à {end}.',
         conflict_group_exam:
             'Le groupe {name} a déjà un examen de {start} à {end}.',
+        conflict_room_exam:
+            'La salle {name} accueille déjà un examen de {start} à {end}.',
+        conflict_teacher_exam:
+            '{name} surveille déjà un examen de {start} à {end}.',
         conflict_capacity:
             'La salle {name} compte {capacity} places pour {headcount} étudiants.',
         conflict_unavailability: "{name} s'est déclaré indisponible : {reason}",
@@ -801,6 +805,41 @@ export const fr: Translations = {
         end: 'Fin',
         conflicts_warning:
             'Une fois programmé, cet examen entrerait en conflit :',
+        allocation_title: 'Salles & surveillants',
+        allocation_loading: 'Chargement des salles…',
+        allocation_failed:
+            "Les salles de l'examen n'ont pas pu être chargées ou enregistrées.",
+        allocation_saved: 'Salles et surveillants enregistrés.',
+        rooms_title: 'Salles, dans l’ordre alphabétique',
+        rooms_seats: '{seats} places pour {students} étudiants',
+        room_capacity: '{capacity} places',
+        room_busy: 'occupée',
+        move_up: 'Monter',
+        move_down: 'Descendre',
+        remove_room: 'Retirer la salle',
+        add_room: 'Ajouter une salle',
+        rooms_locked: 'Les salles sont figées depuis la publication.',
+        force_single_room:
+            'Salle unique forcée (au-delà de sa capacité d’examen)',
+        force_justification: 'Justification (enregistrée dans l’audit)',
+        save_rooms: 'Répartir les étudiants',
+        invigilators_title: 'Surveillants',
+        room_students: '{count} étudiants / {capacity} places',
+        room_range: 'De {from} à {to}',
+        lead_invigilator: 'Surveillant principal',
+        pick_lead: 'Choisir le surveillant principal',
+        remove_assistant: 'Retirer cet adjoint',
+        add_assistant: 'Ajouter un surveillant adjoint',
+        assistant_recommended:
+            'Plus de {threshold} étudiants : un surveillant adjoint est recommandé.',
+        override_justification: 'Justification pour passer outre',
+        save_staff: 'Enregistrer les surveillants',
+        save_staff_anyway: 'Enregistrer malgré tout',
+        lead_missing: 'Surveillant manquant',
+        my_seat: 'Salle {room} · place {seat}',
+        my_invigilation_principal: 'Surveillant principal · salle {room}',
+        my_invigilation_adjoint: 'Surveillant adjoint · salle {room}',
+        room_line: '{room} · {count} étudiants',
         confirm_schedule_title: "Programmer l'examen ?",
         confirm_schedule_desc:
             '{subject} réservera ses groupes : aucun cours ni autre examen ne pourra plus les occuper à cet horaire.',

@@ -1,4 +1,11 @@
-import { CalendarCheck, CalendarX, Pencil, Send, Trash2 } from 'lucide-react';
+import {
+    CalendarCheck,
+    CalendarX,
+    DoorOpen,
+    Pencil,
+    Send,
+    Trash2,
+} from 'lucide-react';
 import { memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/i18n/LanguageContext';
@@ -6,6 +13,7 @@ import {
     formatDay,
     timeOf,
 } from '@/pages/timetable/components/wall-clock-format';
+import { ExamPlaces } from './exam-places';
 import { ExamStateBadge } from './exam-state-badge';
 import type { Exam, ExamConfirmation } from './types';
 
@@ -13,6 +21,7 @@ interface ExamRowProps {
     exam: Exam;
     canManage: boolean;
     onEdit: (exam: Exam) => void;
+    onAllocate: (exam: Exam) => void;
     onConfirm: (confirmation: ExamConfirmation) => void;
 }
 
@@ -20,6 +29,7 @@ export const ExamRow = memo(function ExamRow({
     exam,
     canManage,
     onEdit,
+    onAllocate,
     onConfirm,
 }: ExamRowProps) {
     const { t, locale } = useTranslation();
@@ -52,9 +62,16 @@ export const ExamRow = memo(function ExamRow({
             </td>
             <td className="px-6 py-4 text-neutral-600 dark:text-neutral-300">
                 {exam.groups.map((group) => group.name).join(', ')}
+                <ExamPlaces exam={exam} canManage={canManage} />
             </td>
             <td className="px-6 py-4">
-                <ExamStateBadge state={exam.state} overdue={exam.is_overdue} />
+                <ExamStateBadge
+                    state={exam.state}
+                    overdue={exam.is_overdue}
+                    leadMissing={
+                        canManage && exam.rooms.some((room) => !room.has_lead)
+                    }
+                />
             </td>
             {canManage ? (
                 <td className="px-6 py-4">
@@ -94,6 +111,18 @@ export const ExamRow = memo(function ExamRow({
                                 }
                             >
                                 <CalendarX className="size-4" />
+                            </Button>
+                        ) : null}
+                        {upcoming &&
+                        (editable || exam.state === 'published') ? (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                aria-label={t('exams.allocation_title')}
+                                title={t('exams.allocation_title')}
+                                onClick={() => onAllocate(exam)}
+                            >
+                                <DoorOpen className="size-4" />
                             </Button>
                         ) : null}
                         {editable ? (

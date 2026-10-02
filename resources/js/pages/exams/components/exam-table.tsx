@@ -7,6 +7,7 @@ interface ExamTableProps {
     exams: Exam[];
     canManage: boolean;
     onEdit: (exam: Exam) => void;
+    onAllocate: (exam: Exam) => void;
     onConfirm: (confirmation: ExamConfirmation) => void;
 }
 
@@ -14,6 +15,7 @@ export function ExamTable({
     exams,
     canManage,
     onEdit,
+    onAllocate,
     onConfirm,
 }: ExamTableProps) {
     const { t } = useTranslation();
@@ -59,6 +61,7 @@ export function ExamTable({
                             exam={exam}
                             canManage={canManage}
                             onEdit={onEdit}
+                            onAllocate={onAllocate}
                             onConfirm={onConfirm}
                         />
                     ))}

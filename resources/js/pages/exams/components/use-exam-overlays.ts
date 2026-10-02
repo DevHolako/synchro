@@ -12,8 +12,10 @@ export function useExamOverlays() {
     const [confirmation, setConfirmation] = useState<ExamConfirmation | null>(
         null,
     );
+    const [allocating, setAllocating] = useState<Exam | null>(null);
 
     const editExam = useCallback((exam: Exam) => setEditingExam(exam), []);
+    const allocate = useCallback((exam: Exam) => setAllocating(exam), []);
     const confirm = useCallback(
         (next: ExamConfirmation) => setConfirmation(next),
         [],
@@ -23,7 +25,10 @@ export function useExamOverlays() {
         editingExam,
         editingPeriod,
         confirmation,
+        allocating,
         editExam,
+        allocate,
+        closeAllocation: () => setAllocating(null),
         createExam: () => setEditingExam('new'),
         closeExam: () => setEditingExam(null),
         editPeriod: (period: ExamPeriod) => setEditingPeriod(period),

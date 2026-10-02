@@ -43,6 +43,52 @@ export interface Exam {
         color_code: string;
     };
     groups: { id: number; name: string }[];
+    rooms: ExamRoom[];
+    /** The viewer's seat, when they sit the exam. */
+    my_seat: { room: string; seat: number } | null;
+    /** The viewer's room and role, when they invigilate it. */
+    my_invigilation: { room: string; role: InvigilatorRole } | null;
+}
+
+export type InvigilatorRole = 'principal' | 'adjoint';
+
+export interface ExamRoom {
+    id: number;
+    name: string;
+    students_count: number;
+    first_surname: string | null;
+    last_surname: string | null;
+    has_lead: boolean;
+}
+
+/** The rooms and invigilators sheet's data (GET /exams/{exam}/allocation). */
+export interface ExamAllocation {
+    state: ExamState;
+    force_single_room: boolean;
+    students_count: number;
+    assistant_threshold: number;
+    assignments: AllocatedRoom[];
+    rooms: {
+        id: number;
+        name: string;
+        building: string;
+        exam_capacity: number;
+        /** Held by a course session or another booked exam at that time. */
+        busy: boolean;
+    }[];
+    teachers: { id: number; name: string }[];
+}
+
+export interface AllocatedRoom {
+    id: number;
+    room_id: number;
+    room: string;
+    building: string;
+    exam_capacity: number;
+    allocated_students_count: number;
+    first_surname: string | null;
+    last_surname: string | null;
+    invigilators: { teacher_id: number; name: string; role: InvigilatorRole }[];
 }
 
 export type ExamStats = Record<ExamState, number>;

@@ -18,9 +18,12 @@ const STATE_CLASSES: Record<ExamState, string> = {
 export const ExamStateBadge = memo(function ExamStateBadge({
     state,
     overdue,
+    leadMissing = false,
 }: {
     state: ExamState;
     overdue: boolean;
+    /** Some room has no lead invigilator yet. */
+    leadMissing?: boolean;
 }) {
     const { t } = useTranslation();
 
@@ -35,6 +38,14 @@ export const ExamStateBadge = memo(function ExamStateBadge({
                     className="border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300"
                 >
                     {t('exams.overdue')}
+                </Badge>
+            ) : null}
+            {leadMissing ? (
+                <Badge
+                    variant="outline"
+                    className="border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300"
+                >
+                    {t('exams.lead_missing')}
                 </Badge>
             ) : null}
         </div>

@@ -6,11 +6,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { dashboard } from '@/routes';
 import { index } from '@/routes/exams';
-import { ExamConfirmDialog } from './components/exam-confirm-dialog';
-import { ExamDialog } from './components/exam-dialog';
 import { ExamFilterBar } from './components/exam-filter-bar';
+import { ExamOverlays } from './components/exam-overlays';
 import { ExamPeriodBar } from './components/exam-period-bar';
-import { ExamPeriodDialog } from './components/exam-period-dialog';
 import { ExamStatsCards } from './components/exam-stats';
 import { ExamTable } from './components/exam-table';
 import type {
@@ -161,6 +159,7 @@ export default function ExamsIndex({
                                 exams={exams}
                                 canManage={canManage}
                                 onEdit={overlays.editExam}
+                                onAllocate={overlays.allocate}
                                 onConfirm={overlays.confirm}
                             />
                         )}
@@ -176,31 +175,10 @@ export default function ExamsIndex({
                 )}
             </div>
 
-            {overlays.editingPeriod !== null ? (
-                <ExamPeriodDialog
-                    period={
-                        overlays.editingPeriod === 'new'
-                            ? null
-                            : overlays.editingPeriod
-                    }
-                    onClose={overlays.closePeriod}
-                />
-            ) : null}
-            {overlays.editingExam !== null && period && options ? (
-                <ExamDialog
-                    period={period}
-                    exam={
-                        overlays.editingExam === 'new'
-                            ? null
-                            : overlays.editingExam
-                    }
-                    options={options}
-                    onClose={overlays.closeExam}
-                />
-            ) : null}
-            <ExamConfirmDialog
-                confirmation={overlays.confirmation}
-                onClose={overlays.closeConfirmation}
+            <ExamOverlays
+                overlays={overlays}
+                period={period}
+                options={options}
             />
         </>
     );
