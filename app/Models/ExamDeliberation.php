@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\GradeSheetStatus;
 use App\Models\Builders\DeliberationBuilder;
+use Database\Factories\ExamDeliberationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -53,6 +55,9 @@ use Illuminate\Support\Carbon;
 ])]
 class ExamDeliberation extends Model
 {
+    /** @use HasFactory<ExamDeliberationFactory> */
+    use HasFactory;
+
     /**
      * @var array<string, mixed>
      */

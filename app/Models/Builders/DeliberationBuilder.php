@@ -3,15 +3,15 @@
 namespace App\Models\Builders;
 
 use App\Enums\GradeSheetStatus;
+use App\Models\Builders\Concerns\RefusesLockedDeliberations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use LogicException;
 
 /**
- * An Eloquent builder for deliberations: once locked, one is immutable (ADR 0006). Every update
- * path that reaches a locked deliberation is refused, except filling in its archived PV once;
- * deletes and upserts of locked ones are refused too. Raw `DB::table()` access is deliberately
- * out of reach of this guard, as for `ImmutableBuilder`.
+ * An Eloquent builder for deliberations: once locked, one is immutable (ADR 0006). Every write
+ * path that reaches a locked deliberation (model saves and deletes, bulk updates and deletes,
+ * increments, upserts) is refused, except filling in its archived PV once. Raw `DB::table()`
+ * access is deliberately out of reach of this guard, as for `ImmutableBuilder`.
  *
  * @template TModel of Model
  *
@@ -19,6 +19,8 @@ use LogicException;
  */
 class DeliberationBuilder extends Builder
 {
+    use RefusesLockedDeliberations;
+
     /** What may still be written on a locked deliberation, once: its archived PV. */
     private const array PV_ATTRIBUTES = ['pv_document_path', 'pv_sha256', 'updated_at'];
 
@@ -31,9 +33,7 @@ class DeliberationBuilder extends Builder
             $archivesPv = array_diff(array_keys($values), self::PV_ATTRIBUTES) === []
                 && ! (clone $this)->where('status', GradeSheetStatus::Locked)->whereNotNull('pv_sha256')->exists();
 
-            if (! $archivesPv) {
-                throw new LogicException('A locked deliberation cannot be changed.');
-            }
+            $this->refuseIf(! $archivesPv);
         }
 
         return parent::update($values);
@@ -41,11 +41,36 @@ class DeliberationBuilder extends Builder
 
     public function delete(): mixed
     {
-        if ($this->touchesLocked()) {
-            throw new LogicException('A locked deliberation cannot be deleted.');
-        }
+        $this->refuseIf($this->touchesLocked());
 
         return parent::delete();
+    }
+
+    public function forceDelete(): mixed
+    {
+        $this->refuseIf($this->touchesLocked());
+
+        return parent::forceDelete();
+    }
+
+    /**
+     * @param  array<string, mixed>  $extra
+     */
+    public function increment($column, $amount = 1, array $extra = []): int
+    {
+        $this->refuseIf($this->touchesLocked());
+
+        return parent::increment($column, $amount, $extra);
+    }
+
+    /**
+     * @param  array<string, mixed>  $extra
+     */
+    public function decrement($column, $amount = 1, array $extra = []): int
+    {
+        $this->refuseIf($this->touchesLocked());
+
+        return parent::decrement($column, $amount, $extra);
     }
 
     /**
@@ -55,12 +80,7 @@ class DeliberationBuilder extends Builder
      */
     public function upsert(array $values, $uniqueBy, $update = null): int
     {
-        $rows = is_array(reset($values)) ? $values : [$values];
-        $examIds = array_values(array_filter(array_map(fn (mixed $row): mixed => is_array($row) ? ($row['exam_id'] ?? null) : null, $rows)));
-
-        if ($examIds !== [] && $this->newModelInstance()->newQuery()->whereIn('exam_id', $examIds)->where('status', GradeSheetStatus::Locked)->exists()) {
-            throw new LogicException('A locked deliberation cannot be changed.');
-        }
+        $this->refuseIf($this->writesLockedExam($values));
 
         return parent::upsert($values, $uniqueBy, $update);
     }

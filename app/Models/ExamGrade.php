@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Builders\GradeLineBuilder;
+use Database\Factories\ExamGradeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -32,6 +34,9 @@ use Illuminate\Support\Carbon;
 #[Fillable(['exam_id', 'student_id', 'continuous_assessment_grade', 'exam_grade', 'final_grade', 'previous_final_grade', 'is_absent', 'remarks'])]
 class ExamGrade extends Model
 {
+    /** @use HasFactory<ExamGradeFactory> */
+    use HasFactory;
+
     /**
      * @return array<string, string>
      */
