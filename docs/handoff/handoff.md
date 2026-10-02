@@ -212,17 +212,6 @@ Part-wide decisions are recorded at the end of [`spec.md`](file:///home/holako/g
    - AppServiceProvider binds `UrgentAlertManager` as a singleton to `UrgentMessageGateway` and `UrgentAlertGatewayInterface`.
    - Backward compatible: `SendUrgentMessageAction` and `SendUrgentMessageJob` execute through the manager and benefit from phone normalization and queue retries on `UrgentAlertDeliveryException`.
    - **Run `php artisan migrate`** locally: `urgent_alerts` table.
-2. **Ticket 02: In-App Notification Bell & Automated Schedule Emails** ([`02-in-app-notification-bell-and-automated-emails.md`](file:///home/holako/github/synchro/docs/specs/06-notifications-and-mobile-api/tickets/02-in-app-notification-bell-and-automated-emails.md), design decisions recorded in the ticket)
-   - Implemented: standard Laravel `notifications` migration and table.
-   - Queued notifications: `TimetablePublishedNotification` (queued, `notifications` queue, database + mail) and `ExamConvocationPublishedNotification` (queued, `notifications` queue, database + mail with attached PDF convocation).
-   - Actions: `ListRecentNotificationsAction`, `MarkNotificationAsReadAction`, `MarkAllNotificationsAsReadAction`, `NotifyTimetablePublishedAction`.
-   - Event triggers: `PublishScheduleAction` (via `NotifyTimetablePublishedAction`) queues schedule notifications to affected teachers and students; `QueueExamDocumentsAction` dispatches convocation notifications to student candidates.
-   - Web routes & controllers: `GET /notifications` (`NotificationIndexController`), `PATCH /notifications/{id}/read` (`NotificationReadController`), `POST /notifications/read-all` (`NotificationReadAllController`).
-   - UI: `resources/js/components/notification-bell.tsx` with popover, unread counter badge, relative dates, mark single / all as read. Mounted in `AppSidebarHeader` and `AppHeader`. Shared `unreadNotificationsCount` prop in `HandleInertiaRequests`.
-   - Localization: 100% key parity in `types.ts`, `fr.ts`, `en.ts`, and backend `messages.php`.
-   - Tests: `tests/Feature/Notifications/NotificationCenterTest.php` (6 tests).
-   - **Run `php artisan migrate`** locally: `notifications` table.
-
 
 ### Cross-cutting: Queues, Horizon & Docker Compose (ADR 0012)
 - **Queues:** `notifications` + `default` (supervisor `supervisor-default`, 3 tries with backoff, 60s) and `imports` (supervisor `supervisor-imports`, 1 try, 630s). `REDIS_QUEUE_RETRY_AFTER` = 700. Horizon dashboard at `/horizon`, gated by `Permission::MonitorQueues` (Administrator).
