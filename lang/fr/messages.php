@@ -193,4 +193,9 @@ return [
     'grade_sheet_incomplete' => ':count ligne(s) incomplète(s) : :names. Chaque étudiant doit avoir ses notes, ou être absent avec une remarque.',
     'grade_invalid' => 'Une note doit être comprise entre 0 et :max, avec au plus deux décimales.',
     'grade_unknown_student' => "Un des étudiants n'est pas sur cette feuille de notes.",
+
+    // Deliberation (Part 05 / Ticket 03)
+    'deliberation_not_submitted' => 'Cette feuille de notes n\'attend pas de délibération : elle doit être soumise.',
+    'deliberation_locked' => 'Délibération verrouillée. Le PV est en cours de génération et les notes sont publiées.',
+    'grade_sheet_returned' => 'Feuille de notes renvoyée à l\'enseignant.',
 ];

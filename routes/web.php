@@ -20,6 +20,10 @@ use App\Http\Controllers\Web\CourseSessions\CourseSessionDestroyController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionRescheduleController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionStoreController;
 use App\Http\Controllers\Web\CourseSessions\CourseSessionUpdateController;
+use App\Http\Controllers\Web\Deliberations\DeliberationIndexController;
+use App\Http\Controllers\Web\Deliberations\DeliberationLockController;
+use App\Http\Controllers\Web\Deliberations\DeliberationPvDownloadController;
+use App\Http\Controllers\Web\Deliberations\GradeSheetReturnController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
 use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
@@ -48,6 +52,7 @@ use App\Http\Controllers\Web\Exams\ExamUpdateController;
 use App\Http\Controllers\Web\Grades\ExamGradesShowController;
 use App\Http\Controllers\Web\Grades\ExamGradesSubmitController;
 use App\Http\Controllers\Web\Grades\ExamGradesUpdateController;
+use App\Http\Controllers\Web\Grades\MyGradesController;
 use App\Http\Controllers\Web\Imports\ImportIndexController;
 use App\Http\Controllers\Web\Imports\ImportStoreController;
 use App\Http\Controllers\Web\Imports\ImportTemplateController;
@@ -187,6 +192,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('exams/{exam}/grades', ExamGradesShowController::class)->name('exams.grades.show');
     Route::put('exams/{exam}/grades', ExamGradesUpdateController::class)->name('exams.grades.update');
     Route::post('exams/{exam}/grades/submit', ExamGradesSubmitController::class)->name('exams.grades.submit');
+
+    // Deliberation: send-back, lock and PV, and students' published grades (Part 05 / Ticket 03, ADR 0006)
+    Route::get('deliberations', DeliberationIndexController::class)->name('deliberations.index');
+    Route::post('exams/{exam}/grades/return', GradeSheetReturnController::class)->name('exams.grades.return');
+    Route::post('exams/{exam}/deliberation/lock', DeliberationLockController::class)->name('exams.deliberation.lock');
+    Route::get('exams/{exam}/pv', DeliberationPvDownloadController::class)->name('exams.pv');
+    Route::get('my-grades', MyGradesController::class)->name('my-grades.index');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');

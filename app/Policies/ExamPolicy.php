@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\GradeSheetStatus;
 use App\Enums\Permission;
 use App\Models\Exam;
 use App\Models\ExamRoomAssignment;
@@ -91,12 +92,35 @@ class ExamPolicy
 
     /**
      * Determine whether the user can enter grades on an exam's sheet: only the module's teacher,
-     * holding the permission, once the exam can be graded (whether the sheet is still a draft is
-     * the grade actions' rule).
+     * holding the permission, once the exam can be graded and until its deliberation is locked
+     * (whether a submitted sheet is back to draft is the grade actions' rule).
      */
     public function enterGrades(User $user, Exam $exam): bool
     {
-        return $exam->isGradable() && $this->gradesModule($user, $exam);
+        return $exam->isGradable()
+            && $exam->deliberation?->status !== GradeSheetStatus::Locked
+            && $this->gradesModule($user, $exam);
+    }
+
+    /**
+     * Determine whether the user can decide on a submitted grade sheet: lock its deliberation or
+     * send it back to the teacher.
+     */
+    public function lockGrades(User $user, Exam $exam): bool
+    {
+        return $exam->isGradable() && $user->hasPermission(Permission::LockGrades);
+    }
+
+    /**
+     * Determine whether the user can download a locked deliberation's PV: those who lock
+     * deliberations, exam managers and the module's teacher.
+     */
+    public function downloadPv(User $user, Exam $exam): bool
+    {
+        return $exam->deliberation?->status === GradeSheetStatus::Locked
+            && ($user->hasPermission(Permission::LockGrades)
+                || $user->hasPermission(Permission::ManageExams)
+                || $this->gradesModule($user, $exam));
     }
 
     /**

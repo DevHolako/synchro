@@ -25,6 +25,8 @@ class OpenGradeSheetAction
                 $this->addMissingCandidates($exam);
             }
 
+            $exam->setRelation('deliberation', $sheet);
+
             return $sheet;
         });
     }

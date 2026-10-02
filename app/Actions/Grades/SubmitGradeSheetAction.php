@@ -52,6 +52,8 @@ class SubmitGradeSheetAction
                 'status' => GradeSheetStatus::Submitted,
                 'submitted_at' => now(),
                 'submitted_by' => $teacher->id,
+                'returned_at' => null,
+                'return_reason' => null,
             ]);
         });
     }
