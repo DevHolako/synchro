@@ -3,8 +3,10 @@
 use App\Actions\Exams\AllocateExamRoomsAction;
 use App\Actions\Grades\ListRetakeCandidatesAction;
 use App\Enums\ExamState;
+use App\Enums\GradeSheetStatus;
 use App\Models\Exam;
 use App\Models\ExamCandidate;
+use App\Models\ExamDeliberation;
 use App\Models\ExamGrade;
 use App\Models\ExamPeriod;
 use App\Models\Module;
@@ -85,6 +87,32 @@ test('failing grades of a sheet not yet locked do not make retake candidates', f
     expect(app(ListRetakeCandidatesAction::class)->execute('2026-2027', [$otherModule->id]))->toBeEmpty();
 });
 
+test('when a module was examined twice in the year, the latest locked line decides', function () {
+    $resit = retakeTestExam($this->normalExam->examPeriod, $this->module, StudentGroup::factory()->create(['program_id' => $this->module->program_id]), $this->room, '2026-10-20');
+    ExamGrade::query()->create(['exam_id' => $resit->id, 'student_id' => $this->zerouali->id, 'continuous_assessment_grade' => '10.00', 'exam_grade' => '15.00', 'final_grade' => '13.00']);
+    ExamGrade::query()->create(['exam_id' => $resit->id, 'student_id' => $this->alami->id, 'continuous_assessment_grade' => '5.00', 'exam_grade' => '5.00', 'final_grade' => '5.00']);
+    ExamDeliberation::query()->create(['exam_id' => $resit->id, 'status' => GradeSheetStatus::Locked]);
+
+    expect(app(ListRetakeCandidatesAction::class)->execute('2026-2027')->pluck('student_id')->all())->toBe([$this->alami->id]);
+});
+
+test('locked grade lines and deliberations refuse bulk writes too', function () {
+    $lines = ExamGrade::query()->where('exam_id', $this->normalExam->id);
+    $sheet = ExamDeliberation::query()->where('exam_id', $this->normalExam->id);
+
+    expect(fn () => (clone $lines)->update(['final_grade' => '20.00']))->toThrow(LogicException::class)
+        ->and(fn () => (clone $lines)->delete())->toThrow(LogicException::class)
+        ->and(fn () => ExamGrade::query()->upsert(
+            [['exam_id' => $this->normalExam->id, 'student_id' => $this->zerouali->id, 'final_grade' => '20.00']],
+            ['exam_id', 'student_id'],
+            ['final_grade'],
+        ))->toThrow(LogicException::class)
+        ->and(fn () => (clone $sheet)->update(['status' => GradeSheetStatus::Draft]))->toThrow(LogicException::class)
+        ->and(fn () => (clone $sheet)->update(['pv_sha256' => str_repeat('0', 64)]))->toThrow(LogicException::class)
+        ->and(fn () => (clone $sheet)->delete())->toThrow(LogicException::class)
+        ->and(ExamGrade::query()->where('exam_id', $this->normalExam->id)->where('student_id', $this->zerouali->id)->value('final_grade'))->toBe('4.00');
+});
+
 test('the retake roster lists each module\'s failing students for exam managers', function () {
     $this->actingAs($this->coordinator)->get(route('retakes.index'))
         ->assertOk()
@@ -95,6 +123,7 @@ test('the retake roster lists each module\'s failing students for exam managers'
             ->where('modules.0.module_id', $this->module->id)
             ->where('modules.0.group_ids', [$this->group->id])
             ->where('modules.0.exam', null)
+            ->where('modules.0.ungrouped', 0)
             ->has('modules.0.students', 1)
             ->where('modules.0.students.0.student_id', $this->zerouali->id)
             ->where('modules.0.students.0.final_grade', '4.00'));

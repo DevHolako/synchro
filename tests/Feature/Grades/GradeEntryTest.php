@@ -126,6 +126,8 @@ test('only students on the sheet can be graded', function () {
 });
 
 test('only the module teacher enters grades; exam managers read the sheet', function () {
+    $this->actingAs($this->teacher)->get(route('exams.grades.show', $this->exam));
+
     $this->actingAs($this->coordinator)->get(route('exams.grades.show', $this->exam))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->where('can_edit', false));
@@ -221,11 +223,22 @@ test('a weighting change recomputes open sheets and leaves locked ones alone', f
 test('the exams list offers the grid to the module teacher once the exam is over', function () {
     $this->actingAs($this->teacher)->get(route('exams.index', ['period' => $this->exam->exam_period_id]))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('exams.0.grades', ['status' => null, 'can_enter' => true]));
+            ->where('exams.0.grades', ['status' => null, 'can_edit' => true]));
+    $this->actingAs($this->coordinator)->get(route('exams.index', ['period' => $this->exam->exam_period_id]))
+        ->assertInertia(fn (Assert $page) => $page->where('exams.0.grades', null));
 
     $this->actingAs($this->teacher)->get(route('exams.grades.show', $this->exam));
 
     $this->actingAs($this->coordinator)->get(route('exams.index', ['period' => $this->exam->exam_period_id]))
         ->assertInertia(fn (Assert $page) => $page
-            ->where('exams.0.grades', ['status' => 'draft', 'can_enter' => false]));
+            ->where('exams.0.grades', ['status' => 'draft', 'can_edit' => false]));
+});
+
+test('reading the grid before its teacher opens it creates nothing', function () {
+    $this->actingAs($this->coordinator)->get(route('exams.grades.show', $this->exam))
+        ->assertRedirect()
+        ->assertInertiaFlash('toast.message', __('messages.grade_sheet_not_opened'));
+
+    expect(ExamDeliberation::query()->count())->toBe(0)
+        ->and(ExamGrade::query()->count())->toBe(0);
 });
