@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // Urgent SMS/WhatsApp alerts (ADR 0003). Only the `log` driver exists until Part 06.
+    'urgent_messages' => [
+        'driver' => env('URGENT_MESSAGES_DRIVER', 'log'),
+    ],
+
 ];

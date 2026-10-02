@@ -6,6 +6,8 @@ use App\Enums\Permission;
 use App\Models\CourseSession;
 use App\Models\Exam;
 use App\Models\User;
+use App\Services\UrgentMessages\LogUrgentMessageGateway;
+use App\Services\UrgentMessages\UrgentMessageGateway;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
@@ -13,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use InvalidArgumentException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,7 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(UrgentMessageGateway::class, fn () => match (config('services.urgent_messages.driver')) {
+            'log' => new LogUrgentMessageGateway,
+            default => throw new InvalidArgumentException('Unknown urgent message driver.'),
+        });
     }
 
     /**
