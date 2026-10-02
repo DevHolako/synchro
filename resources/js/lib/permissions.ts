@@ -9,6 +9,7 @@ export const Permission = {
     BrowseSchedules: 'browse:schedules',
     ManageSchedules: 'manage:schedules',
     OverrideSoftConflicts: 'override:soft-conflicts',
+    RecordAttendance: 'record:attendance',
 } as const;
 
 export type PermissionValue = (typeof Permission)[keyof typeof Permission];

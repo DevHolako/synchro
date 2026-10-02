@@ -6,16 +6,16 @@ import { Permission } from '@/lib/permissions';
 import { dashboard } from '@/routes';
 import { index } from '@/routes/timetable';
 import { defaultView } from './components/calendar-utils';
-import { ScheduleSessionsDialog } from './components/schedule/schedule-sessions-dialog';
+import { prefillFromScope } from './components/schedule/schedule-prefill';
 import type { SchedulingOptions } from './components/schedule/types';
-import { SessionDetailsDialog } from './components/session-details-dialog';
-import { SoftConflictDialog } from './components/soft-conflict-dialog';
 import { SyllabusProgressPanel } from './components/syllabus-progress-panel';
 import { TimetableCalendar } from './components/timetable-calendar';
 import { TimetableEmptyState } from './components/timetable-empty-state';
 import { TimetableFilterBar } from './components/timetable-filter-bar';
 import { TimetableHeader } from './components/timetable-header';
+import { TimetableOverlays } from './components/timetable-overlays';
 import { useSessionReschedule } from './components/use-session-reschedule';
+import { useTimetableNavigation } from './components/use-timetable-navigation';
 import { useTimetablePolling } from './components/use-timetable-polling';
 import type {
     ScopePerspective,
@@ -24,7 +24,6 @@ import type {
     TimetableOptions,
     TimetableScope,
     TimetableSession,
-    TimetableView,
 } from './components/types';
 
 interface TimetableIndexProps {
@@ -38,15 +37,6 @@ interface TimetableIndexProps {
     canSchedule: boolean;
     /** Absent until the scheduling wizard first asks for it. */
     schedulingOptions?: SchedulingOptions | null;
-}
-
-/** Moving to another period only needs that period's sessions. */
-const PERIOD_PROPS = ['sessions', 'filters'];
-
-function toQuery(filters: TimetableFilters) {
-    return Object.fromEntries(
-        Object.entries(filters).filter(([, value]) => value !== null),
-    );
 }
 
 export default function TimetableIndex({
@@ -68,13 +58,23 @@ export default function TimetableIndex({
     const [activeModuleId, setActiveModuleId] = useState<number | null>(null);
     const [scheduling, setScheduling] = useState(false);
     const [interacting, setInteracting] = useState(false);
+    const [attendanceSession, setAttendanceSession] =
+        useState<TimetableSession | null>(null);
     const reschedule = useSessionReschedule();
     const canOverride = auth.permissions.includes(
         Permission.OverrideSoftConflicts,
     );
 
+    const canRecordAttendance = (session: TimetableSession) =>
+        auth.permissions.includes(Permission.RecordAttendance) &&
+        (session.teacher.id === auth.user.id ||
+            auth.permissions.includes(Permission.ManageSchedules));
+
     useTimetablePolling(
-        scheduling || interacting || reschedule.pending !== null,
+        scheduling ||
+            interacting ||
+            reschedule.pending !== null ||
+            attendanceSession !== null,
     );
 
     useEffect(() => {
@@ -88,24 +88,16 @@ export default function TimetableIndex({
 
     const view = filters.view ?? defaultView(scope.perspective, isMobile);
 
-    const visit = (next: TimetableFilters, only?: string[]) =>
-        router.get(index.url(), toQuery(next), {
-            preserveState: true,
-            preserveScroll: true,
-            ...(only ? { only, replace: true } : {}),
-        });
-
-    const handlePeriodChange = (date: string, nextView: TimetableView) =>
-        visit({ ...filters, date, view: nextView }, PERIOD_PROPS);
+    const navigation = useTimetableNavigation(filters);
 
     const handlePerspectiveChange = (perspective: ScopePerspective) => {
         setActiveModuleId(null);
-        visit({ ...filters, perspective, id: null });
+        navigation.changePerspective(perspective);
     };
 
     const handleSubjectChange = (id: number | null) => {
         setActiveModuleId(null);
-        visit({ ...filters, id });
+        navigation.changeSubject(id);
     };
 
     const handleOpenScheduling = () => {
@@ -118,7 +110,7 @@ export default function TimetableIndex({
 
     const handleScheduled = (firstDate: string) => {
         setScheduling(false);
-        visit({ ...filters, date: firstDate });
+        navigation.goToDate(firstDate);
     };
 
     const handleToggleModule = useCallback(
@@ -176,7 +168,7 @@ export default function TimetableIndex({
                                 savingSessionId={
                                     reschedule.pending?.session.id ?? null
                                 }
-                                onPeriodChange={handlePeriodChange}
+                                onPeriodChange={navigation.goToPeriod}
                                 onSessionClick={setSelectedSession}
                                 onMove={reschedule.move}
                                 onInteractionChange={setInteracting}
@@ -193,39 +185,21 @@ export default function TimetableIndex({
                 )}
             </div>
 
-            {scheduling ? (
-                <ScheduleSessionsDialog
-                    options={schedulingOptions}
-                    prefill={{
-                        moduleId: activeModuleId,
-                        groupId:
-                            scope.perspective === 'group' ? scope.id : null,
-                        teacherId:
-                            scope.perspective === 'teacher' ? scope.id : null,
-                        roomId: scope.perspective === 'room' ? scope.id : null,
-                        date: filters.date,
-                    }}
-                    canOverride={canOverride}
-                    onClose={() => setScheduling(false)}
-                    onScheduled={handleScheduled}
-                />
-            ) : null}
-
-            {reschedule.pending?.softConflicts ? (
-                <SoftConflictDialog
-                    key={`${reschedule.pending.session.id}-${reschedule.pending.startsAt}`}
-                    conflicts={reschedule.pending.softConflicts}
-                    canOverride={canOverride}
-                    saving={reschedule.saving}
-                    onConfirm={reschedule.confirm}
-                    onCancel={reschedule.cancel}
-                />
-            ) : null}
-
-            <SessionDetailsDialog
-                canDelete={canSchedule}
-                session={selectedSession}
-                onClose={() => setSelectedSession(null)}
+            <TimetableOverlays
+                scheduling={scheduling}
+                schedulingOptions={schedulingOptions}
+                prefill={prefillFromScope(scope, activeModuleId, filters.date)}
+                canSchedule={canSchedule}
+                canOverride={canOverride}
+                canRecordAttendance={canRecordAttendance}
+                reschedule={reschedule}
+                selectedSession={selectedSession}
+                attendanceSession={attendanceSession}
+                onCloseScheduling={() => setScheduling(false)}
+                onScheduled={handleScheduled}
+                onCloseDetails={() => setSelectedSession(null)}
+                onOpenAttendance={setAttendanceSession}
+                onCloseAttendance={() => setAttendanceSession(null)}
             />
         </>
     );

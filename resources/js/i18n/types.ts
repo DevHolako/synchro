@@ -601,4 +601,28 @@ export interface Translations {
         meter_over: string;
         save_failed: string;
     };
+    attendance: {
+        open_button: string;
+        title: string;
+        loading: string;
+        empty: string;
+        mark_all_present: string;
+        status_present: string;
+        status_absent: string;
+        status_late: string;
+        status_excused: string;
+        count_present: string;
+        count_absent: string;
+        count_late: string;
+        count_excused: string;
+        count_unmarked: string;
+        absence_rate: string;
+        absence_none: string;
+        remarks_placeholder: string;
+        remarks_label: string;
+        save: string;
+        saved: string;
+        save_failed: string;
+        load_failed: string;
+    };
 }

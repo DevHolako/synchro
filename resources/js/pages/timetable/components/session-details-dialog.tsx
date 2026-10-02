@@ -21,6 +21,9 @@ interface SessionDetailsDialogProps {
     session: TimetableSession | null;
     /** Whether the user may delete sessions that have not started. */
     canDelete: boolean;
+    /** Whether the user may take this session's attendance once it has started. */
+    canRecordAttendance: (session: TimetableSession) => boolean;
+    onOpenAttendance: (session: TimetableSession) => void;
     onClose: () => void;
 }
 
@@ -46,13 +49,17 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 export function SessionDetailsDialog({
     session,
     canDelete,
+    canRecordAttendance,
+    onOpenAttendance,
     onClose,
 }: SessionDetailsDialogProps) {
     const { t, locale } = useTranslation();
     const [confirming, setConfirming] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const deletable =
-        canDelete && session !== null && !hasStarted(session, wallClockNow());
+    const started = session !== null && hasStarted(session, wallClockNow());
+    const deletable = canDelete && session !== null && !started;
+    const takesAttendance =
+        session !== null && started && canRecordAttendance(session);
 
     const handleClose = () => {
         setConfirming(false);
@@ -167,6 +174,16 @@ export function SessionDetailsDialog({
                                 </>
                             ) : (
                                 <>
+                                    {takesAttendance ? (
+                                        <Button
+                                            onClick={() => {
+                                                onOpenAttendance(session);
+                                                handleClose();
+                                            }}
+                                        >
+                                            {t('attendance.open_button')}
+                                        </Button>
+                                    ) : null}
                                     {deletable ? (
                                         <Button
                                             variant="outline"
