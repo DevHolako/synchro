@@ -2,24 +2,26 @@
 
 namespace App\Actions\Exams;
 
-use App\Actions\CourseSessions\GuardSessionConflictsAction;
 use App\Exceptions\HardConflictException;
 use App\Models\Exam;
 use App\Models\ExamPeriod;
 use App\Models\StudentGroup;
-use App\Services\Scheduling\SessionSlot;
 use App\Support\SchoolClock;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * The write path shared by creating and editing an exam: lifecycle and period rules, the
- * conflict guard once the exam books its groups, then save and link groups, in one transaction.
+ * The write path shared by creating and editing an exam: lifecycle and period rules, save and
+ * link groups, seat the candidates again in its rooms, and the conflict guard once the exam
+ * books its resources, all in one transaction.
  */
 class SaveExamAction
 {
-    public function __construct(private GuardSessionConflictsAction $guardConflicts) {}
+    public function __construct(
+        private GuardExamConflictsAction $guardConflicts,
+        private ResplitExamAction $resplit,
+    ) {}
 
     /**
      * @param  array{exam_period_id: int, module_id: int, student_group_ids: list<int>, starts_at: string, ends_at: string}  $data
@@ -42,10 +44,6 @@ class SaveExamAction
             $this->ensureTimesFit($period, $data);
             $this->ensureModuleNotExaminedTwice($exam, $data);
 
-            if ($exam->state->occupiesResources()) {
-                $this->guardConflicts->execute(SessionSlot::forExam($data, $existed ? $exam->id : null));
-            }
-
             $exam->fill([
                 'exam_period_id' => $data['exam_period_id'],
                 'module_id' => $data['module_id'],
@@ -58,6 +56,15 @@ class SaveExamAction
             // A change to the groups alone is still a change to the exam (iCal SEQUENCE, LAST-MODIFIED).
             if ($existed && ! $exam->wasChanged() && array_filter($changes) !== []) {
                 $exam->touch();
+            }
+
+            // New groups mean new candidates; the rooms must still seat them all.
+            if ($existed) {
+                $this->resplit->execute($exam);
+            }
+
+            if ($exam->state->occupiesResources()) {
+                $this->guardConflicts->execute($exam);
             }
 
             return $exam;

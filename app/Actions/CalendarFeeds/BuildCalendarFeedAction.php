@@ -6,6 +6,7 @@ use App\Actions\CourseSessions\ListTimetableSessionsAction;
 use App\Enums\Permission;
 use App\Models\CourseSession;
 use App\Models\Exam;
+use App\Models\ExamRoomAssignment;
 use App\Models\StudentGroup;
 use App\Models\User;
 use App\Services\Calendar\ICalendarWriter;
@@ -60,7 +61,7 @@ class BuildCalendarFeedAction
                 startsAt: $this->toUtc($exam->starts_at->format('Y-m-d H:i:s')),
                 endsAt: $this->toUtc($exam->ends_at->format('Y-m-d H:i:s')),
                 summary: __('messages.calendar_feed_exam_summary', ['code' => $exam->module->code, 'name' => $exam->module->name]),
-                location: '',
+                location: $this->examLocation($exam),
                 description: __('messages.calendar_feed_groups', [
                     'groups' => $exam->studentGroups->map(fn (StudentGroup $group): string => $group->name)->implode(', '),
                 ]),
@@ -100,6 +101,29 @@ class BuildCalendarFeedAction
     }
 
     /**
+     * Where the user goes: a student's room and seat, an invigilator's room, otherwise the exam's rooms.
+     */
+    private function examLocation(Exam $exam): string
+    {
+        $candidate = $exam->candidates->first();
+
+        if ($candidate !== null) {
+            return __('messages.calendar_feed_exam_room', [
+                'room' => $candidate->roomAssignment->room->name,
+                'seat' => $candidate->seat_number,
+            ]);
+        }
+
+        $invigilator = $exam->invigilators->first();
+
+        if ($invigilator !== null) {
+            return $invigilator->roomAssignment->room->name;
+        }
+
+        return $exam->roomAssignments->map(fn (ExamRoomAssignment $room): string => $room->room->name)->implode(', ');
+    }
+
+    /**
      * The published exams concerning the user, in the feed's window, for those who may see exams.
      *
      * @return Collection<int, Exam>
@@ -112,7 +136,13 @@ class BuildCalendarFeedAction
 
         return Exam::query()
             ->concerning($user)
-            ->with(['module:id,code,name', 'studentGroups:id,name'])
+            ->with([
+                'module:id,code,name',
+                'studentGroups:id,name',
+                'roomAssignments.room:id,name',
+                'candidates' => fn ($candidates) => $candidates->where('student_id', $user->id)->with('roomAssignment.room:id,name'),
+                'invigilators' => fn ($invigilators) => $invigilators->where('teacher_id', $user->id)->with('roomAssignment.room:id,name'),
+            ])
             ->where('starts_at', '>=', $today->subDays(self::PAST_DAYS))
             ->where('starts_at', '<', $today->addDays(self::FUTURE_DAYS))
             ->orderBy('starts_at')

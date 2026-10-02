@@ -22,15 +22,18 @@ use App\Http\Controllers\Web\CourseSessions\CourseSessionUpdateController;
 use App\Http\Controllers\Web\Departments\DepartmentStoreController;
 use App\Http\Controllers\Web\Departments\DepartmentToggleActiveController;
 use App\Http\Controllers\Web\Departments\DepartmentUpdateController;
+use App\Http\Controllers\Web\Exams\ExamAllocationShowController;
 use App\Http\Controllers\Web\Exams\ExamCheckController;
 use App\Http\Controllers\Web\Exams\ExamDestroyController;
 use App\Http\Controllers\Web\Exams\ExamIndexController;
+use App\Http\Controllers\Web\Exams\ExamInvigilatorsUpdateController;
 use App\Http\Controllers\Web\Exams\ExamPeriodArchiveController;
 use App\Http\Controllers\Web\Exams\ExamPeriodDestroyController;
 use App\Http\Controllers\Web\Exams\ExamPeriodPublishController;
 use App\Http\Controllers\Web\Exams\ExamPeriodStoreController;
 use App\Http\Controllers\Web\Exams\ExamPeriodUpdateController;
 use App\Http\Controllers\Web\Exams\ExamPublishController;
+use App\Http\Controllers\Web\Exams\ExamRoomsUpdateController;
 use App\Http\Controllers\Web\Exams\ExamScheduleController;
 use App\Http\Controllers\Web\Exams\ExamStoreController;
 use App\Http\Controllers\Web\Exams\ExamUnscheduleController;
@@ -150,6 +153,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('exams/{exam}/schedule', ExamScheduleController::class)->name('exams.schedule');
     Route::post('exams/{exam}/unschedule', ExamUnscheduleController::class)->name('exams.unschedule');
     Route::post('exams/{exam}/publish', ExamPublishController::class)->name('exams.publish');
+
+    // Exam rooms, alphabetical split and invigilators (Part 04 / Ticket 02)
+    Route::get('exams/{exam}/allocation', ExamAllocationShowController::class)->name('exams.allocation.show');
+    Route::put('exams/{exam}/rooms', ExamRoomsUpdateController::class)->name('exams.rooms.update');
+    Route::put('exams/{exam}/rooms/{assignment}/invigilators', ExamInvigilatorsUpdateController::class)->name('exams.invigilators.update');
 
     // Teacher Unavailability declarations and coordinator review (Part 02 / Ticket 01)
     Route::get('unavailabilities', UnavailabilityIndexController::class)->name('unavailabilities.index');

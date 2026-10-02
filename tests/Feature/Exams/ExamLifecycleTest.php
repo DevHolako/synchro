@@ -1,5 +1,7 @@
 <?php
 
+use App\Actions\Exams\AllocateExamRoomsAction;
+use App\Actions\Exams\AssignInvigilatorsAction;
 use App\Actions\Exams\ChangeExamStateAction;
 use App\Enums\ExamState;
 use App\Models\CourseSession;
@@ -9,6 +11,7 @@ use App\Models\Module;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\StudentGroup;
+use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
@@ -20,6 +23,7 @@ beforeEach(function () {
     $this->program = Program::factory()->create();
     $this->module = Module::factory()->create(['program_id' => $this->program->id]);
     $this->group = StudentGroup::factory()->create(['program_id' => $this->program->id]);
+    StudentProfile::factory()->create(['student_group_id' => $this->group->id]);
     $this->period = ExamPeriod::factory()->between('2026-10-01', '2026-10-31')->create();
 });
 
@@ -35,12 +39,17 @@ function examPayload(array $overrides = []): array
     ];
 }
 
+/**
+ * A draft exam for the group, seated in a room of its own so only its group can clash.
+ */
 function examFor(StudentGroup $group, string $startsAt, string $endsAt): Exam
 {
-    return Exam::factory()->between($startsAt, $endsAt)->forGroups($group)->create([
+    $exam = Exam::factory()->between($startsAt, $endsAt)->forGroups($group)->create([
         'exam_period_id' => test()->period->id,
         'module_id' => Module::factory()->create(['program_id' => test()->program->id])->id,
     ]);
+
+    return app(AllocateExamRoomsAction::class)->execute($exam, [Room::factory()->create(['exam_capacity' => 50])->id]);
 }
 
 function courseSessionFor(StudentGroup $group, string $startsAt, string $endsAt): CourseSession
@@ -156,6 +165,7 @@ test('the lifecycle runs draft, scheduled, published and only allows its own mov
     expect($exam->refresh()->state)->toBe(ExamState::Draft);
 
     $this->actingAs($this->coordinator)->post(route('exams.schedule', $exam))->assertSessionHasNoErrors();
+    app(AssignInvigilatorsAction::class)->execute($exam->roomAssignments()->sole(), User::factory()->teacher()->create()->id, []);
     $this->actingAs($this->coordinator)->post(route('exams.publish', $exam))->assertSessionHasNoErrors();
 
     $exam->refresh();

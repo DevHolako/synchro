@@ -2,7 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\InvigilatorRole;
 use App\Models\Exam;
+use App\Models\ExamCandidate;
+use App\Models\ExamInvigilator;
+use App\Models\ExamRoomAssignment;
 use App\Models\StudentGroup;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -41,6 +45,42 @@ class ExamResource extends JsonResource
                 ->map(fn (StudentGroup $group): array => ['id' => $group->id, 'name' => $group->name])
                 ->values()
                 ->all(),
+            'rooms' => $exam->roomAssignments
+                ->map(fn (ExamRoomAssignment $room): array => [
+                    'id' => $room->id,
+                    'name' => $room->room->name,
+                    'students_count' => $room->allocated_students_count,
+                    'first_surname' => $room->first_surname,
+                    'last_surname' => $room->last_surname,
+                    'has_lead' => $room->invigilators->contains('role', InvigilatorRole::Principal),
+                ])
+                ->values()
+                ->all(),
+            // The viewer's own place: their seat as a candidate, their room as an invigilator.
+            'my_seat' => $this->seat($exam->candidates->first()),
+            'my_invigilation' => $this->invigilation($exam->invigilators->first()),
+        ];
+    }
+
+    /**
+     * @return array{room: string, seat: int}|null
+     */
+    private function seat(?ExamCandidate $candidate): ?array
+    {
+        return $candidate === null ? null : [
+            'room' => $candidate->roomAssignment->room->name,
+            'seat' => $candidate->seat_number,
+        ];
+    }
+
+    /**
+     * @return array{room: string, role: string}|null
+     */
+    private function invigilation(?ExamInvigilator $invigilator): ?array
+    {
+        return $invigilator === null ? null : [
+            'room' => $invigilator->roomAssignment->room->name,
+            'role' => $invigilator->role->value,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Exams;
 
+use App\Models\Exam;
 use App\Services\Scheduling\ConflictDetectorService;
 use App\Services\Scheduling\ConflictResult;
 use App\Services\Scheduling\SessionSlot;
@@ -18,6 +19,23 @@ class CheckExamConflictsAction
      */
     public function execute(array $data, ?int $ignoreExamId = null): ConflictResult
     {
-        return $this->detector->checkConflicts(SessionSlot::forExam($data, $ignoreExamId));
+        $slot = SessionSlot::forExam($data, $ignoreExamId);
+        $exam = $ignoreExamId === null ? null : Exam::find($ignoreExamId);
+
+        // An existing exam keeps its rooms and invigilators at the new time.
+        if ($exam !== null) {
+            $booked = $exam->bookingSlot();
+            $slot = new SessionSlot(
+                type: $slot->type,
+                teacherIds: $booked->teacherIds,
+                roomIds: $booked->roomIds,
+                groupIds: $slot->groupIds,
+                startsAt: $slot->startsAt,
+                endsAt: $slot->endsAt,
+                ignoreId: $exam->id,
+            );
+        }
+
+        return $this->detector->checkConflicts($slot);
     }
 }

@@ -124,8 +124,8 @@ test('a check runs one query per resource type and source, and per soft rule', f
     $queries = DB::getQueryLog();
     DB::disableQueryLog();
 
-    // Sessions: room, teacher, groups. Exams: groups. Soft rules: capacity, unavailability.
-    expect($queries)->toHaveCount(6);
+    // Sessions and exams: room, teacher, groups each. Soft rules: capacity, unavailability.
+    expect($queries)->toHaveCount(8);
 });
 
 test('the overlap lookups are backed by composite indexes', function () {

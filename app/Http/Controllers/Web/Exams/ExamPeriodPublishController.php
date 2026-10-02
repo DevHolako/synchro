@@ -19,9 +19,11 @@ class ExamPeriodPublishController extends Controller
     {
         Gate::authorize('update', $examPeriod);
 
-        $count = $action->execute($examPeriod, $request->user());
+        $outcome = $action->execute($examPeriod, $request->user());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('messages.exam_period_published', ['count' => $count])]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => $outcome['skipped'] > 0
+            ? __('messages.exam_period_published_some', ['count' => $outcome['published'], 'skipped' => $outcome['skipped']])
+            : __('messages.exam_period_published', ['count' => $outcome['published']])]);
 
         return back();
     }

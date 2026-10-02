@@ -24,7 +24,14 @@ class ListExamsAction
         $visible = fn (): Builder => Exam::query()->visibleTo($viewer)->where('exam_period_id', $period->id);
 
         $exams = $visible()
-            ->with(['module:id,program_id,code,name,color_code', 'studentGroups:id,name,code'])
+            ->with([
+                'module:id,program_id,code,name,color_code',
+                'studentGroups:id,name,code',
+                'roomAssignments.room:id,name',
+                'roomAssignments.invigilators:id,exam_room_assignment_id,role',
+                'candidates' => fn ($candidates) => $candidates->where('student_id', $viewer->id)->with('roomAssignment.room:id,name'),
+                'invigilators' => fn ($invigilators) => $invigilators->where('teacher_id', $viewer->id)->with('roomAssignment.room:id,name'),
+            ])
             ->when($filters['state'], fn (Builder $query, ExamState $state) => $query->where('state', $state))
             ->when($filters['program_id'], fn (Builder $query, int $programId) => $query
                 ->whereHas('module', fn (Builder $modules) => $modules->where('program_id', $programId)))
